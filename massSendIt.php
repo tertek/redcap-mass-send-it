@@ -9,6 +9,9 @@ if( file_exists("vendor/autoload.php") ){
     require 'vendor/autoload.php';
 }
 
+if (!class_exists("BulkController")) include_once("controllers/BulkController.php");
+if (!class_exists("Bulk")) include_once("models/Bulk.php");
+
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
 
@@ -20,35 +23,38 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     private const NUM_NOTIFICATIONS_PER_PAGE = 15;
 
-    
-
-   /**
-    * Hooks Mass Send-It module to redcap_every_page_top
-    * Documentation: https://github.com/vanderbilt-redcap/external-module-framework-docs/blob/main/hooks.md
-    *
-    */
     public function redcap_every_page_top($project_id = null) {
-        //$this->renderModule();
+        if($this->isModulePage()) {
+            
+        }
     }
 
-   /**
-    * Renders the module
-    *
-    * @since 1.0.0
-    */
-    private function renderModule() {
-        
-        $this->includeJavascript();
-        
-        
-        $this->includeCSS();
-        
+    private function testModule() {
 
-        print '<p class="mass-send-it">'.$this->helloFrom_massSendIt().'<p>';
+        $i = 1;
+
+        $recipients = "1,2";
+
+        $json = '[{"name":"bulk_title","value":"Test Bulk '.$i.'"},{"name":"bulk_type","value":"list"},{"name":"bulk_recipients_list","value":"'.$recipients.'"},{"name":"bulk_recipients_logic","value":""},{"name":"file_repo_folder_id","value":"6"},{"name":"file_repo_extension","value":"pdf"},{"name":"file_repo_reference","value":"example_document_reference"},{"name":"email_display","value":"REDCap Bulk Send"},{"name":"email_from","value":"user@admin.com"},{"name":"email_to","value":"[email]"},{"name":"email_first_subject","value":"New Document available"},{"name":"email_first_message","value":"Hello [firstname] [lastname],<br>a file has been uploaded for you. A second follow-up email will be sent containing the password for retrieving the file at the link below.<br>You can access your document here: [share-file-link]<br>If the link does not open, copy and paste the following url into your browser:<br>[share-file-url].<br><br>"},{"name":"password_type","value":"random"},{"name":"custom_pass_field","value":""},{"name":"use_second_email","value":"yes"},{"name":"email_second_subject","value":"Access to your document"},{"name":"email_second_message","value":"Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]"},{"name":"bulk_schedule","value":"12-31-2024 15:00"},{"name":"bulk_expiration","value":""},{"name":"is_edit_mode","value":"false"},{"name":"redcap_csrf_token","value":"82fddbd6245d096eb70a77198781b2430a1f7919"}]';        
+
+        $data = (object) array(
+            "project_id" => $this->getProjectId(),
+            "event_id" =>  $this->getEventId(),
+            "payload" => $json
+        );
+        
+        $bulkController = new BulkController($this, $data->project_id, $data->event_id);
+        $response = $bulkController->action('create', $data);
+
+        dump($response);
 
     }
+
 
     public function renderModuleProjectPage() {
+
+        $this->testModule();
+
         $this->includeJavascript();
         if(!isset($_GET['log']) || $_GET['log'] != 1) {
             $this->renderBulks();
@@ -68,7 +74,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     }
 
     private function getBulks() {
-        $fields = "timestamp, title, id, bulk_order, recipients, bulk_type";
+        $fields = "timestamp, bulk_title, bulk_id, bulk_order, bulk_recipients, bulk_type";
         $sql = "SELECT $fields WHERE table_name = 'bulk'";
         
         $result = $this->queryLogs($sql, []);
@@ -92,6 +98,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         }
         return $notifications;
     }
+
 
 
     
