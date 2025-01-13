@@ -1,0 +1,65 @@
+{
+    "name": "Mass Send-It",
+
+    "namespace": "STPH\\massSendIt", 
+
+    "description": "Mass Send-It is an advanced module form of the REDCap feature Send-it. It allows you to create bulks of Send-It, enabling secure data transfer based on multiple files that each have a single recipient, mapped through available records.",
+
+    "documentation": "README.md",
+
+    "authors": [
+        {
+             "name": "Ekin Tertemiz",
+             "email": "ekin.tertemiz@swisstph.ch",
+             "institution": "Swiss Tropical and Public Health Institute"
+         }
+     ],
+
+    "framework-version": 15,
+
+    "enable-every-page-hooks-on-system-pages": false,
+
+    "links":{
+        "project":[
+            {
+                "name": "Mass Send-It",
+                "icon": "fas fa-mail-bulk",
+                "url": "project-page.php",
+                "show-header-and-footer": true
+            }
+        ]
+    },
+
+    "no-auth-pages": [],
+
+    "enable-ajax-logging": true,
+
+    "enable-no-auth-logging": false,
+
+    "auth-ajax-actions": [],
+
+    "no-auth-ajax-actions": [],
+
+    "action-tags": [],
+
+    "system-settings": [],
+
+    "project-settings": [],
+
+    "crons": [
+        {
+            "cron_name": "send_notifications_via_cron",
+            "cron_description": "Cron that runs every 60 seconds to send notifications created with Mass Send-It module.",
+            "method": "sendNotificationsViaCron",
+            "cron_frequency": "60", 
+            "cron_max_run_time": "1800"
+         }
+    ],
+
+    "compatibility": {
+        "php-version-min": "8.0.24",
+        "php-version-max": "",
+        "redcap-version-min": "13.1.5",
+        "redcap-version-max": ""
+    }
+ }
