@@ -8,6 +8,7 @@ include_once(__DIR__ ."./../models/BulkModel.php");
 use Exception;
 use REDCap;
 use DateTimeRC;
+use Project;
 
 class BulkController extends ActionController {
 
@@ -15,7 +16,7 @@ class BulkController extends ActionController {
 
     protected $module;
     protected $project_id;
-    protected $event_id;
+    //protected $event_id;
 
     protected $data;
 
@@ -24,7 +25,14 @@ class BulkController extends ActionController {
         $this->module = $module;
         
         empty($project_id) ? $this->project_id = $module->getProjectId() : $this->project_id = $project_id;
-        empty($event_id) ? $this->event_id = $module->getEventId() : $this->event_id = $event_id;
+        //empty($event_id) ? $this->event_id = $module->getEventId() : $this->event_id = $event_id;
+
+        /**         
+         */
+        if(!isset($_GET['pid'])) {
+            $_GET['pid'] = $this->project_id;
+        }
+        
     }
 
     public function action($actionName, $actionData) {           
@@ -32,7 +40,7 @@ class BulkController extends ActionController {
             $this->data = $actionData;
             $actionResponse = $this->mapActions($actionName);
         } catch (\Throwable $th) {
-            dump($th);
+            //dump($th);
             return $this->getActionError($th->getMessage());
         }
 
@@ -133,8 +141,7 @@ class BulkController extends ActionController {
             $validated->bulk_id = $payload["bulk_id"];
         } elseif(!isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
             throw new Exception("bulk_id must be set in edit_mode");
-        } else {
-            dump($this->get_max_key_id());
+        } else {            
             $validated->bulk_id = $this->get_max_key_id() + 1;
         }
 
@@ -171,7 +178,7 @@ class BulkController extends ActionController {
             //  check if records exist
             $params = array(
                 'project_id'=>$this->project_id,
-                'event_id' => $this->event_id,
+                //'event_id' => $this->event_id,
                 'return_format' => 'array',
                 'fields'=>array('record_id'), 
                 'records' => $recipients
@@ -192,7 +199,7 @@ class BulkController extends ActionController {
 
             $params = array(
                 'project_id'=>$this->project_id,
-                'event_id' => $this->event_id,
+                //'event_id' => $this->event_id,
                 'return_format' => 'array',
                 'fields'=>array('record_id'), 
                 'filterLogic' => $validated->bulk_recipients_logic
@@ -227,6 +234,12 @@ class BulkController extends ActionController {
             throw new Exception("file_repo_reference must not be empty");
         }
         $validated->file_repo_reference = $payload["file_repo_reference"];
+
+        //  check if file_repo_reference field exists
+        $project_fields = array_keys((new Project($this->project_id))->metadata);
+        if(!in_array($validated->file_repo_reference, $project_fields)) {
+            throw new Exception("file_repo_reference '$validated->file_repo_reference' does not exist on project with id $this->project_id.");
+        }
 
         //  check for all records if file_repo_reference field not isblankormissingcode
         $params = array(

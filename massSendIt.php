@@ -38,17 +38,23 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
         $payload_delete = array("bulk_id" => 1);
 
-        $bulkController = new BulkController($this, $this->getProjectId(), $this->getEventId());
+        $bulkController = new BulkController($this, $this->getProjectId());
         //$response = $bulkController->action('create', $payload_create);
         //$response = $bulkController->action("update", $payload_update);
         //$response = $bulkController->action('delete', $payload_delete);
         //$response = $bulkController->action('read', array("bulk_id" => "1"));
+
+
         
+    
         //dump($response);
         exit();
     }    
 
     public function renderModuleProjectPage() {
+
+        $sql = "SELECT max(cast(bulk_id as UNSIGNED)) as max_key_id WHERE table_name = 'bulk' and project_id=22";
+        dump($this->getQueryLogsSql($sql));
 
         //$this->testModule();
 

@@ -33,12 +33,35 @@ abstract class ActionController {
         );
     }
 
-    protected function get_max_key_id() {
-        $key = static::TABLE_NAME;    
-        $sql_get_max_key_id = "SELECT max({$key}_id) as max_key_id WHERE table_name = '{$key}' and project_id=?";
-        $result = $this->module->queryLogs($sql_get_max_key_id, [$this->project_id]);
-        $max_key_id = $result->fetch_object()->max_key_id ?? 0;
+    /**
+     * casting not working with queryLogs
+     */
+    // protected function get_max_key_id() {
+    //     $key = static::TABLE_NAME;    
+    //     $sql_get_max_key_id = "SELECT max({$key}_id) as max_key_id WHERE table_name = '{$key}' and project_id=?";
+    //     $result = $this->module->queryLogs($sql_get_max_key_id, [$this->project_id]);
+    //     $max_key_id = $result->fetch_object()->max_key_id ?? 0;
         
+    //     return $max_key_id;
+    // }
+
+    /**
+     * 
+     * DANGER: max only works properly for number above 9, if the column is casted correctly!
+     */
+    protected function get_max_key_id() {
+        $key = static::TABLE_NAME;
+        $sql_get_max_key_id = "SELECT max(cast({$key}_id.value AS UNSIGNED)) AS max_key_id 
+            from redcap_external_modules_log
+            left join redcap_external_modules_log_parameters {$key}_id
+            on {$key}_id.log_id = redcap_external_modules_log.log_id
+            and {$key}_id.name = '{$key}_id'
+            left join redcap_external_modules_log_parameters table_name
+            on table_name.log_id = redcap_external_modules_log.log_id
+            and table_name.name = 'table_name'
+            WHERE redcap_external_modules_log.external_module_id = (SELECT external_module_id FROM redcap_external_modules WHERE directory_prefix = 'mass_send_it') and (table_name.value = '{$key}' and redcap_external_modules_log.project_id = ?)";
+        $result = $this->module->query($sql_get_max_key_id, [$this->project_id]);
+        $max_key_id = $result->fetch_object()->max_key_id ?? 0;
         return $max_key_id;
     }
 }

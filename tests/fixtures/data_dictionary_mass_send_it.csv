@@ -1,0 +1,7 @@
+"Variable / Field Name","Form Name","Section Header","Field Type","Field Label","Choices, Calculations, OR Slider Labels","Field Note","Text Validation Type OR Show Slider Number","Text Validation Min","Text Validation Max",Identifier?,"Branching Logic (Show field only if...)","Required Field?","Custom Alignment","Question Number (surveys only)","Matrix Group Name","Matrix Ranking?","Field Annotation"
+record_id,form_1,,text,"Record ID",,,,,,,,,,,,,
+firstname,form_1,,text,Firstname,,,,,,,,,,,,,
+lastname,form_1,,text,Lastname,,,,,,,,,,,,,
+email,form_1,,text,Email,,,email,,,,,,,,,,
+document_reference,form_1,,text,"Document Reference",,,,,,,,,,,,,
+field_1,form_1,,truefalse,"Field 1",,,,,,,,,,,,,a

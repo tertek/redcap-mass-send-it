@@ -63,11 +63,11 @@ class BulkModel {
         return implode(",", $this->getPublicProperties());
     }
 
-    public function readBulk($bulk_id) {
+    public function readBulk($bulk_id) {        
         $fields = $this->getFields();
-        $sql = "SELECT $fields WHERE table_name='BULK' AND bulk_id = ?";
-                
-        $result = $this->module->queryLogs($sql, [$bulk_id]);
+        $sql = "SELECT $fields WHERE table_name='BULK' AND bulk_id = ? and project_id=?";
+               
+        $result = $this->module->queryLogs($sql, [$bulk_id, 22]);
         if($result->num_rows == 0) {
             return false;
         }
@@ -79,7 +79,7 @@ class BulkModel {
 
     public function createBulk($validated) {
         
-        dump($validated);
+        // dump($validated);
         if($this->readBulk($validated->bulk_id) !== false) {
             throw new Exception("bulk_id $validated->bulk_id already exists. Cannot create bulk with same bulk_id!");
         }
@@ -140,11 +140,7 @@ class BulkModel {
         }
 
         //  return bulk
-        $params = $this->readBulk($validated->bulk_id);
-
-        //  mock log_id and params
-        $log_id = "Foo";
-        return array($log_id, $params);
+        return $this->readBulk($validated->bulk_id);
     }
 
     public function deleteBulk($bulk_id) {
