@@ -13,14 +13,15 @@ class BulkController extends ActionController {
 
     const TABLE_NAME = "BULK";
 
-    static $module;
-    private $project_id;
-    private $event_id;
+    protected $module;
+    protected $project_id;
+    protected $event_id;
 
-    private $data;
+    protected $data;
 
     public function __construct($module, $project_id=null, $event_id=null) {
-        static::$module = $module;
+        parent::__construct();
+        $this->module = $module;
         
         empty($project_id) ? $this->project_id = $module->getProjectId() : $this->project_id = $project_id;
         empty($event_id) ? $this->event_id = $module->getEventId() : $this->event_id = $event_id;
@@ -73,7 +74,7 @@ class BulkController extends ActionController {
 
     private function readAction() {
         $bulk_id = $this->data["bulk_id"];        
-        $bulkModel = new BulkModel(static::$module);
+        $bulkModel = new BulkModel($this->module);
         $bulk = $bulkModel->readBulk($bulk_id);
 
         if(!$bulk) {
@@ -93,14 +94,14 @@ class BulkController extends ActionController {
     private function deleteAction() {
         $bulk_id = $this->data["bulk_id"];
 
-        $bulkModel = new BulkModel(static::$module);
+        $bulkModel = new BulkModel($this->module);
         $bulkModel->deleteBulk($bulk_id);
 
         return array("bulk_id" => $bulk_id);
     }    
 
     private function store($validated, $isUpdate = false) {
-        $bulkModel = new BulkModel(static::$module);
+        $bulkModel = new BulkModel($this->module);
         if($isUpdate === true) {
             $bulk = $bulkModel->updateBulk($validated);
         } else {
@@ -125,7 +126,7 @@ class BulkController extends ActionController {
         }
         
         //  sanitize form data after json decode
-        $payload = static::$module->escape($decoded);
+        $payload = $this->module->escape($decoded);
 
         //  set bulk_id
         if(isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true" ) {
@@ -133,11 +134,12 @@ class BulkController extends ActionController {
         } elseif(!isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
             throw new Exception("bulk_id must be set in edit_mode");
         } else {
+            dump($this->get_max_key_id());
             $validated->bulk_id = $this->get_max_key_id() + 1;
         }
 
         //  set bulk_order
-        if(!isset($payload["bulk_order"])) {
+        if(!isset($payload["bulk_order"]) && isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
             throw new Exception("bulk_order must not be empty");
         }
         $validated->bulk_order = $payload["bulk_order"];
@@ -250,7 +252,7 @@ class BulkController extends ActionController {
 
             $sql = "SELECT d.docs_name as docName, d.docs_name as storedName, d.docs_size as docSize, d.docs_id as fileId, f.folder_id as folderId, d.docs_type as docType FROM redcap_docs as d JOIN redcap_docs_folders_files AS f ON d.docs_id=f.docs_id WHERE d.project_id = ? AND f.folder_id = ? AND d.docs_name = ?";
 
-            $q = static::$module->query($sql, [$this->project_id, $validated->file_repo_folder_id, $document_name]);
+            $q = $this->module->query($sql, [$this->project_id, $validated->file_repo_folder_id, $document_name]);
             
             if($q->num_rows == 0) {
                 $document_not_found[] = $document_name . " (record_id: " . $el["record_id"] . " )";

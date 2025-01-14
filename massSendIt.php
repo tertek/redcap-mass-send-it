@@ -24,7 +24,33 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     private const NUM_NOTIFICATIONS_PER_PAGE = 15;
 
+
+    private function testModule() {
+
+        $i = 1;
+
+        $recipients = "1,2";
+        $recipients_new = "1,2";
+
+        $payload_create = '[{"name":"bulk_title","value":"Test Bulk '.$i.'"},{"name":"bulk_type","value":"list"},{"name":"bulk_recipients_list","value":"'.$recipients.'"},{"name":"bulk_recipients_logic","value":""},{"name":"file_repo_folder_id","value":"6"},{"name":"file_repo_extension","value":"pdf"},{"name":"file_repo_reference","value":"example_document_reference"},{"name":"email_display","value":"REDCap Bulk Send"},{"name":"email_from","value":"user@admin.com"},{"name":"email_to","value":"[email]"},{"name":"email_first_subject","value":"New Document available"},{"name":"email_first_message","value":"Hello [firstname] [lastname],<br>a file has been uploaded for you. A second follow-up email will be sent containing the password for retrieving the file at the link below.<br>You can access your document here: [share-file-link]<br>If the link does not open, copy and paste the following url into your browser:<br>[share-file-url].<br><br>"},{"name":"password_type","value":"random"},{"name":"custom_pass_field","value":""},{"name":"use_second_email","value":"yes"},{"name":"email_second_subject","value":"Access to your document"},{"name":"email_second_message","value":"Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]"},{"name":"bulk_schedule","value":"12-31-2024 15:00"},{"name":"bulk_expiration","value":""},{"name":"is_edit_mode","value":"false"}]';
+        
+        $payload_update = '[{"name":"bulk_id", "value":"1"},{"name":"bulk_title","value":"Test Bulk Edited"},{"name":"bulk_type","value":"list"},{"name":"bulk_recipients_list","value":"'.$recipients_new.'"},{"name":"bulk_recipients_logic","value":""},{"name":"file_repo_folder_id","value":"6"},{"name":"file_repo_extension","value":"pdf"},{"name":"file_repo_reference","value":"example_document_reference"},{"name":"email_display","value":"REDCap Bulk Send"},{"name":"email_from","value":"user@admin.com"},{"name":"email_to","value":"[email]"},{"name":"email_first_subject","value":"New Document available"},{"name":"email_first_message","value":"Hello [firstname] [lastname],<br>a file has been uploaded for you. A second follow-up email will be sent containing the password for retrieving the file at the link below.<br>You can access your document here: [share-file-link]<br>If the link does not open, copy and paste the following url into your browser:<br>[share-file-url].<br><br>"},{"name":"password_type","value":"random"},{"name":"custom_pass_field","value":""},{"name":"use_second_email","value":"yes"},{"name":"email_second_subject","value":"Access to your document"},{"name":"email_second_message","value":"Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]"},{"name":"bulk_schedule","value":"12-31-2027 15:00"},{"name":"bulk_expiration","value":""},{"name":"is_edit_mode","value":"true"},{"name":"bulk_order","value":"0"}]';
+
+        $payload_delete = array("bulk_id" => 1);
+
+        $bulkController = new BulkController($this, $this->getProjectId(), $this->getEventId());
+        //$response = $bulkController->action('create', $payload_create);
+        //$response = $bulkController->action("update", $payload_update);
+        //$response = $bulkController->action('delete', $payload_delete);
+        //$response = $bulkController->action('read', array("bulk_id" => "1"));
+        
+        //dump($response);
+        exit();
+    }    
+
     public function renderModuleProjectPage() {
+
+        //$this->testModule();
 
         $this->includeJavascript();
         if(!isset($_GET['log']) || $_GET['log'] != 1) {

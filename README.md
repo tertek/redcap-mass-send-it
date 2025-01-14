@@ -2,10 +2,10 @@
 A REDCap external module that combines REDCap's "Send-IT" feature with "Alerts & Notifactions". Schedule bulks to be send to participants setup through record lists or logical conditions. Attach record specific documents by binding through a reference to your file repository. Control document sending and receiving options, such as password protection, expiration time or custom email messages (with piping supported).
 
 ## Setup
-To install the module through your REDCap Control Center, search for "Bulk-Send" in the REDCap External Modules Repository. After successful installation enable the module for the project that you would like to use bulk sending.
+To install the module through your REDCap Control Center, search for "Mass Send-It" in the REDCap External Modules Repository. After successful installation enable the module for the project that you would like to use bulk sending.
 
 ## Usage
-Navigate to the External Modules page "Bulk-Send". There you can find an overview of available bulks under the tab "My Bulks" which will be active per default. Another tab show the Notificaiton Log of analogous to "Alerts & Notifications."
+Navigate to the External Modules page "Mass Send-It". There you can find an overview of available bulks under the tab "My Bulks" which will be active per default. Another tab show the Notificaiton Log of analogous to "Alerts & Notifications."
 
 ### My Bulks
 **Create a new bulk**

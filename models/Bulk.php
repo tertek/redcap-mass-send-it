@@ -8,7 +8,7 @@ use ReflectionProperty;
 
 class BulkModel {
 
-    private const TABLE_NAME = 'BULK';
+    private const TABLE_NAME = 'bulk';
     private static $module;
 
 
@@ -79,6 +79,7 @@ class BulkModel {
 
     public function createBulk($validated) {
         
+        dump($validated);
         if($this->readBulk($validated->bulk_id) !== false) {
             throw new Exception("bulk_id $validated->bulk_id already exists. Cannot create bulk with same bulk_id!");
         }
