@@ -3,6 +3,7 @@
 namespace STPH\massSendIt;
 
 include_once("ActionController.php");
+include_once(__DIR__ ."./../models/BulkModel.php");
 
 use Exception;
 use REDCap;
@@ -20,87 +21,106 @@ class BulkController extends ActionController {
 
     public function __construct($module, $project_id=null, $event_id=null) {
         static::$module = $module;
-        if(empty($project_id)) {
-            $this->project_id = $module->getProjectId();
-        } else {
-            $this->project_id = $project_id;
+        
+        empty($project_id) ? $this->project_id = $module->getProjectId() : $this->project_id = $project_id;
+        empty($event_id) ? $this->event_id = $module->getEventId() : $this->event_id = $event_id;
+    }
+
+    public function action($actionName, $actionData) {           
+        try {
+            $this->data = $actionData;
+            $actionResponse = $this->mapActions($actionName);
+        } catch (\Throwable $th) {
+            dump($th);
+            return $this->getActionError($th->getMessage());
         }
 
-        if(empty($event_id)) {
-            $this->event_id = $module->getEventId();
-        } else {
-            $this->event_id = $event_id;
-        }
+        return $this->getActionSuccess($actionResponse);
         
     }
 
-    public function action($name, $data) {
-        
-        $this->data = $data;
+    private function mapActions($name) {        
         switch ($name) {
             case 'create':
-                $response = $this->create();
+                return $this->createAction();
                 break;
-            
+
+            case 'read':
+                return $this->readAction();
+                break;                
+
+            case 'update':
+                return $this->updateAction();
+                break;
+
+            case 'delete':
+                return $this->deleteAction();
+                break;
+
             default:
                 throw new Exception("Action not yet implemented");
                 break;
         }
-
-        return $response;
     }
 
-    private function create() {
-      
-        try {
-            $validated = $this->validate();
-            $log_id = $this->store($validated);
-            // Create schedules
+    private function createAction() {
 
-        } catch (\Throwable $th) {
-            $error = $this->getActionError($th->getMessage());
+        $validated = $this->validate();
+        $bulk = $this->store($validated);
+
+        return array("bulk" => $bulk);
+    }
+
+    private function readAction() {
+        $bulk_id = $this->data["bulk_id"];        
+        $bulkModel = new BulkModel(static::$module);
+        $bulk = $bulkModel->readBulk($bulk_id);
+
+        if(!$bulk) {
+            throw new Exception("bulk with bulk_id $bulk_id not found");
         }
 
-        $response = array("bulk" => $validated, "log_id" => $log_id);
-
-        // tbd: return schedule count instead
-        return $this->getActionSuccess($response);
-
+        return array("bulk" => $bulk);        
     }
 
-    private function store($validated) {
-        $serialized_recipients = serialize($validated->bulk_recipients);
-        $validated->bulk_recipients = $serialized_recipients;
-        $bulk_parameters = (array) $validated;
-
-        $basic_parameters = array(
-            "table_name" => self::TABLE_NAME,
-            "project_id" => $this->project_id,
-            "event_id" => $this->event_id,
-            "record" => null
-        );
-
-        $not_implemented_params = array(
-            "bulk_order" => $bulk_parameters["bulk_id"] - 1 //  set order same as id until implemented
-        );
+    private function updateAction() {    
+        $validated = $this->validate();            
+        $bulk = $this->store($validated, true);
         
-        $parameters = array_merge($basic_parameters, $bulk_parameters, $not_implemented_params);
+        return array("bulk" => $bulk);
+    }
 
-        return static::$module->log("bulk_create", $parameters);
+    private function deleteAction() {
+        $bulk_id = $this->data["bulk_id"];
 
+        $bulkModel = new BulkModel(static::$module);
+        $bulkModel->deleteBulk($bulk_id);
+
+        return array("bulk_id" => $bulk_id);
+    }    
+
+    private function store($validated, $isUpdate = false) {
+        $bulkModel = new BulkModel(static::$module);
+        if($isUpdate === true) {
+            $bulk = $bulkModel->updateBulk($validated);
+        } else {
+
+            $bulk = $bulkModel->createBulk($validated);
+        }        
+        return $bulk;
     }
 
     private function validate() {
 
         $validated = (object) array();
 
-        if(empty($this->data->payload)) {
+        if(empty($this->data)) {
             throw new Exception("Payload must not be empty");
         }
  
         //  set payload object from form data
         $decoded = [];
-        foreach ( json_decode($this->data->payload) as $key => $item) {
+        foreach ( json_decode($this->data) as $key => $item) {
             $decoded[$item->name] = $item->value;
         }
         
@@ -108,11 +128,19 @@ class BulkController extends ActionController {
         $payload = static::$module->escape($decoded);
 
         //  set bulk_id
-        if(isset($payload["bulk_id"])) {
+        if(isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true" ) {
             $validated->bulk_id = $payload["bulk_id"];
+        } elseif(!isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
+            throw new Exception("bulk_id must be set in edit_mode");
         } else {
             $validated->bulk_id = $this->get_max_key_id() + 1;
         }
+
+        //  set bulk_order
+        if(!isset($payload["bulk_order"])) {
+            throw new Exception("bulk_order must not be empty");
+        }
+        $validated->bulk_order = $payload["bulk_order"];
 
         //  set bulk_title
         if(empty($payload["bulk_title"])) {
@@ -141,10 +169,11 @@ class BulkController extends ActionController {
             //  check if records exist
             $params = array(
                 'project_id'=>$this->project_id,
+                'event_id' => $this->event_id,
                 'return_format' => 'array',
                 'fields'=>array('record_id'), 
                 'records' => $recipients
-            );            
+            );
             $records = array_keys(REDCap::getData($params));
 
             //  indicate non-existing records
@@ -153,7 +182,7 @@ class BulkController extends ActionController {
                 throw new Exception("Records in record list must exist. Non-exsiting records: " . implode(",", $diff));
             }
                 
-            $validated->bulk_recipients = $recipients;
+            $validated->bulk_recipients = serialize($recipients);
 
         } else if ($validated->bulk_type == "logic") {       
 
@@ -161,6 +190,7 @@ class BulkController extends ActionController {
 
             $params = array(
                 'project_id'=>$this->project_id,
+                'event_id' => $this->event_id,
                 'return_format' => 'array',
                 'fields'=>array('record_id'), 
                 'filterLogic' => $validated->bulk_recipients_logic
@@ -172,7 +202,7 @@ class BulkController extends ActionController {
                 throw new Exception("Recipients count must be greater than 0.");
             }
 
-            $validated->bulk_recipients = $recipients;
+            $validated->bulk_recipients = serialize($recipients);
         } else {
             throw new Exception("Bulk type must be either 'list' or 'logic'");
         }
@@ -200,7 +230,7 @@ class BulkController extends ActionController {
         $params = array(
             'project_id'=>$this->project_id,
             'return_format' => 'array',
-            'records' => $validated->bulk_recipients,
+            'records' => unserialize($validated->bulk_recipients),
             'fields'=>array($payload["file_repo_reference"], 'record_id'),
             'filterLogic' => 'isblankormissingcode(['.$payload["file_repo_reference"].']) = false'
         ); 
