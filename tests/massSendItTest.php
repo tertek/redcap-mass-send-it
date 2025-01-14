@@ -1,8 +1,5 @@
 <?php namespace STPH\massSendIt;
 
-use Exception;
-use Faker;
-
 class massSendItTest extends BaseTest
 {
 

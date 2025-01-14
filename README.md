@@ -52,3 +52,5 @@ To run module tests use REDcap's phpunit binary to mitigate version conflicts in
 
 `..\..\<redcap_vXX.YY.ZZ>\UnitTests\vendor\bin\phpunit tests`
 
+*Please note:* Tests currently only run after manually adding test documents with correct references to "Test Project 1".
+
