@@ -218,6 +218,8 @@ class MassSendIt {
                 let bulk = data.bulk
 
                 //  Setup bulk data
+                //  bulk_order
+                $('[name=bulK-order]').val(bulk.bulk_order)
                 //  title
                 $('[name=bulk_title]').val(bulk.bulk_title)
 
@@ -328,28 +330,36 @@ class MassSendIt {
         let that = this
         let isEdit = $('[name=is_edit_mode]').val()
         let form = $('#saveBulkForm')
+        
+        let task = 'create'
+        if(isEdit == "true") {
+            task = 'update'
+        }
 
         let payload = {
-            task: 'create',
+            task: task,
             data: {
                 form_data: JSON.stringify($(form).serializeArray())
             }
         }
 
+        console.log(payload)
+
         JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string)=>{
             let response = JSON.parse(json)            
     
             if(response.error) {
-                console.log(response.message)
+                console.log(response)
                 $('#errMsgContent-2').html(response.message);
                 $('#errMsgContainerModal-2').show();
                 $('html,body').scrollTop(0);
                 $('[name=external-modules-configure-modal-1]').scrollTop(0);                
             } else {
-                console.log("SAVE")
+                console.log(response)
                 //  Hide modal and show progress dialog
-                $('[name=external-modules-configure-modal-1]').modal('hide'); 
-                that.swalSuccess("Bulk has been created!")
+                 $('[name=external-modules-configure-modal-1]').modal('hide')
+                let message = "Bulk has been "+task+"d!"
+                that.swalSuccess(message)
                 //  check if we have a callback
                 //that.ajaxRunSchedule(response.data.bulk_id)
             }

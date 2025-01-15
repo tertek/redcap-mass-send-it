@@ -81,7 +81,7 @@ function getToEmails() {
                         <h4 class="alert-heading">Bad user input or missing dependency!</h4>
                         <p id="errMsgContent-2"></p>
                         <hr>
-                        <p class="mb-0">Please check the relevant input and fix it.</p>
+                        <p class="mb-0">This error message is shown because you have either missing input to create a bulk or your changes are not elligble to update the bulk.</p>
                         </div>                    
                         <div class="mb-2">
                             You may define the settings for your bulk below. After clicking the Save button at the bottom, your bulk send will immediately become active and may be triggered at any time thereafter. If you would like to remove or stop using an bulk send, it may be deactivated at any time. You may modify an existing bulk send at any time, even after some notificaitons have already been sent or scheduled.

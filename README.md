@@ -54,3 +54,7 @@ To run module tests use REDcap's phpunit binary to mitigate version conflicts in
 
 *Please note:* Tests currently only run after manually adding test documents with correct references to "Test Project 1".
 
+For TypeScript output run:
+
+`npx tsc --watch` during development or `npx tsc --build` for production
+
