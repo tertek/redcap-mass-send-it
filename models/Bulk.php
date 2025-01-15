@@ -160,10 +160,6 @@ class BulkModel {
         $this->module->removeLogs($where, [$bulk_id]);
     }
 
-    /**
-     * TBD: Add project_id
-     * 
-     */
     private function updateQuery($value, $key, $bulk_id) {
 
         $sql = "UPDATE redcap_external_modules_log_parameters AS to_change 
@@ -171,14 +167,19 @@ class BulkModel {
                 ON to_change.log_id = bulk_id.log_id 
                 INNER JOIN redcap_external_modules_log_parameters AS table_name
                 ON to_change.log_id = table_name.log_id
+                INNER JOIN redcap_external_modules_log AS bulk
+                ON to_change.log_id = bulk.log_id
                 SET to_change.value = ? 
                 WHERE to_change.name = ? 
                 AND bulk_id.name = 'bulk_id'
                 AND bulk_id.value = ?
                 AND table_name.name = 'table_name'
-                AND table_name.value = ?";
+                AND table_name.value = ?
+                AND bulk.project_id = ?
+                AND bulk.message = 'bulk_create'";
+
         
-        return $this->module->query($sql, [$value, $key, $bulk_id, self::TABLE_NAME]);
+        return $this->module->query($sql, [$value, $key, $bulk_id, self::TABLE_NAME, $this->project_id]);
         
     }
 }
