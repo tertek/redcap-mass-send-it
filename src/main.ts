@@ -82,24 +82,12 @@ class MassSendIt {
                 JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string) => {
                     let response = JSON.parse(json)
                     console.log(response)
-            
-                    if(response.error) {
-                        console.log("There was an error")
-                        console.log(response.message)
-                        Swal.fire({
-                            title: "Error!",
-                            text: response.message,
-                            icon: "error"
-                        })
+
+                    if(response.error)
+                    {
+                        that.swalError(response.message)
                     } else {
-                        Swal.fire({
-                            title: "Success!",
-                            text: 'Bulk with id '+ response.data.bulk_id + ' and '+response.data.removed_count+' schedules were deleted', 
-                            icon: "success"
-                        }
-                        ).then(()=>{
-                            location.reload();
-                        });                    
+                        that.swalSuccess('Bulk with id '+ response.data.bulk_id + ' and '+response.data.removed_count+' schedules were deleted');                        
                     }
                 })
             }
@@ -107,10 +95,29 @@ class MassSendIt {
         }) 
 
         $('.bulk-schedule-btn').on('click', function(e){
-            const bulk_id = $(this).data("bulkId")            
+            let bulk_id = $(this).data("bulkId")            
 
             let onConfirm = ()=>{
-                //that.ajaxRunSchedule(bulk_id)
+
+                let payload = {
+                    task: 'create',
+                    data: {
+                        bulk_id: bulk_id,
+                        overwrite: true
+                    }                
+                }
+
+                console.log(payload)
+
+                JSO_STPH_BULK_SEND.ajax("schedule", payload).then((json:string) => {
+                    let response = JSON.parse(json)
+                    console.log(response)            
+                    if(response.error) {
+                        that.swalError(response.message)                        
+                    } else {
+                        that.swalSuccess(response.data.scheduled.length + ' records were scheduled for bulk id: '+ bulk_id);                  
+                    }
+                })                
                 that.swalSuccess("records were scheduled for bulk id")
             }          
             simpleDialog("Are you sure? This action cannot be reversed. All schedules for this bulk will be deleted and created from new.", "Reschedule", null, null, null, "Cancel",onConfirm, "Confirm", undefined)
@@ -385,6 +392,17 @@ class MassSendIt {
             location.reload();
         });        
     }
+
+    swalError(message:string) {
+        Swal.fire({
+            title: "Error!",
+            text: message,
+            icon: "error"
+        }
+        ).then(()=>{
+            //location.reload();
+        });        
+    }    
 
     checkExtra() {
         let report = []

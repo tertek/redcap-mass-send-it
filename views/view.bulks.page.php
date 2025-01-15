@@ -17,7 +17,7 @@
         <tbody>
         <?php foreach($this->getBulks() as $key => $bulk ): ?>
             <?php
-                $schedule_count = 0;
+                $schedule_count = $this->getScheduledCount($bulk->bulk_id);
                 $sent_count = 0;
             ?>
             <tr id="bulk_<?= $bulk->bulk_id ?>" class="<?= ($key+1) % 2 == 0 ? 'even' : 'odd' ?>"><td class="pt-0 pb-4" style="border-right:0;" data-order="1">

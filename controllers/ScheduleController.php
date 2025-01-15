@@ -2,8 +2,6 @@
 
 namespace STPH\massSendIt;
 
-require_once(__DIR__ . "/ActionController.php");
-require_once(__DIR__ ."./../models/ScheduleModel.php");
 use Exception;
 
 class ScheduleController extends ActionController {
@@ -42,6 +40,27 @@ class ScheduleController extends ActionController {
     }
 
     private function createTask() {
+        $bulk_id = $this->data->bulk_id;
+        $overwrite = $this->data->overwrite;
+
         $scheduleModel = new ScheduleModel($this->module);
+        
+        //check if we have old scheduled entries for this bulk
+        $scheduled_old = $scheduleModel->readScheduled($bulk_id);
+        
+        if(count($scheduled_old) > 0 && !$overwrite) {
+            throw new Exception("Old scheduled found - overwrite not allowed. Aborting reschedule.");
+        } 
+
+        if(count($scheduled_old) > 0) {
+            //  remove old scheduled
+            $scheduleModel->deleteScheduled($bulk_id);
+        }
+
+        //  create schedules
+        $scheduled = $scheduleModel->createSchedule($bulk_id);
+
+        return array("scheduled" => $scheduled);
+
     }
 }

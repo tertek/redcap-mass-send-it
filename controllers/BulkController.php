@@ -2,9 +2,6 @@
 
 namespace STPH\massSendIt;
 
-include_once("ActionController.php");
-include_once(__DIR__ ."./../models/BulkModel.php");
-
 use Exception;
 use REDCap;
 use DateTimeRC;

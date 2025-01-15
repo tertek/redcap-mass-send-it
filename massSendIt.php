@@ -6,8 +6,12 @@ namespace STPH\massSendIt;
 use Project;
 
 if (file_exists("vendor/autoload.php")) require 'vendor/autoload.php';
+
+if (!class_exists("ActionController")) require_once(__DIR__ . "/controllers/ActionController.php");
 if (!class_exists("BulkController")) require_once(__DIR__ . "/controllers/BulkController.php");
+if (!class_exists("ScheduleController")) require_once(__DIR__ . "/controllers/ScheduleController.php");
 if (!class_exists("BulkModel")) require_once(__DIR__ . "/models/BulkModel.php");
+if (!class_exists("ScheduleModel")) require_once(__DIR__ . "/models/ScheduleModel.php");
 
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
@@ -28,6 +32,11 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             case 'bulk':
                 $bulkController = new BulkController($this, $project_id);
                 $response = $bulkController->action($payload->task, $payload->data);
+                break;
+
+            case 'schedule':
+                $scheduleController = new ScheduleController($this, $project_id);
+                $response = $scheduleController->action($payload->task, $payload->data);
                 break;
             
             default:
@@ -77,6 +86,12 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             $bulks[] = $bulk;
         }
         return $bulks;
+    }
+
+    private function getScheduledCount($bulk_id) {
+        $sql = "SELECT bulk_schedule_id WHERE table_name='schedule' AND bulk_id = ?";
+        $result = $this->queryLogs($sql, [$bulk_id]);
+        return $result->num_rows;
     }
 
     private function getNotifications() {
