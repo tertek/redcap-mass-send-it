@@ -68,8 +68,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
      * 
      */
     private function getBulks() {
-        $fields = (new BulkModel($this))->getFields();
-        $fields = "bulk_title, bulk_id, bulk_order, bulk_recipients, bulk_type";
+        $fields = (new BulkModel($this))->getFields();        
         $sql = "SELECT $fields WHERE table_name = 'bulk'";
         
         $result = $this->queryLogs($sql, []);

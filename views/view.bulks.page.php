@@ -1,9 +1,4 @@
-<?php
-namespace STPH\massSendIt;
-
-    $bulks = $this->getBulks();
-
-?>
+<?php namespace STPH\massSendIt; ?>
 <div class="mt-3" style="width:950px;max-width:950px;">
     <div class="mb-5 clearfix">
         <button id='addNewBulk' type="button" class="btn btn-sm btn-rcgreen float-start">
@@ -20,7 +15,7 @@ namespace STPH\massSendIt;
             </tr>
         </thead>
         <tbody>
-        <?php foreach($bulks as $key => $bulk ): ?>
+        <?php foreach($this->getBulks() as $key => $bulk ): ?>
             <?php
                 $schedule_count = 0;
                 $sent_count = 0;

@@ -3,8 +3,6 @@
 namespace STPH\massSendIt;
 
 use Exception;
-use ReflectionClass;
-use ReflectionProperty;
 
 if (!class_exists("ActionModel")) require_once(__DIR__ ."/ActionModel.php");
 
@@ -48,22 +46,6 @@ class BulkModel extends ActionModel {
         $this->project_id = $this->module->getProjectId();
     }
 
-    // private function getPublicProperties() {
-    //     $reflection = new ReflectionClass($this);
-    //     $vars = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
-    //     $publicProperties = [];
-
-    //     foreach ($vars as $publicVar) {
-    //         $publicProperties[] = $publicVar->getName();
-    //     }
-
-    //     return $publicProperties;
-    // }
-
-    // public function getFields() {
-    //     return implode(",", $this->getPublicProperties());
-    // }
-
     public function readBulk($bulk_id) {        
         $fields = $this->getFields();
         $sql = "SELECT $fields WHERE table_name='BULK' AND bulk_id = ? and project_id=?";
@@ -75,6 +57,7 @@ class BulkModel extends ActionModel {
 
         $bulk = $result->fetch_object();
 
+        //  decode special chars, so that tinymce preview does not break
         $bulk->email_first_message = htmlspecialchars_decode($bulk->email_first_message, ENT_QUOTES);
         $bulk->email_second_message = htmlspecialchars_decode($bulk->email_second_message, ENT_QUOTES);
 
@@ -95,8 +78,6 @@ class BulkModel extends ActionModel {
             "record" => null
         );
 
-        // $validated->email_first_message = htmlspecialchars($validated->email_first_message, ENT_QUOTES);
-        // $validated->email_second_message = htmlspecialchars($validated->email_second_message, ENT_QUOTES);
         // cast validated object to array, so we can merge it with other params
         $bulk_params = (array) $validated;
 
@@ -126,6 +107,7 @@ class BulkModel extends ActionModel {
             throw new Exception("bulk with bulk_id $validated->bulk_id does not exist! Aborting update.");
         }
 
+        //  decode special chars, difference does not break
         $validated->email_first_message = htmlspecialchars_decode($validated->email_first_message, ENT_QUOTES);
         $validated->email_second_message = htmlspecialchars_decode($validated->email_second_message, ENT_QUOTES);
         
@@ -163,6 +145,7 @@ class BulkModel extends ActionModel {
             throw new Exception("bulk_id must not be null");
         }
 
+        //  remove bulk
         $where = "table_name = ? and bulk_id = ?";
         $removedBulk = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id]);
 
@@ -170,7 +153,7 @@ class BulkModel extends ActionModel {
             throw new Exception("Bulk with bulk_id $bulk_id not found. ");
         }
 
-        //  additionally delete schedules of this bulk
+        //  remove schedules
         $where = "table_name = 'SCHEDULE' and bulk_id = ?";
         $removeSchedules = $this->module->removeLogs($where, [$bulk_id]);
 
@@ -194,9 +177,10 @@ class BulkModel extends ActionModel {
                 AND table_name.value = ?
                 AND bulk.project_id = ?
                 AND bulk.message = 'bulk_create'";
-
         
-        return $this->module->query($sql, [$value, $key, $bulk_id, self::TABLE_NAME, $this->project_id]);
-        
+        return $this->module->query(
+            $sql, 
+            [$value, $key, $bulk_id, self::TABLE_NAME, $this->project_id]
+        );        
     }
 }
