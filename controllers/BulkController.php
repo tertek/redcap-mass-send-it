@@ -35,14 +35,14 @@ class BulkController extends ActionController {
 
     public function action($task, $data) {           
         try {
-            $this->data = $data;
-            $taskResponse = $this->mapTasks($task);
+            $this->data = (object) $data;
+            $response = $this->mapTasks($task);
         } catch (\Throwable $th) {
             //dump($th);
             return $this->getActionError($th->getMessage());
         }
 
-        return $this->getActionSuccess($taskResponse);
+        return $this->getActionSuccess($response);
         
     }
 
@@ -65,7 +65,7 @@ class BulkController extends ActionController {
                 break;
 
             default:
-                throw new Exception("Action not yet implemented");
+                throw new Exception("action not yet implemented");
                 break;
         }
     }
@@ -120,14 +120,15 @@ class BulkController extends ActionController {
     private function validate() {
 
         $validated = (object) array();
+        $form_data = $this->data->form_data;
 
-        if(empty($this->data)) {
-            throw new Exception("Payload must not be empty");
+        if(empty($form_data)) {
+            throw new Exception("form_data must not be empty");
         }
  
         //  set payload object from form data
         $decoded = [];
-        foreach ( json_decode($this->data) as $key => $item) {
+        foreach ( json_decode($form_data) as $key => $item) {
             $decoded[$item->name] = $item->value;
         }
         

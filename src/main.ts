@@ -32,7 +32,7 @@ interface BULK_SEND_DTO {
 class MassSendIt {
     init() {
         console.log("Initiating BulkSend module..")
-        console.log(DTO_STPH_BULK_SEND)
+        //console.log(DTO_STPH_BULK_SEND)
         let that = this
 
         this.setupModal()
@@ -44,6 +44,27 @@ class MassSendIt {
         $('.bulk-edit-btn').on('click', function(){
             const bulk_id = $(this).data("bulkId")
             that.showModal(bulk_id)
+        })
+
+        $('#saveBulkForm').on('submit', function(event){
+            event.preventDefault()
+
+            //  CheckRequired and showErrors, see checkRequiredFieldsAndLoadOption
+            let validRequired = that.checkRequired()
+            let validExtra = that.checkExtra()
+            if( validRequired && validExtra) {
+                //  valid, submit the form
+                //console.log("validation success")
+                that.submitForm()
+            } else {
+                //console.log("validation failure")
+                //  show errors
+                $('#errMsgContainerModal').show();
+                $('html,body').scrollTop(0);
+                $('[name=external-modules-configure-modal-1]').scrollTop(0);
+                return false;
+            }
+
         })        
 
     }
@@ -155,8 +176,6 @@ class MassSendIt {
                     throw new Error("Error: " + response.message)                    
                 }
                 let data = JSON.parse(json).data
-                console.log(data)
-
                 let bulk = data.bulk
 
                 //  Setup bulk data
@@ -264,6 +283,105 @@ class MassSendIt {
 
             $('#external-modules-configure-modal-1').modal('show')
         }
+    }
+
+    submitForm() {
+        let that = this
+        let isEdit = $('[name=is_edit_mode]').val()
+        let form = $('#saveBulkForm')
+
+        let payload = {
+            task: 'create',
+            data: {
+                form_data: JSON.stringify($(form).serializeArray())
+            }
+        }
+
+        JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string)=>{
+            let response = JSON.parse(json)            
+    
+            if(response.error) {
+                console.log(response.message)
+                $('#errMsgContent-2').html(response.message);
+                $('#errMsgContainerModal-2').show();
+                $('html,body').scrollTop(0);
+                $('[name=external-modules-configure-modal-1]').scrollTop(0);                
+            } else {
+                console.log("SAVE")
+                //  Hide modal and show progress dialog
+                $('[name=external-modules-configure-modal-1]').modal('hide'); 
+                that.showSuccess("Bulk has been created!")
+                //  check if we have a callback
+                //that.ajaxRunSchedule(response.data.bulk_id)
+            }
+        })
+    }
+
+    showSuccess(message:string) {
+        Swal.fire({
+            title: "Success!",
+            text: message,
+            icon: "success"
+        }
+        ).then(()=>{
+            location.reload();
+        });        
+    }
+
+    checkExtra() {
+        let report = []
+        let validExtra = true
+        $('[name=file_repo_folder_id]').removeClass('invalid-custom')
+        $('[name=file_repo_extension]').removeClass('invalid-custom')
+        $('[name=file_repo_reference]').removeClass('invalid-custom')
+
+        if($('[name=file_repo_folder_id]').find(":selected").val() == 'default') {
+            $('[name=file_repo_folder_id]').addClass('invalid-custom')
+            validExtra = false
+            report.push("file_repo_folder_id")
+        }
+
+        if($('[name=file_repo_extension]').find(":selected").val() == 'default') {
+            $('[name=file_repo_extension]').addClass('invalid-custom')
+            validExtra = false
+            report.push("file_repo_extension")
+        }
+        if($('[name=file_repo_reference]').find(":selected").val() == 'default') {
+            $('[name=file_repo_reference]').addClass('invalid-custom')
+            validExtra = false
+            report.push("file_repo_reference")
+        }
+
+        $('[name=email_first_message]').parent().find(".tox-tinymce").removeClass("invalid-custom")
+        $('[name=email_second_message]').parent().find(".tox-tinymce").removeClass("invalid-custom")
+
+        if($('[name=email_first_message]').val() == "") {
+            $('[name=email_first_message]').parent().find(".tox-tinymce").addClass("invalid-custom")
+            validExtra = false
+            report.push("email_first_message")
+        }
+
+        if($('[name=email_second_message]').val() == "" && $('[name=email_second_message]').attr("required") == "true") {
+            $('[name=email_second_message]').parent().find(".tox-tinymce").addClass("invalid-custom")
+            validExtra = false
+            report.push("email_second_message")
+        }
+        
+        return validExtra
+
+    }
+
+    checkRequired() {
+        $('#succMsgContainer').hide();
+        $('#errMsgContainerModal').hide();
+        $('#errMsgContainerModal-2').hide();
+
+        let form = $('#saveBulkForm').get(0) as HTMLFormElement
+        let validRequired = form.checkValidity()
+        //console.log("Valid required", validRequired)
+        $('#saveBulkForm').addClass("was-validated")
+
+        return validRequired
     }
 
     initTinyMCE() {
