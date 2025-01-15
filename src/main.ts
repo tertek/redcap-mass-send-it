@@ -104,8 +104,17 @@ class MassSendIt {
                 })
             }
             simpleDialog("Are you sure?", "Reschedule", null, null, null, "Cancel", onConfirm, "Confirm", undefined)  
-      
         }) 
+
+        $('.bulk-schedule-btn').on('click', function(e){
+            const bulk_id = $(this).data("bulkId")            
+
+            let onConfirm = ()=>{
+                //that.ajaxRunSchedule(bulk_id)
+                that.swalSuccess("records were scheduled for bulk id")
+            }          
+            simpleDialog("Are you sure? This action cannot be reversed. All schedules for this bulk will be deleted and created from new.", "Reschedule", null, null, null, "Cancel",onConfirm, "Confirm", undefined)
+        })
     }
 
     setupModal() {

@@ -16,21 +16,10 @@ class BulkController extends ActionController {
 
     protected $module;
     protected $project_id;
-    //protected $event_id;
-
     protected $data;
 
-    public function __construct($module, $project_id=null, $event_id=null) {
-        parent::__construct();
-        $this->module = $module;
-        
-        empty($project_id) ? $this->project_id = $module->getProjectId() : $this->project_id = $project_id;
-        //empty($event_id) ? $this->event_id = $module->getEventId() : $this->event_id = $event_id;
-
-        if(!isset($_GET['pid'])) {
-            $_GET['pid'] = $this->project_id;
-        }
-        
+    public function __construct($module, $project_id=null) {
+        parent::__construct($module, $project_id);
     }
 
     public function action($task, $data) {           

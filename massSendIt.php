@@ -3,16 +3,11 @@
 // Set the namespace defined in your config file
 namespace STPH\massSendIt;
 
-use Exception;
 use Project;
-use RCView;
 
-if( file_exists("vendor/autoload.php") ){
-    require 'vendor/autoload.php';
-}
-
-if (!class_exists("BulkController")) include_once("controllers/BulkController.php");
-if (!class_exists("Bulk")) include_once("models/Bulk.php");
+if (file_exists("vendor/autoload.php")) require 'vendor/autoload.php';
+if (!class_exists("BulkController")) require_once(__DIR__ . "/controllers/BulkController.php");
+if (!class_exists("BulkModel")) require_once(__DIR__ . "/models/BulkModel.php");
 
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
@@ -74,7 +69,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
      */
     private function getBulks() {
         $fields = (new BulkModel($this))->getFields();
-        //$fields = "bulk_title, bulk_id, bulk_order, bulk_recipients, bulk_type";
+        $fields = "bulk_title, bulk_id, bulk_order, bulk_recipients, bulk_type";
         $sql = "SELECT $fields WHERE table_name = 'bulk'";
         
         $result = $this->queryLogs($sql, []);

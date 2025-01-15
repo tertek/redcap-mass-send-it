@@ -6,7 +6,9 @@ use Exception;
 use ReflectionClass;
 use ReflectionProperty;
 
-class BulkModel {
+if (!class_exists("ActionModel")) require_once(__DIR__ ."/ActionModel.php");
+
+class BulkModel extends ActionModel {
 
     private const TABLE_NAME = 'bulk';
     private static $module;
@@ -46,21 +48,21 @@ class BulkModel {
         $this->project_id = $this->module->getProjectId();
     }
 
-    private function getPublicProperties() {
-        $reflection = new ReflectionClass($this);
-        $vars = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
-        $publicProperties = [];
+    // private function getPublicProperties() {
+    //     $reflection = new ReflectionClass($this);
+    //     $vars = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+    //     $publicProperties = [];
 
-        foreach ($vars as $publicVar) {
-            $publicProperties[] = $publicVar->getName();
-        }
+    //     foreach ($vars as $publicVar) {
+    //         $publicProperties[] = $publicVar->getName();
+    //     }
 
-        return $publicProperties;
-    }
+    //     return $publicProperties;
+    // }
 
-    public function getFields() {
-        return implode(",", $this->getPublicProperties());
-    }
+    // public function getFields() {
+    //     return implode(",", $this->getPublicProperties());
+    // }
 
     public function readBulk($bulk_id) {        
         $fields = $this->getFields();

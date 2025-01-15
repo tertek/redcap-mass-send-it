@@ -10,10 +10,15 @@ abstract class ActionController {
     protected $project_id;
     protected $event_id;
 
-    public function __construct() {
-        $this->project_id = null;
-        $this->event_id = null;
-        $this->module = (object) [];
+    public function __construct($module, $project_id=null) {
+        $this->module = $module;
+        
+        empty($project_id) ? $this->project_id = $module->getProjectId() : $this->project_id = $project_id;
+
+        if(!isset($_GET['pid'])) {
+            $_GET['pid'] = $this->project_id;
+        }
+        
     }
     
     protected function getActionError($msg) {
