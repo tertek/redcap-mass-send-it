@@ -27,8 +27,6 @@ class BulkController extends ActionController {
         empty($project_id) ? $this->project_id = $module->getProjectId() : $this->project_id = $project_id;
         //empty($event_id) ? $this->event_id = $module->getEventId() : $this->event_id = $event_id;
 
-        /**         
-         */
         if(!isset($_GET['pid'])) {
             $_GET['pid'] = $this->project_id;
         }

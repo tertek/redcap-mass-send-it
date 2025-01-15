@@ -4,7 +4,7 @@
 namespace STPH\massSendIt;
 
 use Project;
-use \ExternalModules\ExternalModules; 
+use RCView;
 
 if( file_exists("vendor/autoload.php") ){
     require 'vendor/autoload.php';
@@ -23,61 +23,39 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     ];
 
     private const NUM_NOTIFICATIONS_PER_PAGE = 15;
+ 
 
-
-    private function testModule() {
-
-        $i = 1;
-
-        $recipients = "1,2";
-        $recipients_new = "1,2";
-
-        $payload_create = '[{"name":"bulk_title","value":"Test Bulk '.$i.'"},{"name":"bulk_type","value":"list"},{"name":"bulk_recipients_list","value":"'.$recipients.'"},{"name":"bulk_recipients_logic","value":""},{"name":"file_repo_folder_id","value":"6"},{"name":"file_repo_extension","value":"pdf"},{"name":"file_repo_reference","value":"example_document_reference"},{"name":"email_display","value":"REDCap Bulk Send"},{"name":"email_from","value":"user@admin.com"},{"name":"email_to","value":"[email]"},{"name":"email_first_subject","value":"New Document available"},{"name":"email_first_message","value":"Hello [firstname] [lastname],<br>a file has been uploaded for you. A second follow-up email will be sent containing the password for retrieving the file at the link below.<br>You can access your document here: [share-file-link]<br>If the link does not open, copy and paste the following url into your browser:<br>[share-file-url].<br><br>"},{"name":"password_type","value":"random"},{"name":"custom_pass_field","value":""},{"name":"use_second_email","value":"yes"},{"name":"email_second_subject","value":"Access to your document"},{"name":"email_second_message","value":"Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]"},{"name":"bulk_schedule","value":"12-31-2024 15:00"},{"name":"bulk_expiration","value":""},{"name":"is_edit_mode","value":"false"}]';
+    public function renderModulePage() {
         
-        $payload_update = '[{"name":"bulk_id", "value":"1"},{"name":"bulk_title","value":"Test Bulk Edited"},{"name":"bulk_type","value":"list"},{"name":"bulk_recipients_list","value":"'.$recipients_new.'"},{"name":"bulk_recipients_logic","value":""},{"name":"file_repo_folder_id","value":"6"},{"name":"file_repo_extension","value":"pdf"},{"name":"file_repo_reference","value":"example_document_reference"},{"name":"email_display","value":"REDCap Bulk Send"},{"name":"email_from","value":"user@admin.com"},{"name":"email_to","value":"[email]"},{"name":"email_first_subject","value":"New Document available"},{"name":"email_first_message","value":"Hello [firstname] [lastname],<br>a file has been uploaded for you. A second follow-up email will be sent containing the password for retrieving the file at the link below.<br>You can access your document here: [share-file-link]<br>If the link does not open, copy and paste the following url into your browser:<br>[share-file-url].<br><br>"},{"name":"password_type","value":"random"},{"name":"custom_pass_field","value":""},{"name":"use_second_email","value":"yes"},{"name":"email_second_subject","value":"Access to your document"},{"name":"email_second_message","value":"Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]"},{"name":"bulk_schedule","value":"12-31-2027 15:00"},{"name":"bulk_expiration","value":""},{"name":"is_edit_mode","value":"true"},{"name":"bulk_order","value":"0"}]';
+        $this->includeView('page.header');
 
-        $payload_delete = array("bulk_id" => 1);
-
-        $bulkController = new BulkController($this, $this->getProjectId());
-        //$response = $bulkController->action('create', $payload_create);
-        //$response = $bulkController->action("update", $payload_update);
-        //$response = $bulkController->action('delete', $payload_delete);
-        //$response = $bulkController->action('read', array("bulk_id" => "1"));
-
-
-        
-    
-        //dump($response);
-        exit();
-    }    
-
-    public function renderModuleProjectPage() {
-
-        $sql = "SELECT max(cast(bulk_id as UNSIGNED)) as max_key_id WHERE table_name = 'bulk' and project_id=22";
-        dump($this->getQueryLogsSql($sql));
-
-        //$this->testModule();
-
-        $this->includeJavascript();
         if(!isset($_GET['log']) || $_GET['log'] != 1) {
-            $this->renderBulks();
+            $this->includeView('bulks.page');
+            $this->includeView('bulks.modal');
         } else {
-            $this->renderNotifications();
+            $this->includeView('notifications.page');
         }
+        
+        $this->includeJavascript();
     }
 
-    private function renderBulks() {
-        $bulks = $this->getBulks();
-        dump($bulks);
+    /**
+     * To be replaced with Twig Views
+     * Available from REDCap Version 14.6.4
+     * 
+     */
+    private function includeView($name) {
+        $path = 'views/view.'.$name.'.php';
+        include_once($path);
     }
 
-    private function renderNotifications() {
-        $notifications = $this->getNotifications();
-        dump($notifications);
-    }
-
+    /**
+     * Calld from view
+     * 
+     */
     private function getBulks() {
-        $fields = "timestamp, bulk_title, bulk_id, bulk_order, bulk_recipients, bulk_type";
+        $fields = (new BulkModel($this))->getFields();
+        //$fields = "bulk_title, bulk_id, bulk_order, bulk_recipients, bulk_type";
         $sql = "SELECT $fields WHERE table_name = 'bulk'";
         
         $result = $this->queryLogs($sql, []);
@@ -102,34 +80,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         return $notifications;
     }
     
-   /**
-    * Include JavaScript files
-    *
-    * @since 1.0.0
-    */
-    private function includeJavascript() {
-        $this->initializeJavascriptModuleObject();
-        ?>
-        <script> 
-             /**
-             * Passthrough:
-             * JavascriptModuleObject JS(M)O
-             * Data Transfer Object DTO
-             * 
-             */
-            const JSO_STPH_BULK_SEND = <?=$this->getJavascriptModuleObjectName()?>;
-            const DTO_STPH_BULK_SEND = <?=$this->getDataTransferObject()?>;
-        </script>
-        <script 
-            type="module"  
-            src="<?php print $this->getUrl('dist/main.js'); ?>">
-            /**
-             * Include JavaScript Module
-             * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
-             */
-        </script>
-        <?php
-    }
 
     private function getDataTransferObject() {
         $DTO = array(            
@@ -190,15 +140,45 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
         return  $this->escape($fields);
     }
+
+ /**
+    * Include JavaScript files
+    *
+    * @since 1.0.0
+    */
+    public function includeJavascript() {
+        $this->initializeJavascriptModuleObject();
+        ?>
+        <script> 
+             /**
+             * Passthrough:
+             * JavascriptModuleObject JS(M)O
+             * Data Transfer Object DTO
+             * 
+             */
+            const JSO_STPH_BULK_SEND = <?=$this->getJavascriptModuleObjectName()?>;
+            const DTO_STPH_BULK_SEND = <?=$this->getDataTransferObject()?>;
+        </script>
+        <script 
+            type="module"  
+            src="<?php print $this->getUrl('dist/main.js'); ?>">
+            /**
+             * Include JavaScript Module
+             * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules
+             */
+        </script>
+        <?php
+    }    
     
    /**
     * Include Style files
     *
     * @since 1.0.0    
     */
-    private function includeCSS() {
+    public function includeCSS() {
         ?>
-        <link rel="stylesheet" href="<?= $this->getUrl('style.css')?>">
+        <!-- We are using Alerts.css since the styling has not change -->
+        <link rel="stylesheet" type="text/css" href="<?php echo APP_PATH_CSS ?>Alerts.css" media="screen,print">
         <?php
     }
 
