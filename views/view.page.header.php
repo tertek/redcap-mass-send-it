@@ -1,4 +1,5 @@
 <?php
+namespace STPH\massSendIt;
 
     $this->includeCSS();
 ?>

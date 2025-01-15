@@ -1,4 +1,5 @@
 <?php
+namespace STPH\massSendIt;
 
 
 echo '<div class="mt-3" style="width:950px;max-width:950px;">';

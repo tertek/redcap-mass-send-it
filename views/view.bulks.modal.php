@@ -1,4 +1,8 @@
 <?php
+namespace STPH\massSendIt;
+
+use RCView;
+use DateTimeRC;
 
 function getProjectFields() {
     $projectFields = \Form::getFieldDropdownOptions(limitToFieldType: "text");
@@ -27,7 +31,7 @@ function getToEmails() {
     }
     $ddProjectVarLabel = "Email variables";
     $validationDataTypes = array_unique($validationDataTypes);
-    $emailFieldsLabels = Form::getFieldDropdownOptions(false, false, false, false, $validationDataTypes);
+    $emailFieldsLabels = \Form::getFieldDropdownOptions(false, false, false, false, $validationDataTypes);
     if (!empty($emailFieldsLabels)) {
         foreach ($emailFieldsLabels as $formLabel=>$emailFields) {
             if (!is_array($emailFields)) continue;
@@ -387,6 +391,7 @@ function getToEmails() {
 
                             <input type="hidden" id="is_edit_mode" name="is_edit_mode" value="">
                             <input type="hidden" id="bulk_id" name="bulk_id" value="">
+                            <input type="hidden" id="bulk_order" name="bulk_order" value="">
                         </table>
                     </div>
 
