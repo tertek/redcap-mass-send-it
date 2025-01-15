@@ -79,7 +79,7 @@ class BulkController extends ActionController {
     }
 
     private function readTask() {        
-        $bulk_id = $this->data["bulk_id"];
+        $bulk_id = $this->data->bulk_id;
         $bulkModel = new BulkModel($this->module);
         $bulk = $bulkModel->readBulk($bulk_id);
 
@@ -129,11 +129,13 @@ class BulkController extends ActionController {
         //  set payload object from form data
         $decoded = [];
         foreach ( json_decode($form_data) as $key => $item) {
-            $decoded[$item->name] = $item->value;
+
+            $decoded[$item->name] = htmlspecialchars($item->value, ENT_QUOTES);
         }
         
         //  sanitize form data after json decode
-        $payload = $this->module->escape($decoded);
+        //$payload = $this->module->escape($decoded);
+        $payload = $decoded;
 
         //  set bulk_id
         if(isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true" ) {

@@ -73,6 +73,9 @@ class BulkModel {
 
         $bulk = $result->fetch_object();
 
+        $bulk->email_first_message = htmlspecialchars_decode($bulk->email_first_message, ENT_QUOTES);
+        $bulk->email_second_message = htmlspecialchars_decode($bulk->email_second_message, ENT_QUOTES);
+
         return $bulk;
     }
 
@@ -90,6 +93,8 @@ class BulkModel {
             "record" => null
         );
 
+        // $validated->email_first_message = htmlspecialchars($validated->email_first_message, ENT_QUOTES);
+        // $validated->email_second_message = htmlspecialchars($validated->email_second_message, ENT_QUOTES);
         // cast validated object to array, so we can merge it with other params
         $bulk_params = (array) $validated;
 
@@ -118,6 +123,9 @@ class BulkModel {
         if(!$bulk_old) {
             throw new Exception("bulk with bulk_id $validated->bulk_id does not exist! Aborting update.");
         }
+
+        $validated->email_first_message = htmlspecialchars_decode($validated->email_first_message, ENT_QUOTES);
+        $validated->email_second_message = htmlspecialchars_decode($validated->email_second_message, ENT_QUOTES);
         
         $diff = array_diff((array)$validated, (array) $bulk_old);
         if(count($diff) == 0) {
@@ -127,9 +135,14 @@ class BulkModel {
             throw new Exception("Cannot change bulk_id! Aborting update.");
         }
 
+        /**
+         * DEBUGGING
+         */
+        // return array("diff" => $diff, "bulk_old" => $bulk_old, "validated" => $validated);
+
         $errors = [];
         foreach ($diff as $key => $value) {            
-            if(!$this->updateQuery($value, $key, $validated->bulk_id)) {
+            if(!$this->updateQuery($this->module->escape($value), $key, $validated->bulk_id)) {
                 $errors[] = $key;
             }
         }
