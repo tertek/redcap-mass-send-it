@@ -33,35 +33,35 @@ class BulkController extends ActionController {
         
     }
 
-    public function action($actionName, $actionData) {           
+    public function action($task, $data) {           
         try {
-            $this->data = $actionData;
-            $actionResponse = $this->mapActions($actionName);
+            $this->data = $data;
+            $taskResponse = $this->mapTasks($task);
         } catch (\Throwable $th) {
             //dump($th);
             return $this->getActionError($th->getMessage());
         }
 
-        return $this->getActionSuccess($actionResponse);
+        return $this->getActionSuccess($taskResponse);
         
     }
 
-    private function mapActions($name) {        
-        switch ($name) {
+    private function mapTasks($task) {        
+        switch ($task) {
             case 'create':
-                return $this->createAction();
+                return $this->createTask();
                 break;
 
             case 'read':
-                return $this->readAction();
+                return $this->readTask();
                 break;                
 
             case 'update':
-                return $this->updateAction();
+                return $this->updateTask();
                 break;
 
             case 'delete':
-                return $this->deleteAction();
+                return $this->deleteTask();
                 break;
 
             default:
@@ -70,7 +70,7 @@ class BulkController extends ActionController {
         }
     }
 
-    private function createAction() {
+    private function createTask() {
 
         $validated = $this->validate();
         $bulk = $this->store($validated);
@@ -78,8 +78,8 @@ class BulkController extends ActionController {
         return array("bulk" => $bulk);
     }
 
-    private function readAction() {
-        $bulk_id = $this->data["bulk_id"];        
+    private function readTask() {        
+        $bulk_id = $this->data["bulk_id"];
         $bulkModel = new BulkModel($this->module);
         $bulk = $bulkModel->readBulk($bulk_id);
 
@@ -90,14 +90,14 @@ class BulkController extends ActionController {
         return array("bulk" => $bulk);        
     }
 
-    private function updateAction() {    
+    private function updateTask() {    
         $validated = $this->validate();            
         $bulk = $this->store($validated, true);
         
         return array("bulk" => $bulk);
     }
 
-    private function deleteAction() {
+    private function deleteTask() {
         $bulk_id = $this->data["bulk_id"];
 
         $bulkModel = new BulkModel($this->module);

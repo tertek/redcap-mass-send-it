@@ -36,7 +36,9 @@
 
     "enable-no-auth-logging": false,
 
-    "auth-ajax-actions": [],
+    "auth-ajax-actions": [
+        "bulk"
+    ],
 
     "no-auth-ajax-actions": [],
 

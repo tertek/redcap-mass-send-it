@@ -3,6 +3,7 @@
 // Set the namespace defined in your config file
 namespace STPH\massSendIt;
 
+use Exception;
 use Project;
 use RCView;
 
@@ -23,6 +24,24 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     ];
 
     private const NUM_NOTIFICATIONS_PER_PAGE = 15;
+
+    public function redcap_module_ajax($action, $payload, $project_id) {
+
+        $payload = (object) $payload;
+
+        switch ($action) {
+            case 'bulk':
+                $bulkController = new BulkController($this, $project_id);
+                $response = $bulkController->action($payload->task, $payload->data);
+                break;
+            
+            default:
+                $response = null;
+                break;
+        }
+
+        return json_encode($response);
+    }
  
 
     public function renderModulePage() {

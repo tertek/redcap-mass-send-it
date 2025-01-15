@@ -10,6 +10,7 @@ class BulkModel {
 
     private const TABLE_NAME = 'bulk';
     private static $module;
+    private $project_id;
 
 
     public int $bulk_id;
@@ -39,12 +40,10 @@ class BulkModel {
     public string $bulk_schedule;
     public ?string $bulk_expiration;
 
-    public static function test() {
-        return static::$module->getProjectId();
-    }
 
     public function __construct($module) {
         $this->module = $module;
+        $this->project_id = $this->module->getProjectId();
     }
 
     private function getPublicProperties() {
@@ -67,7 +66,7 @@ class BulkModel {
         $fields = $this->getFields();
         $sql = "SELECT $fields WHERE table_name='BULK' AND bulk_id = ? and project_id=?";
                
-        $result = $this->module->queryLogs($sql, [$bulk_id, 22]);
+        $result = $this->module->queryLogs($sql, [$bulk_id, $this->project_id]);
         if($result->num_rows == 0) {
             return false;
         }
@@ -161,6 +160,10 @@ class BulkModel {
         $this->module->removeLogs($where, [$bulk_id]);
     }
 
+    /**
+     * TBD: Add project_id
+     * 
+     */
     private function updateQuery($value, $key, $bulk_id) {
 
         $sql = "UPDATE redcap_external_modules_log_parameters AS to_change 
