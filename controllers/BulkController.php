@@ -98,12 +98,12 @@ class BulkController extends ActionController {
     }
 
     private function deleteTask() {
-        $bulk_id = $this->data["bulk_id"];
+        $bulk_id = $this->data->bulk_id;
 
         $bulkModel = new BulkModel($this->module);
-        $bulkModel->deleteBulk($bulk_id);
+        $removed_count = $bulkModel->deleteBulk($bulk_id);
 
-        return array("bulk_id" => $bulk_id);
+        return array("bulk_id" => $bulk_id, "removed_count" => $removed_count);
     }    
 
     private function store($validated, $isUpdate = false) {

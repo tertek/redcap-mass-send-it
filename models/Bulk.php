@@ -157,7 +157,9 @@ class BulkModel {
 
         //  additionally delete schedules of this bulk
         $where = "table_name = 'SCHEDULE' and bulk_id = ?";
-        $this->module->removeLogs($where, [$bulk_id]);
+        $removeSchedules = $this->module->removeLogs($where, [$bulk_id]);
+
+        return $removeSchedules;
     }
 
     private function updateQuery($value, $key, $bulk_id) {

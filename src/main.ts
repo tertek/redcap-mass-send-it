@@ -8,6 +8,7 @@ declare const DTO_STPH_BULK_SEND: BULK_SEND_DTO
 declare const tinymce: any;
 declare const Swal: any;
 declare const currentTime:(type:string,showSeconds?:boolean,returnUTC?:boolean) => number;
+declare function simpleDialog(content:string|null,title:string|null,id:number|null,width:number|null,onCloseJs:Function|null,closeBtnTxt:string|null,okBtnJs:Function|null,okBtnTxt:string|null,autoOpen:boolean|undefined): void;
 
 interface BULK_SEND_DTO {
     modal_defaults: {
@@ -64,9 +65,47 @@ class MassSendIt {
                 $('[name=external-modules-configure-modal-1]').scrollTop(0);
                 return false;
             }
+        })
 
-        })        
+        $('.bulk-delete-btn').on('click', function(){
+            const bulk_id = $(this).data("bulkId")
+            
+            let onConfirm = ()=>{
 
+                let payload = {
+                    task: 'delete',
+                    data: {
+                        bulk_id:bulk_id
+                    }
+                }
+
+                JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string) => {
+                    let response = JSON.parse(json)
+                    console.log(response)
+            
+                    if(response.error) {
+                        console.log("There was an error")
+                        console.log(response.message)
+                        Swal.fire({
+                            title: "Error!",
+                            text: response.message,
+                            icon: "error"
+                        })
+                    } else {
+                        Swal.fire({
+                            title: "Success!",
+                            text: 'Bulk with id '+ response.data.bulk_id + ' and '+response.data.removed_count+' schedules were deleted', 
+                            icon: "success"
+                        }
+                        ).then(()=>{
+                            location.reload();
+                        });                    
+                    }
+                })
+            }
+            simpleDialog("Are you sure?", "Reschedule", null, null, null, "Cancel", onConfirm, "Confirm", undefined)  
+      
+        }) 
     }
 
     setupModal() {
@@ -310,14 +349,14 @@ class MassSendIt {
                 console.log("SAVE")
                 //  Hide modal and show progress dialog
                 $('[name=external-modules-configure-modal-1]').modal('hide'); 
-                that.showSuccess("Bulk has been created!")
+                that.swalSuccess("Bulk has been created!")
                 //  check if we have a callback
                 //that.ajaxRunSchedule(response.data.bulk_id)
             }
         })
     }
 
-    showSuccess(message:string) {
+    swalSuccess(message:string) {
         Swal.fire({
             title: "Success!",
             text: message,
