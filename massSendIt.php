@@ -76,7 +76,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
      * Calld from view
      * 
      */
-    private function getBulks() {
+    public function getBulks() {
         $fields = (new BulkModel($this))->getFields();        
         $sql = "SELECT $fields WHERE table_name = 'bulk'";
         
@@ -97,7 +97,8 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     private function getNotifications() {
 
         $fields = "id, bulk_id, event_id, record, sendit_docs_id, sendit_recipients_id, time_sent, was_sent, error, log";
-        $sql = "SELECT $fields WHERE table_name='notifications'";
+        //  $fields = (new NotificationModel($this))->getFields();
+        $sql = "SELECT $fields WHERE table_name='notification'";
         $result = $this->queryLogs($sql, []);
         $notifications = [];
         while($notification = $result->fetch_object()) {
@@ -217,9 +218,11 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
      */
     public function sendNotificationsViaCron() {
 
-        if(!self::IS_CRON_ENABLED) {
+        if(!self::IS_CRON_ENABLED && php_sapi_name() === 'cli') {
             return;
         }
+
+        dump("ok");
     }
     
 }

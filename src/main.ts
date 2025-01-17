@@ -528,6 +528,26 @@ class MassSendIt {
         return sd.getMonth() + 1+"-"+sd.getDate()+"-"+sd.getFullYear()+" "+sd.getHours()+":"+sd.getMinutes()
        
     }
+
+    /**
+     * NotificationLog page methods
+     */
+    deleteRecurrence() {
+        alert("To be implemented");
+    }
+
+    loadPreviewEmailAlertRecord(content:string) {
+       alert("Email Message Preview: "+content);
+    }
+
+    // Reload the Survey Invitation Log for another "page" when paging the log
+    loadBulkNotificationLog(pagenum:number) {
+        //  @ts-ignore
+        showProgress(1);
+        //  @ts-ignore
+        window.location.href = app_path_webroot+'ExternalModules/?pid='+pid+'&prefix=mass_send_it&page=project-page&log=1&pagenum='+pagenum+
+            '&filterBeginTime='+$('#filterBeginTime').val()+'&filterEndTime='+$('#filterEndTime').val()+'&filterRecord='+$('#filterRecord').val()+'&filterAlert='+$('#filterAlert').val();
+    }
 }
 
 
