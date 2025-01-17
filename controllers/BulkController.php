@@ -112,16 +112,12 @@ class BulkController extends ActionController {
             throw new Exception("form_data must not be empty");
         }
  
-        //  set payload object from form data
-        $decoded = [];
+        //  set payload array from sanitized form data object
+        $payload = [];
         foreach ( json_decode($form_data) as $key => $item) {
 
-            $decoded[$item->name] = htmlspecialchars($item->value, ENT_QUOTES);
+            $payload[$item->name] = htmlspecialchars($item->value, ENT_QUOTES);
         }
-        
-        //  sanitize form data after json decode
-        //$payload = $this->module->escape($decoded);
-        $payload = $decoded;
 
         //  set bulk_id
         if(isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true" ) {
@@ -288,6 +284,7 @@ class BulkController extends ActionController {
         $validated->bulk_schedule = DateTimeRC::format_ts_to_ymd($payload["bulk_schedule"]);
         $validated->bulk_expiration = DateTimeRC::format_ts_to_ymd($payload["bulk_expiration"]);       
 
+        //$validated->bulk_recipients = "foo";
         return $validated;
 
     }

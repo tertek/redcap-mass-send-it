@@ -122,11 +122,12 @@ class BulkModel extends ActionModel {
         /**
          * DEBUGGING
          */
-        // return array("diff" => $diff, "bulk_old" => $bulk_old, "validated" => $validated);
+        //return array("diff" => $diff, "bulk_old" => $bulk_old, "validated" => $validated);
 
         $errors = [];
-        foreach ($diff as $key => $value) {            
-            if(!$this->updateQuery($this->module->escape($value), $key, $validated->bulk_id)) {
+        foreach ($diff as $key => $value) {      
+            //  no need to escape again, since we are using calculated difference from $validated
+            if(!$this->updateQuery($value, $key, $validated->bulk_id)) {
                 $errors[] = $key;
             }
         }
