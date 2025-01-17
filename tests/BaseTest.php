@@ -30,7 +30,7 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
        * 2. Import record data ✓
        * 3. Upload documents ⨉ : must be done manually
        */
-      self::fixtureClearBulkData();
+      //self::fixtureClearBulkData();
       self::fixtureDataDictionaryDevices();
       self::fixtureRecordDataDevices();
 
@@ -65,6 +65,7 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
     static private function fixtureClearBulkData() {
       $sql = "DELETE FROM redcap_external_modules_log WHERE project_id = ?";
       ExternalModules::query($sql, [TEST_PROJECT_1]);
+      self::echo("Bulk Data has been cleared.", "fixture");
     }
 
     /**

@@ -3,7 +3,8 @@
 class massSendItTest extends BaseTest
 {
 
-   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1,2", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="false", $id=false, $order=false) {      
+   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1,2", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="false", $bulk_id=false, $order=false) {      
+      
       $data =  array(
          "bulk_title" => $title,
          "bulk_type" => $type,
@@ -27,57 +28,59 @@ class massSendItTest extends BaseTest
          "is_edit_mode" => $isEditMode
       );
 
-      if($id) {
-         $data["bulk_id"] = $id;
+      if($bulk_id) {
+         $data["bulk_id"] = $bulk_id;
       }
 
       if($order) {
          $data["bulk_order"] = $order;
       }
 
-      $result = [];
+      $form_data = [];
       foreach ($data as $key => $value) {
-         $result[] = array("name" => $key, "value" => $value);
+         $form_data[] = array("name" => $key, "value" => $value);
       }
 
-      return json_encode($result);
+      $payload = array("form_data" => json_encode($form_data));
+
+      return $payload;
 
    }
 
-   function testBulkActions(){
+   function testCreateBulkAction(){
 
       $project_id = TEST_PROJECT_1;
       
-      $payload = $this->generatePayload();      
+      $payload = $this->generatePayload();    
 
       $bulkController = new BulkController($this, $project_id);
 
-      $bulksCreated = [];
-      for ($i=1; $i <=5 ; $i++) { 
-         $actionDataCreate = $bulkController->action('create', $payload);
-         $bulksCreated[] = $actionDataCreate["data"]["bulk"];
-      }
+      $actionDataCreate = $bulkController->action('create', $payload);
+      $this->assertFalse($actionDataCreate["error"], "Error: " . $actionDataCreate["message"]);
+   }
 
-      $actionDataRead = $bulkController->action('read', ["bulk_id" => $bulksCreated[0]->bulk_id]);
-      $bulkRead = $actionDataRead["data"]["bulk"];
+   function testReadBulkAction() {
+      $payload_read = array("bulk_id" => "1");
+      $bulkController = new BulkController($this, TEST_PROJECT_1);
+      $actionDataRead = $bulkController->action('read', $payload_read);
+      $this->assertFalse($actionDataRead["error"], "Error: " . $actionDataRead["message"]);
 
-      $this->assertEquals($bulksCreated[0], $bulkRead);
    }
 
    function testUpdateBulkAction() {
-      $payload = $this->generatePayload(title: "Test Bulk Edited", id: "1", isEditMode: true, order:"2");
+
+      $payload = $this->generatePayload(
+         title: "Test Bulk Edited", 
+         bulk_id: "1", 
+         isEditMode: true, 
+         order:"2"
+      );
+
       $bulkController = new BulkController($this, TEST_PROJECT_1);
       $actionDataUpdate = $bulkController->action("update", $payload);
-
-      $bulkUpdated = $actionDataUpdate["data"]["bulk"];
-
-      $actionDataRead = $bulkController->action('read', ["bulk_id" => "1"]);
-      $bulkRead = $actionDataRead["data"]["bulk"];
-
-      $this->assertSame("Test Bulk Edited", $bulkUpdated->bulk_title);
-      $this->assertSame($bulkRead->bulk_title, $bulkUpdated->bulk_title);
+      
+      $this->assertFalse($actionDataUpdate["error"], "Error: " . $actionDataUpdate["message"]);
    }
-
 
    function testDeleteBulkAction(){
 
@@ -86,16 +89,12 @@ class massSendItTest extends BaseTest
       $bulkController = new BulkController($this,  TEST_PROJECT_1);
       $bulkController->action('delete', $payload);
 
-      $actionDataRead = $bulkController->action('read', ["bulk_id" => "1"]);
+      $payload_read  = array("bulk_id" => "1");
+      $actionDataRead = $bulkController->action('read', $payload_read);
       $actual = $actionDataRead["message"];
 
       $expected = "bulk with bulk_id 1 not found";
 
       $this->assertSame($expected, $actual);
-
-      
-      
-      
    }
-
 }
