@@ -154,8 +154,8 @@ class BulkModel extends ActionModel {
         }
 
         //  remove schedules
-        $where = "table_name = ? and bulk_id = ?";
-        $removeSchedules = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id]);
+        $where = "table_name = 'schedule' and bulk_id = ?";
+        $removeSchedules = $this->module->removeLogs($where, [$bulk_id]);
 
         return $removeSchedules;
     }
