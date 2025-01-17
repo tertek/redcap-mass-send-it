@@ -211,6 +211,21 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         <?php
     }
 
+    /**
+     * Only needed when EMF is installed
+     */
+    public function getModulePath(){
+        if(EXTMOD_EXTERNAL_INSTALL) {
+            return "/redcap/external_modules";
+        } else {
+            return APP_PATH_WEBROOT . "ExternalModules";
+        }
+    }
+    
+    public function getModulePrefix() {
+        return \ExternalModules\ExternalModules::getParseModuleDirectoryPrefixAndVersion($this->getModuleDirectoryName())[0];
+    }    
+
 
     /**
      * Cron Job Function

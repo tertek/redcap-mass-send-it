@@ -55,7 +55,7 @@ function getPageData($notificationLog, $num_per_page_config) {
     return array($num_per_page, $pageDropdown, $limit_begin);
 }
 
- function getTitle($pageDropdown, $bulks) {
+ function getTitle($pageDropdown, $bulks, $reset_url) {
     global $lang;
     $showFullTableDisplay = true;
     // Set NOW in user defined date format but with military time
@@ -151,7 +151,7 @@ function getPageData($notificationLog, $num_per_page_config) {
                 // "Apply filters" button
                 RCView::button(
                     array('class'=>'jqbuttonsm','style'=>'margin-top:5px;font-size:11px;color:#800000;','onclick'=>"STPH_MassSendIt.loadBulkNotificationLog(1)"), $lang['survey_442']) .
-                RCView::a(array('href'=> "?pid=".PROJECT_ID."&prefix=&page=project-page&log=1",'style'=>'vertical-align:middle;margin-left:15px;text-decoration:underline;font-weight:normal;font-size:11px;'), $lang['setup_53'])
+                RCView::a(array('href'=> $reset_url,'style'=>'vertical-align:middle;margin-left:15px;text-decoration:underline;font-weight:normal;font-size:11px;'), $lang['setup_53'])
             ) .
             ## CLEAR
             RCView::div(array('class'=>'clear'), '')
@@ -388,23 +388,23 @@ function getNotificationLog($module) {
    
 }
 
-function renderNotificationLog($notificationLog, $bulks, $num_per_page_config) {
+function renderNotificationLog($notificationLog, $bulks, $num_per_page_config, $reset_url) {
 
     list($num_per_page, $pageDropdown, $limit_begin) = getPageData($notificationLog, $num_per_page_config);
     
     $rows = getRows($notificationLog, $limit_begin, $num_per_page);
 
     $headers = getHeaders();
-    $title = getTitle($pageDropdown, $bulks);    
+    $title = getTitle($pageDropdown, $bulks, $reset_url);    
     $width = 948;
         
     // Build Bulk Log table
     return renderGrid("notification_log_table", $title, $width, 'auto', $headers, $rows, true, true, false);
 
 }
-
+$reset_url = $this->getModulePath()."?pid=".PROJECT_ID."&prefix=".$this->getModulePrefix()."&page=project-page&log=1";
 list($bulks, $notificationLog) = getNotificationLog($this);
-$notificationLogRender = renderNotificationLog($notificationLog, $bulks, self::NUM_NOTIFICATIONS_PER_PAGE);
+$notificationLogRender = renderNotificationLog($notificationLog, $bulks, self::NUM_NOTIFICATIONS_PER_PAGE, $reset_url);
 ?>
 <div class="mt-3" style="width:950px;max-width:950px;">
     <?= $notificationLogRender?>
