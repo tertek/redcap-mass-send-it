@@ -3,7 +3,7 @@
 class massSendItTest extends BaseTest
 {
 
-   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1,2", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="false", $bulk_id=false, $order=false) {      
+   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1,2", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="", $bulk_id=false, $order=false) {      
       
       $data =  array(
          "bulk_title" => $title,
@@ -72,7 +72,7 @@ class massSendItTest extends BaseTest
       $payload = $this->generatePayload(
          title: "Test Bulk Edited", 
          bulk_id: "1", 
-         isEditMode: true, 
+         isEditMode: "true", 
          order:"2"
       );
 
@@ -96,5 +96,9 @@ class massSendItTest extends BaseTest
       $expected = "bulk with bulk_id 1 not found";
 
       $this->assertSame($expected, $actual);
+   }
+
+   function testCreateScheduleAction() {
+      
    }
 }

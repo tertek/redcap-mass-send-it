@@ -49,7 +49,6 @@ class MassSendIt {
 
         $('#saveBulkForm').on('submit', function(event){
             event.preventDefault()
-
             //  CheckRequired and showErrors, see checkRequiredFieldsAndLoadOption
             let validRequired = that.checkRequired()
             let validExtra = that.checkExtra()
@@ -224,6 +223,7 @@ class MassSendIt {
             }
 
             JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string)=>{
+                console.log(json)
                 let response = JSON.parse(json)
 
                 if(response.error) {
@@ -346,11 +346,7 @@ class MassSendIt {
         let that = this
         let isEdit = $('[name=is_edit_mode]').val()
         let form = $('#saveBulkForm')
-        
-        let task = 'create'
-        if(isEdit == "true") {
-            task = 'update'
-        }
+        let task = isEdit == "true" ? 'update' : 'create'
 
         let payload = {
             task: task,
@@ -359,13 +355,10 @@ class MassSendIt {
             }
         }
 
-        console.log(payload)
-
         JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string)=>{
             let response = JSON.parse(json)      
             console.log(response)
 
-    
             if(response.error) {
                 $('#errMsgContent-2').html(response.message);
                 $('#errMsgContainerModal-2').show();
@@ -374,7 +367,7 @@ class MassSendIt {
             } else {
                 //  Hide modal and show progress dialog
                  $('[name=external-modules-configure-modal-1]').modal('hide')
-                let message = "Bulk has been "+task+"d!"
+                let message = "Bulk has been created/updated!"
                 that.swalSuccess(message)
                 //  check if we have a callback
                 //  run callback?

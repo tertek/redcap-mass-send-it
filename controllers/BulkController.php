@@ -19,7 +19,7 @@ class BulkController extends ActionController {
         parent::__construct($module, $project_id);
     }
 
-    public function action($task, $data) {           
+    public function action(string $task, array $data) {           
         try {
             $this->data = (object) $data;
             $response = $this->mapTasks($task);
@@ -64,7 +64,7 @@ class BulkController extends ActionController {
         return array("bulk" => $bulk);
     }
 
-    private function readTask() {        
+    private function readTask() {
         $bulk_id = $this->data->bulk_id;
         $bulkModel = new BulkModel($this->module);
         $bulk = $bulkModel->readBulk($bulk_id);
@@ -77,7 +77,7 @@ class BulkController extends ActionController {
     }
 
     private function updateTask() {    
-        $validated = $this->validate();            
+        $validated = $this->validate();
         $bulk = $this->store($validated, true);
         
         return array("bulk" => $bulk);
@@ -93,6 +93,7 @@ class BulkController extends ActionController {
     }    
 
     private function store($validated, $isUpdate = false) {
+        //dump("validated\n", $validated);
         $bulkModel = new BulkModel($this->module);
         if($isUpdate === true) {
             $bulk = $bulkModel->updateBulk($validated);
@@ -107,30 +108,30 @@ class BulkController extends ActionController {
 
         $validated = (object) array();
         $form_data = $this->data->form_data;
-
         if(empty($form_data)) {
-            throw new Exception("form_data must not be empty");
+            throw new Exception("validation_error: form_data must not be empty");
         }
  
         //  set payload array from sanitized form data object
         $payload = [];
         foreach ( json_decode($form_data) as $key => $item) {
-
             $payload[$item->name] = htmlspecialchars($item->value, ENT_QUOTES);
         }
+        //dump("payload\n", $payload);
 
         //  set bulk_id
         if(isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true" ) {
             $validated->bulk_id = $payload["bulk_id"];
         } elseif(!isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
-            throw new Exception("bulk_id must be set in edit_mode");
+            throw new Exception("validation_error: bulk_id must be set in edit_mode");
         } else {            
             $validated->bulk_id = $this->get_max_key_id() + 1;
         }
+        //dump("bulk_id", $validated->bulk_id);
 
         //  set bulk_order
         if(!isset($payload["bulk_order"]) && isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
-            throw new Exception("bulk_order must not be empty");
+            throw new Exception("validation_error: bulk_order must not be empty");
         }
         $validated->bulk_order = $payload["bulk_order"];
 
@@ -143,7 +144,7 @@ class BulkController extends ActionController {
 
         // set bulk_type
         if(empty($payload["bulk_type"])) {
-            throw new Exception("bulk_type must not be empty");
+            throw new Exception("validation_error: bulk_type must not be empty");
         }
         $validated->bulk_type = $payload["bulk_type"];
 
@@ -155,7 +156,7 @@ class BulkController extends ActionController {
 
             //  validate recipients
             if(count($recipients) == 0) {
-                throw new Exception("Recipients count must be greater than 0.");
+                throw new Exception("validation_error: recipients count must be greater than 0.");
             }
 
             //  check if records exist
@@ -171,7 +172,7 @@ class BulkController extends ActionController {
             //  indicate non-existing records
             if(count($records) != count($recipients)) {                
                 $diff = array_diff($recipients, $records);
-                throw new Exception("Records in record list must exist. Non-exsiting records: " . implode(",", $diff));
+                throw new Exception("validation_error: records in record list must exist. Non-exsiting records: " . implode(",", $diff));
             }
                 
             $validated->bulk_recipients = serialize($recipients);
@@ -191,37 +192,37 @@ class BulkController extends ActionController {
 
             //  validate logic result (should be at least one record)
             if(count($recipients) == 0) {
-                throw new Exception("Recipients count must be greater than 0.");
+                throw new Exception("validation_error: recipients count must be greater than 0.");
             }
 
             $validated->bulk_recipients = serialize($recipients);
         } else {
-            throw new Exception("Bulk type must be either 'list' or 'logic'");
+            throw new Exception("validation_error: bulk type must be either 'list' or 'logic'");
         }
 
         //  set file file_repo_folder_id
         //  tbd: check folder access permission for project_id
         if(empty($payload["file_repo_folder_id"])) {
-            throw new Exception("file_repo_folder_id must not be empty");
+            throw new Exception("validation_error: file_repo_folder_id must not be empty");
         }
         $validated->file_repo_folder_id = (int) $payload["file_repo_folder_id"];
 
         //  set file file_repo_extension
         if(empty($payload["file_repo_extension"])) {
-            throw new Exception("file_repo_extension must not be empty");
+            throw new Exception("validation_error: file_repo_extension must not be empty");
         }
         $validated->file_repo_extension = $payload["file_repo_extension"];
 
         //  set file file_repo_reference
         if(empty($payload["file_repo_reference"])) {
-            throw new Exception("file_repo_reference must not be empty");
+            throw new Exception("validation_error: file_repo_reference must not be empty");
         }
         $validated->file_repo_reference = $payload["file_repo_reference"];
 
         //  check if file_repo_reference field exists
         $project_fields = array_keys((new Project($this->project_id))->metadata);
         if(!in_array($validated->file_repo_reference, $project_fields)) {
-            throw new Exception("file_repo_reference '$validated->file_repo_reference' does not exist on project with id $this->project_id.");
+            throw new Exception("validation_error: file_repo_reference '$validated->file_repo_reference' does not exist on project with id $this->project_id.");
         }
 
         //  check for all records if file_repo_reference field not isblankormissingcode
@@ -237,7 +238,7 @@ class BulkController extends ActionController {
         //  indicate blank or missing reference fields per record
         if(count($references) != count($recipients)) {
             $diff = array_diff($recipients, array_keys($references));
-            throw new Exception("File Repository reference must not be empty for all records! Empty field ".$validated->file_repo_reference ." in  records: " . implode(",", $diff));
+            throw new Exception("validation_error: rile repository reference must not be empty for all records! Empty field ".$validated->file_repo_reference ." in  records: " . implode(",", $diff));
         }
 
         //  check if all referenced documents exists
@@ -257,7 +258,7 @@ class BulkController extends ActionController {
 
         //  indicate missing documents
         if(!empty($document_not_found)) {                       
-            throw new Exception("Documents must exist for all referenced records! Following documents (with record_id) could not be found:<br>" . implode(",", $document_not_found));
+            throw new Exception("validation_error: documents must exist for all referenced records! Following documents (with record_id) could not be found:<br>" . implode(",", $document_not_found));
         }
 
         $validated->email_display = $payload["email_display"];
@@ -284,7 +285,6 @@ class BulkController extends ActionController {
         $validated->bulk_schedule = DateTimeRC::format_ts_to_ymd($payload["bulk_schedule"]);
         $validated->bulk_expiration = DateTimeRC::format_ts_to_ymd($payload["bulk_expiration"]);       
 
-        //$validated->bulk_recipients = "foo";
         return $validated;
 
     }

@@ -221,8 +221,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         if(!self::IS_CRON_ENABLED && php_sapi_name() === 'cli') {
             return;
         }
-
-        dump("ok");
     }
     
 }

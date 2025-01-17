@@ -66,7 +66,6 @@ class BulkModel extends ActionModel {
 
     public function createBulk($validated) {
         
-        // dump($validated);
         if($this->readBulk($validated->bulk_id) !== false) {
             throw new Exception("bulk_id $validated->bulk_id already exists. Cannot create bulk with same bulk_id!");
         }
@@ -95,16 +94,16 @@ class BulkModel extends ActionModel {
         }
 
         return $this->readBulk($validated->bulk_id);
-
     }
 
 
     public function updateBulk($validated) {
 
+        //dump($validated);
         //  check difference
         $bulk_old = $this->readBulk($validated->bulk_id);
         if(!$bulk_old) {
-            throw new Exception("bulk with bulk_id $validated->bulk_id does not exist! Aborting update.");
+            throw new Exception("bulk_model_error: bulk with bulk_id $validated->bulk_id does not exist! Aborting update.");
         }
 
         //  decode special chars, difference does not break
@@ -113,10 +112,10 @@ class BulkModel extends ActionModel {
         
         $diff = array_diff((array)$validated, (array) $bulk_old);
         if(count($diff) == 0) {
-            throw new Exception("No difference found! Aborting update.");
+            throw new Exception("no difference found! Aborting update.");
         }
         if(in_array("bulk_id", $diff)) {
-            throw new Exception("Cannot change bulk_id! Aborting update.");
+            throw new Exception("cannot change bulk_id! Aborting update.");
         }
 
         /**
@@ -133,7 +132,7 @@ class BulkModel extends ActionModel {
         }
 
         if(count($errors) > 0) {
-            throw new Exception("The update query was partially unsuccessful. Following keys did not update: " .  implode(",", $errors));
+            throw new Exception("bulk_model_error: the update query was partially unsuccessful. Following keys did not update: " .  implode(",", $errors));
         }
 
         //  return bulk
@@ -143,7 +142,7 @@ class BulkModel extends ActionModel {
     public function deleteBulk($bulk_id) {
         
         if(empty($bulk_id)) {
-            throw new Exception("bulk_id must not be null");
+            throw new Exception("bulk_model_error: bulk_id must not be null");
         }
 
         //  remove bulk
@@ -151,7 +150,7 @@ class BulkModel extends ActionModel {
         $removedBulk = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id]);
 
         if($removedBulk != 1) {
-            throw new Exception("Bulk with bulk_id $bulk_id not found. ");
+            throw new Exception("bulk_model_error: bulk with bulk_id $bulk_id not found. ");
         }
 
         //  remove schedules
