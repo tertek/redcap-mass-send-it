@@ -81,7 +81,7 @@ class ScheduleModel extends ActionModel {
         return $scheduled;
     }
 
-    public function deleteScheduled($bulk_id) {
+    public function deleteScheduleByBulk($bulk_id) {
         $where = "table_name = ? and bulk_id = ?";
         $removeSchedules = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id]);
 
@@ -98,7 +98,7 @@ class ScheduleModel extends ActionModel {
             left join redcap_external_modules_log_parameters table_name
             on table_name.log_id = redcap_external_modules_log.log_id
             and table_name.name = 'table_name'
-            WHERE redcap_external_modules_log.external_module_id = (SELECT external_module_id FROM redcap_external_modules WHERE directory_prefix = 'mass_send_it') and (table_name.value = '{$key}' and redcap_external_modules_log.project_id = ?)";
+            WHERE redcap_external_modules_log.external_module_id = (SELECT external_module_id FROM redcap_external_modules WHERE directory_prefix = '{$this->module->getModulePrefix()}') and (table_name.value = '{$key}' and redcap_external_modules_log.project_id = ?)";
         $result = $this->module->query($sql_get_max_key_id, [$this->project_id]);
         $max_key_id = $result->fetch_object()->max_key_id ?? 0;
         return $max_key_id;

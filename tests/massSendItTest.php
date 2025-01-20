@@ -98,7 +98,4 @@ class massSendItTest extends BaseTest
       $this->assertSame($expected, $actual);
    }
 
-   function testCreateScheduleAction() {
-      
-   }
 }

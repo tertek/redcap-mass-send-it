@@ -54,7 +54,7 @@ class ScheduleController extends ActionController {
 
         if(count($scheduled_old) > 0) {
             //  remove old scheduled
-            $scheduleModel->deleteScheduled($bulk_id);
+            $scheduleModel->deleteScheduleByBulk($bulk_id);
         }
 
         //  create schedules
