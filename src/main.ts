@@ -9,6 +9,9 @@ declare const tinymce: any;
 declare const Swal: any;
 declare const currentTime:(type:string,showSeconds?:boolean,returnUTC?:boolean) => number;
 declare function simpleDialog(content:string|null,title:string|null,id:number|null,width:number|null,onCloseJs:Function|null,closeBtnTxt:string|null,okBtnJs:Function|null,okBtnTxt:string|null,autoOpen:boolean|undefined): void;
+declare function showProgress(show:number,ms:number|undefined,text:string|undefined):void;
+declare const app_path_webroot:string;
+declare const pid:number;
 
 interface BULK_SEND_DTO {
     modal_defaults: {
@@ -33,7 +36,6 @@ interface BULK_SEND_DTO {
 class MassSendIt {
     init() {
         console.log("Initiating BulkSend module..")
-        //console.log(DTO_STPH_BULK_SEND)
         let that = this
 
         this.setupModal()
@@ -107,14 +109,15 @@ class MassSendIt {
                 }
 
                 console.log(payload)
-
+                showProgress(1, undefined, undefined);
                 JSO_STPH_BULK_SEND.ajax("schedule", payload).then((json:string) => {
                     let response = JSON.parse(json)
-                    console.log(response)            
+                    showProgress(0, 0, undefined);
+                    console.log(response)
                     if(response.error) {
                         that.swalError(response.message)                        
                     } else {
-                        that.swalSuccess(response.data.scheduled.length + ' records were scheduled for bulk id: '+ bulk_id);                  
+                        that.swalSuccess(response.data.scheduled.length + ' notifications were scheduled for bulk id: '+ bulk_id);                  
                     }
                 })                
             }          
@@ -554,9 +557,7 @@ class MassSendIt {
 
     // Reload the Survey Invitation Log for another "page" when paging the log
     loadBulkNotificationLog(pagenum:number) {
-        //  @ts-ignore
-        showProgress(1);
-        //  @ts-ignore
+        showProgress(1, undefined, undefined);
         window.location.href = app_path_webroot+'ExternalModules/?pid='+pid+'&prefix=mass_send_it&page=project-page&log=1&pagenum='+pagenum+
             '&filterBeginTime='+$('#filterBeginTime').val()+'&filterEndTime='+$('#filterEndTime').val()+'&filterRecord='+$('#filterRecord').val()+'&filterAlert='+$('#filterAlert').val()+'&filterType='+$('#filterType').val();
     }
