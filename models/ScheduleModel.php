@@ -36,15 +36,15 @@ class ScheduleModel extends ActionModel {
 
     function createSchedule($bulk_id) {
         $scheduled = [];
+        $numIgnored = 0;
 
         //  Get bulk
         $sql = "SELECT bulk_recipients, bulk_schedule, use_second_email WHERE table_name = 'bulk' and bulk_id = ?";
         $result = $this->module->queryLogs($sql, [$bulk_id]);
-        $bulk = $result->fetch_object();        
+        $bulk = $result->fetch_object();
         
         //  Get max_schedule_id
         $max_schedule_id = $this->get_max_key_id();
-
 
         //  Prepare message types
         $message_types = ["primary"];
@@ -54,6 +54,20 @@ class ScheduleModel extends ActionModel {
 
         //  prepare recipients
         $recipients = unserialize($bulk->bulk_recipients);
+
+        //  check if we have already sent notifications for the same recipients
+        $sql = "SELECT DISTINCT record WHERE table_name = 'notification' AND bulk_id = ?";
+        $result = $this->module->queryLogs($sql, [$bulk_id]);
+        $notified_recipients = [];
+        while ($row = $result->fetch_assoc()) {
+            $notified_recipients[] = (int) $row["record"];
+        }
+
+        if(count($notified_recipients) > 0) {
+            $diff = array_diff($recipients, $notified_recipients);
+            $numIgnored = count($recipients) - count($diff);
+            $recipients = $diff;
+        }
 
         //  loop through records and schedule emails
         foreach ($recipients as $recipient_key => $record) {
@@ -78,7 +92,7 @@ class ScheduleModel extends ActionModel {
             $max_schedule_id = $max_schedule_id + 1;
         }
         
-        return $scheduled;
+        return array($scheduled, $numIgnored);
     }
 
     function deleteSchedule($schedule_id) {

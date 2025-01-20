@@ -22,7 +22,7 @@ class ScheduleController extends ActionController {
             $response = $this->mapTasks($task);
         } catch (\Throwable $th) {
             //dump($th);
-            return $this->getActionError($th->getMessage());
+            return $this->getActionError($th->getMessage() . "\n" . $th->getLine());
         }
 
         return $this->getActionSuccess($response);        
@@ -61,9 +61,9 @@ class ScheduleController extends ActionController {
         }
 
         //  create schedules
-        $scheduled = $scheduleModel->createSchedule($bulk_id);
+        list($scheduled,  $numIgnored) = $scheduleModel->createSchedule($bulk_id);
 
-        return array("scheduled" => $scheduled);
+        return array("scheduled" => $scheduled, "numIgnored" =>  $numIgnored);
 
     }
 

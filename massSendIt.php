@@ -54,6 +54,17 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     public function renderModulePage() {
 
         //$this->sendNotifications(false);
+
+        // $scheduleModel = new ScheduleModel($this);
+        // $scheduleModel->createSchedule(1);
+
+        // $sql = "SELECT DISTINCT record WHERE table_name = 'notification' AND bulk_id = 1";
+        // $result = $this->queryLogs($sql, []);
+        // $records = [];
+        // while ($row = $result->fetch_assoc()) {
+        //     $records[] = $row["record"];
+        // }
+        // dump($records);
         
         $this->includeView('page.header');
 
