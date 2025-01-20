@@ -94,16 +94,22 @@
                                 <div class="float-start boldish" style="color:#6320ac;width:90px;">
                                     <i class="fs14 fas fa-tachometer-alt"></i> Activity:
                                 </div>
-                                <div class="float-start">
+                                <div class="float-start">                                    
+                                    <?php if($schedule_count == 0): ?>
+                                    <div class="text-secondary">
+                                        <i class="far fa-clock"></i> There are no notifications currently scheduled.
+                                    </div>   
+                                    <?php else: ?>
                                     <div class="">
-                                        <i class="far fa-clock"></i> <?= $schedule_count ?> notifications are currently scheduled                        
-                                    </div>
+                                        <i class="far fa-clock"></i> <?= $schedule_count ?> notifications are currently scheduled.
+                                    </div> 
+                                    <?php endif; ?>                                
                                     <?php if($sent_count == 0): ?>
                                     <div class="text-secondary">
-                                        <i class="far fa-envelope-open"></i> No notifcations were sent yet
+                                        <i class="far fa-envelope-open"></i> No notifcations were sent yet.
                                     </div>
                                     <?php else: ?>
-                                    <div class="text-secondary">
+                                    <div class="">
                                         <i class="far fa-envelope-open"></i> <?= $sent_count ?> notifcations were sent.
                                     </div>
                                 <?php endif; ?>

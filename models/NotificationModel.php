@@ -17,6 +17,7 @@ class NotificationModel extends ActionModel {
     public $event_id;
     public $record;
 
+    public int $bulk_id;
     public int $notification_id;
     public bool $was_sent;
     public string $time_sent;
@@ -32,7 +33,7 @@ class NotificationModel extends ActionModel {
     }
 
     private function getBulk($bulk_id) {
-        $sql = "SELECT email_to, email_from, email_display, email_first_message, email_first_subject, email_second_subject, email_second_message, use_random_pass, use_second_email, file_repo_extension, file_repo_folder_id, file_repo_reference WHERE table_name='bulk' AND bulk_id=?";
+        $sql = "SELECT bulk_id, email_to, email_from, email_display, email_first_message, email_first_subject, email_second_subject, email_second_message, use_random_pass, use_second_email, file_repo_extension, file_repo_folder_id, file_repo_reference WHERE table_name='bulk' AND bulk_id=?";
         $q = $this->module->queryLogs($sql, [$bulk_id]);
         return $q->fetch_object();        
     }
