@@ -1,0 +1,4 @@
+.dropdown-item.disabled {
+    color: #6c757d !important;
+    background-color: transparent;
+}

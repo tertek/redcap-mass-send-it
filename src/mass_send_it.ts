@@ -96,7 +96,7 @@ class MassSendIt {
         }) 
 
         $('.bulk-schedule-btn').on('click', function(e){
-            let bulk_id = $(this).data("bulkId")            
+            let bulk_id = $(this).data("bulkId")
 
             let onConfirm = ()=>{
 
@@ -107,8 +107,6 @@ class MassSendIt {
                         overwrite: true
                     }                
                 }
-
-                console.log(payload)
                 showProgress(1, undefined, undefined);
                 JSO_STPH_BULK_SEND.ajax("schedule", payload).then((json:string) => {
                     let response = JSON.parse(json)
@@ -122,6 +120,29 @@ class MassSendIt {
                 })                
             }          
             simpleDialog("Are you sure? This action cannot be reversed. All schedules for this bulk will be deleted and created from new.", "Reschedule", null, null, null, "Cancel",onConfirm, "Confirm", undefined)
+        })
+
+        $('.schedule-now-btn').on('click', function(e){
+
+            showProgress(1, undefined, undefined);
+            let bulk_id = $(this).data("bulkId")
+            let payload = {
+                task: 'create',
+                data: {
+                    bulk_id: bulk_id,
+                    overwrite: true
+                }                
+            }
+                JSO_STPH_BULK_SEND.ajax("schedule", payload).then((json:string) => {
+                    let response = JSON.parse(json)
+                    showProgress(0, 0, undefined);
+                    console.log(response)
+                    if(response.error) {
+                        that.swalError(response.message)                        
+                    } else {
+                        that.swalSuccess(response.data.scheduled.length + ' notifications were scheduled for bulk id: '+ bulk_id);                  
+                    }
+                })
         })
     }
 
@@ -317,6 +338,7 @@ class MassSendIt {
 
         } else {
 
+
             $('[name=is_edit_mode]').val("false")
             $('#add-edit-title-text').html("Create new bulk")
             //  Setup Defaults
@@ -324,6 +346,7 @@ class MassSendIt {
 
             //  type
             $('[name=bulk_type]#bulk_type_list').prop("checked", true)
+            $('.bulk-recipients-list').show();
             $('.bulk-recipients-logic').hide()
             $('[name=bulk_recipients_list]').prop('required',true)
 
@@ -334,6 +357,8 @@ class MassSendIt {
             //  password
             $('[name=password_type]#password_type_random').prop("checked", true)
             $('[field=custom-password]').hide()
+            $('[field=email-message-second]').show()
+            $('[field=email-subject-second]').show()
 
             //  email second
             $('[name=use_second_email]#use_second_email_yes').prop("checked", true)

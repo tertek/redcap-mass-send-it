@@ -20,20 +20,39 @@
                 $recipient_count = count(unserialize($bulk->bulk_recipients));
                 $schedule_count = $this->getScheduledCount($bulk->bulk_id);
                 $sent_count = $this->getSentCount($bulk->bulk_id);
+
+                $createSchedules = "";
+                $disabled = "";
+
+                if($schedule_count == 0 && $sent_count == 0) {
+                    $createSchedules = '<button style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .25rem; --bs-btn-font-size: .6rem;" class="schedule-now-btn btn btn-rcgreen" type="button" data-bulk-id="'.$bulk->bulk_id.'">Schedule Now</button>';
+                    $disabled = "disabled";
+                }
+
             ?>
             <tr id="bulk_<?= $bulk->bulk_id ?>" class="<?= ($key+1) % 2 == 0 ? 'even' : 'odd' ?>"><td class="pt-0 pb-4" style="border-right:0;" data-order="1">
                     <div class="clearfix" style="margin-left: -11px;">
                         <div style="max-width:340px;" class="card-header alert-num-box  float-start text-truncate"><i class="fas fa-mail-bulk fs13" style="margin-right:5px;"></i>Bulk #<?= $bulk->bulk_id . " ". $bulk->bulk_title ?? ""?></div>
                             <div class="btn-group nowrap float-start mb-1 ms-2" role="group">
-                                <button class="bulk-edit-btn" type="button" class="btn btn-link fs13 py-1 ps-1 pe-2" data-bulk-id="<?= $bulk->bulk_id ?>">
+
+                                <button type="button" class="btn btn-link fs13 py-1 ps-1 pe-2 bulk-edit-btn" data-bulk-id="<?= $bulk->bulk_id ?>">
                                     <i class="fas fa-pencil-alt"></i> Edit
                                 </button>
-                                <button class="bulk-schedule-btn ml-2" type="button" class="btn btn-link fs13 py-1 ps-1 pe-2" data-bulk-id="<?= $bulk->bulk_id ?>">
-                                    <i class="fas fa-calendar-check"></i> (Re-)Schedule
-                                </button>
-                                <button class="bulk-delete-btn ml-2" type="button" class="btn btn-link fs13 py-1 ps-1 pe-2" data-bulk-id="<?= $bulk->bulk_id ?>">
-                                    <i class="fas fa-trash"></i> Delete
-                                </button>                                
+                                                 
+                                <div class="btn-group dropdown" role="group">
+
+                                    <button id="btnGroupDrop1" type="button" class="btn btn-link fs13 py-1 ps-2 pe-0 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-bs-toggle="dropdown">
+                                        <i class="fas fa-cog"></i> Options
+                                    </button>
+
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="">
+                                        
+                                        <a class="dropdown-item bulk-schedule-btn <?= $disabled ?>" href="#" data-bulk-id="<?= $bulk->bulk_id ?>"><i class="fas fa-calendar-check"></i> Reschedule</a>
+
+                                        <a class="dropdown-item bulk-delete-btn" href="#" data-bulk-id="<?= $bulk->bulk_id ?>"><i class="fas fa-trash"></i> Delete bulk</a>
+                                        
+                                    </div>
+                                </div>                             
                             </div>
                             <div style="padding:4px 4px 4px 5px; float: right;">
                                 <span class="fs11"><span class="text-secondary">Unique Bulk ID:</span> <span style="color:#A00000;">B-<?= $bulk->bulk_id ?></span></span>
@@ -94,10 +113,10 @@
                                 <div class="float-start boldish" style="color:#6320ac;width:90px;">
                                     <i class="fs14 fas fa-tachometer-alt"></i> Activity:
                                 </div>
-                                <div class="float-start">                                    
+                                <div class="float-start">                         
                                     <?php if($schedule_count == 0): ?>
                                     <div class="text-secondary">
-                                        <i class="far fa-clock"></i> There are no notifications currently scheduled.
+                                        <i class="far fa-clock"></i> There are no notifications currently scheduled. <?= $createSchedules ?>
                                     </div>   
                                     <?php else: ?>
                                     <div class="">

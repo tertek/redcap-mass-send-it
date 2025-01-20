@@ -53,7 +53,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     public function renderModulePage() {
 
-        //$this->sendNotifications(true);
+        //$this->sendNotifications(false);
         
         $this->includeView('page.header');
 
@@ -116,7 +116,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     }
 
     public function getSentCount($bulk_id) {
-        $sql = "SELECT bulk_schedule_id WHERE table_name='notification' AND bulk_id = ?";
+        $sql = "SELECT notification_id WHERE table_name='notification' AND bulk_id = ?";
         $result = $this->queryLogs($sql, [$bulk_id]);
         return $result->num_rows;
     }   
@@ -219,6 +219,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         ?>
         <!-- We are using Alerts.css since the styling has not change -->
         <link rel="stylesheet" type="text/css" href="<?php echo APP_PATH_CSS ?>Alerts.css" media="screen,print">
+        <link rel="stylesheet" type="text/css" href="<?= $this->getUrl('style.css')?>" media="screen,print">
         <?php
     }
 

@@ -163,9 +163,15 @@ function getToEmails() {
                                     <textarea type="text" id="bulk_recipients_logic" name="bulk_recipients_logic" onfocus="openLogicEditor($(this))" onkeydown="logicSuggestSearchTip(this, event);" onblur='var val = this; setTimeout(function() { logicHideSearchTip(val); if(!checkLogicErrors(val.value,1)){ validate_logic(val.value,"",0,""); }; }, 0);' class="external-modules-input-element ms-4" style="max-width:95%;"></textarea>
                                     <div class="invalid-feedback ms-4">Please enter a valid logic to filter records.</div>                                
                                     <div id="LSC_id_bulk_recipients_logic" class="fs-item-parent fs-item"></div>
+
                                     <div style='border: 0; font-weight: bold; text-align: left; vertical-align: middle; height: 20px;' id='bulk_recipients_logic_Ok'>&nbsp;</div>
                                     <div id='bulk_recipients_logic_Ok' class='logicValidatorOkay ms-4'></div>
                                     <script type='text/javascript'>logicValidate($('#bulk_recipients_logic'), false, 1);</script>
+                                    <div class="clearfix">
+                                        <div class='my-1 ms-4 fs11 float-start text-secondary'>
+                                        ( e.g., <code>isblankormissingcode([firstname])=false</code> )
+                                        </div>                                        
+                                    </div>
                                 </td>
                             </tr>
 

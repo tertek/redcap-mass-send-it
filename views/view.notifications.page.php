@@ -37,7 +37,7 @@ function getPageData($notificationLog, $num_per_page_config) {
     }
 
     ## Build the paging drop-down for participant list
-    $pageDropdown = "<select id='pageNumInviteLog' onchange='STPH_bulkSend.loadBulkNotificationLog(this.value)' style='vertical-align:middle;font-size:11px;'>";
+    $pageDropdown = "<select id='pageNumInviteLog' onchange='STPH_MassSendIt.loadBulkNotificationLog(this.value)' style='vertical-align:middle;font-size:11px;'>";
     //Loop to create options for dropdown
     for ($i = 1; $i <= $num_pages; $i++) {
         $end_num   = $i * $num_per_page;
@@ -140,7 +140,7 @@ function getPageData($notificationLog, $num_per_page_config) {
                     (array(''=>"All bulks")+$all_active_bulks), 
                     $_GET['filterAlert'],300
                 ) .
-                "Message type" .
+                "Message Type" .
                 RCView::select(
                     array('id'=>'filterType','style'=>'font-size:11px;margin:2px 3px;'),
                     (array(''=>"All types", 'primary' => 'Primary', 'secondary' => 'Secondary')), 
