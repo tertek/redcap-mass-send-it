@@ -201,7 +201,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         </script>
         <script 
             type="module"  
-            src="<?php print $this->getUrl('dist/main.js'); ?>">
+            src="<?php print $this->getUrl('dist/mass_send_it.js'); ?>">
             /**
              * Include JavaScript Module
              * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules

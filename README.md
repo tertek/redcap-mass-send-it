@@ -56,5 +56,9 @@ To run module tests use REDcap's phpunit binary to mitigate version conflicts in
 
 For TypeScript output run:
 
-`npx tsc --watch` during development or `npx tsc --build` for production
+`npx tsc --watch` during development
+
+To build a minified and uglified JavaScript output, run:
+
+`npm run build`
 
