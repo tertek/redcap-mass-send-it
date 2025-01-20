@@ -10,8 +10,11 @@ if (file_exists("vendor/autoload.php")) require 'vendor/autoload.php';
 if (!class_exists("ActionController")) require_once(__DIR__ . "/controllers/ActionController.php");
 if (!class_exists("BulkController")) require_once(__DIR__ . "/controllers/BulkController.php");
 if (!class_exists("ScheduleController")) require_once(__DIR__ . "/controllers/ScheduleController.php");
+if (!class_exists("NotificationController")) require_once(__DIR__ . "/controllers/NotificationController.php");
+if (!class_exists("ActionModel")) require_once(__DIR__ . "/models/ActionModel.php");
 if (!class_exists("BulkModel")) require_once(__DIR__ . "/models/BulkModel.php");
 if (!class_exists("ScheduleModel")) require_once(__DIR__ . "/models/ScheduleModel.php");
+if (!class_exists("NotificationModel")) require_once(__DIR__ . "/models/NotificationModel.php");
 
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
@@ -49,6 +52,8 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
  
 
     public function renderModulePage() {
+
+        //$this->sendNotifications(true);
         
         $this->includeView('page.header');
 
@@ -231,11 +236,16 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
      * Cron Job Function
      * 
      */
-    public function sendNotificationsViaCron() {
+    public function sendNotifications($dry=false) {
 
         if(!self::IS_CRON_ENABLED && php_sapi_name() === 'cli') {
             return;
         }
+        $notificationController = new NotificationController($this);
+        $response = $notificationController->action('send', array("dry" => $dry));
+
+        dump($response);
+
     }
     
 }

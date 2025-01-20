@@ -8,19 +8,25 @@ abstract class ActionController {
 
     protected $module;
     protected $project_id;
-    protected $event_id;
 
     public function __construct($module, $project_id=null) {
         $this->module = $module;
         
+        /**
+         * Set $project_id only if not called from cron job
+         * missing phpunit check
+         */
+        // if(php_sapi_name() !== 'cli') {
+        //     // set project_id
+        // }
+
         empty($project_id) ? $this->project_id = $module->getProjectId() : $this->project_id = $project_id;
 
         if(!isset($_GET['pid'])) {
             $_GET['pid'] = $this->project_id;
-        }
-        
+        }        
     }
-    
+   
     protected function getActionError($msg) {
         //static::$module->log("Error: " . $msg);
         return array(
