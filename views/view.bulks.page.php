@@ -19,7 +19,7 @@
             <?php
                 $recipient_count = count(unserialize($bulk->bulk_recipients));
                 $schedule_count = $this->getScheduledCount($bulk->bulk_id);
-                $sent_count = 0;
+                $sent_count = $this->getSentCount($bulk->bulk_id);
             ?>
             <tr id="bulk_<?= $bulk->bulk_id ?>" class="<?= ($key+1) % 2 == 0 ? 'even' : 'odd' ?>"><td class="pt-0 pb-4" style="border-right:0;" data-order="1">
                     <div class="clearfix" style="margin-left: -11px;">
@@ -96,7 +96,7 @@
                                 </div>
                                 <div class="float-start">
                                     <div class="">
-                                        <i class="far fa-clock"></i> <?= $schedule_count ?> records are currently scheduled                        
+                                        <i class="far fa-clock"></i> <?= $schedule_count ?> notifications are currently scheduled                        
                                     </div>
                                     <?php if($sent_count == 0): ?>
                                     <div class="text-secondary">

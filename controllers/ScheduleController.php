@@ -33,6 +33,9 @@ class ScheduleController extends ActionController {
             case 'create':
                 return $this->createTask();
                 break;
+            case 'delete':
+                return $this->deleteTask();
+                break;
             default:
                 throw new Exception("action not yet implemented");
                 break;
@@ -61,6 +64,13 @@ class ScheduleController extends ActionController {
         $scheduled = $scheduleModel->createSchedule($bulk_id);
 
         return array("scheduled" => $scheduled);
+
+    }
+
+    private function deleteTask() {
+        $schedule_id = $this->data->schedule_id;
+        $scheduleModel = new ScheduleModel($this->module);
+        $scheduleModel->deleteSchedule($schedule_id);
 
     }
 }

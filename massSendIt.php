@@ -93,15 +93,10 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         return $bulks;
     }
 
-    private function getScheduledCount($bulk_id) {
-        $sql = "SELECT bulk_schedule_id WHERE table_name='schedule' AND bulk_id = ?";
-        $result = $this->queryLogs($sql, [$bulk_id]);
-        return $result->num_rows;
-    }
 
     private function getNotifications() {
 
-        $fields = "id, bulk_id, event_id, record, sendit_docs_id, sendit_recipients_id, time_sent, was_sent, error, log";
+        $fields = "id, bulk_id, event_id, record, time_sent, was_sent, error, email, sendit";
         //  $fields = (new NotificationModel($this))->getFields();
         $sql = "SELECT $fields WHERE table_name='notification'";
         $result = $this->queryLogs($sql, []);
@@ -112,8 +107,19 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             $notifications[] = $notification;
         }
         return $notifications;
+    }    
+
+    public function getScheduledCount($bulk_id) {
+        $sql = "SELECT schedule_id WHERE table_name='schedule' AND bulk_id = ?";
+        $result = $this->queryLogs($sql, [$bulk_id]);
+        return $result->num_rows;
     }
-    
+
+    public function getSentCount($bulk_id) {
+        $sql = "SELECT bulk_schedule_id WHERE table_name='notification' AND bulk_id = ?";
+        $result = $this->queryLogs($sql, [$bulk_id]);
+        return $result->num_rows;
+    }   
 
     private function getDataTransferObject() {
         $DTO = array(            

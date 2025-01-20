@@ -140,6 +140,12 @@ function getPageData($notificationLog, $num_per_page_config) {
                     (array(''=>"All bulks")+$all_active_bulks), 
                     $_GET['filterAlert'],300
                 ) .
+                "Message type" .
+                RCView::select(
+                    array('id'=>'filterType','style'=>'font-size:11px;margin:2px 3px;'),
+                    (array(''=>"All types", 'primary' => 'Primary', 'secondary' => 'Secondary')), 
+                    $_GET['filterType'],300
+                ) .                
                 RCView::br() .
                 // Display record names displayed in this view
                 $lang['survey_441'] .
@@ -198,8 +204,8 @@ function getRows($notificationLog, $limit_begin, $num_per_page) {
            $deleteEditInviteIcons = '';
            if ($row['was_sent'] == '0') {
                $deleteEditInviteIcons =
-                   RCView::a(array('href'=>'javascript:;','style'=>'margin:0 2px 0 5px;','onclick'=>"STPH_MassSendIt.deleteRecurrence()"),
-                       RCView::img(array('src'=>'cross_small2.png','class'=>'inviteLogDelIcon opacity50','title'=>$lang['alerts_29']))
+                   RCView::a(array('href'=>'javascript:;','style'=>'margin:0 2px 0 5px;','onclick'=>"STPH_MassSendIt.deleteRecurrence(".$row['schedule_id'].")"),
+                       RCView::img(array('src'=>'cross_small2.png','class'=>'inviteLogDelIcon opacity50','title'=>'Delete this scheduled notification.'))
                    );
            }
    
@@ -281,6 +287,7 @@ function getNotificationLog($module) {
     }
     $_GET['filterRecord'] = isset($_GET['filterRecord']) ? urldecode(rawurldecode($_GET['filterRecord'])) : '';
     $_GET['filterAlert'] = (isset($_GET['filterAlert']) && is_numeric($_GET['filterAlert'])) ? (int)$_GET['filterAlert'] : '';
+    $_GET['filterType'] = isset($_GET['filterType']) ? $_GET['filterType'] : '';
     // Run the value through the regex pattern
     if (!isset($_GET['filterBeginTime'])) {
         // Default beginTime = right now
@@ -293,6 +300,8 @@ function getNotificationLog($module) {
     $sql = "SELECT ".$fields." WHERE table_name='notification'";
     if ($record !== null) $sql .= " and record = '".db_escape($record)."'";
     if (!empty($_GET['filterAlert'])) $sql .= " and bulk_id = '".db_escape($_GET['filterAlert'])."'";
+    if (!empty($_GET['filterType'])) $sql .= " and message_type = '".db_escape($_GET['filterType'])."'";
+
     //$sql .= " order by l.time_sent";  //TBD
     //  tbd: unserialize log column
     $result = $module->queryLogs($sql, []);
@@ -351,7 +360,8 @@ function getNotificationLog($module) {
     {
         $sql = "SELECT schedule_id, bulk_id, record, status, send_time, message_type WHERE table_name = 'schedule'";
         if ($_GET['filterRecord'] != '') $sql .= " and record = '" . db_escape($_GET['filterRecord']) . "'";
-        if (!empty($_GET['filterAlert'])) $sql .= " and bulk_id = '".db_escape($_GET['filterAlert'])."'"; 
+        if (!empty($_GET['filterAlert'])) $sql .= " and bulk_id = '".db_escape($_GET['filterAlert'])."'";
+        if (!empty($_GET['filterType'])) $sql .= " and message_type = '".db_escape($_GET['filterType'])."'";
         $sql .= " order by send_time";
         $result = $module->queryLogs($sql, []);
 
@@ -377,7 +387,7 @@ function getNotificationLog($module) {
     foreach ($schedules as $key => $schedule) {
         $log = [];
         $log["time_sent"] = $schedule["send_time"];
-        //$log["last_sent"] = $schedule["send_time"];
+        $log["schedule_id"] = $schedule["schedule_id"];
         $log["was_sent"] = false;
         $log["bulk_id"] =  $schedule["bulk_id"];
         $log["record"] = $schedule["record"];

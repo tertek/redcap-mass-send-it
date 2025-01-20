@@ -78,6 +78,7 @@ class NotificationModel extends ActionModel {
             "table_name" => self::TABLE_NAME,
             "bulk_id" => $this->bulk->bulk_id,
             "notification_id" => $this->get_max_key_id('notification') + 1,
+            "message_type" => $schedule->message_type,
             "was_sent" => $sent,
             "time_sent" => $sent ? date('Y-m-d H:i:s') : "",
             "error_sent" => $error,

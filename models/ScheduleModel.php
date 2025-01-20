@@ -81,6 +81,12 @@ class ScheduleModel extends ActionModel {
         return $scheduled;
     }
 
+    function deleteSchedule($schedule_id) {
+        $where = "table_name = ? AND schedule_id = ?";
+        $removeSchedule = $this->module->removeLogs($where, [self::TABLE_NAME, $schedule_id]);
+        return $removeSchedule;
+    }
+
     public function deleteScheduleByBulk($bulk_id) {
         $where = "table_name = ? and bulk_id = ?";
         $removeSchedules = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id]);

@@ -117,7 +117,6 @@ class MassSendIt {
                         that.swalSuccess(response.data.scheduled.length + ' records were scheduled for bulk id: '+ bulk_id);                  
                     }
                 })                
-                that.swalSuccess("records were scheduled for bulk id")
             }          
             simpleDialog("Are you sure? This action cannot be reversed. All schedules for this bulk will be deleted and created from new.", "Reschedule", null, null, null, "Cancel",onConfirm, "Confirm", undefined)
         })
@@ -525,8 +524,28 @@ class MassSendIt {
     /**
      * NotificationLog page methods
      */
-    deleteRecurrence() {
-        alert("To be implemented");
+    deleteRecurrence(schedule_id:number) {
+
+        let that = this
+        let onConfirm = ()=>{
+            let payload = {
+                task: 'delete',
+                data: {
+                    schedule_id: schedule_id
+                }                
+            }
+
+            JSO_STPH_BULK_SEND.ajax("schedule", payload).then((json:string) => {
+                let response = JSON.parse(json)
+                if(response.error) {
+                    that.swalError(response.message)
+                } else {
+                    that.swalSuccess('Scheduled notification with schedule_id: '+ schedule_id + ' was deleted.');                  
+                }
+            })            
+        }          
+        simpleDialog("Are you sure? The schedule (schedule_id: "+schedule_id+") will be deleted.", "Delete", null, null, null, "Cancel",onConfirm, "Confirm", undefined)        
+        
     }
 
     loadPreviewEmailAlertRecord(content:string) {
@@ -539,7 +558,7 @@ class MassSendIt {
         showProgress(1);
         //  @ts-ignore
         window.location.href = app_path_webroot+'ExternalModules/?pid='+pid+'&prefix=mass_send_it&page=project-page&log=1&pagenum='+pagenum+
-            '&filterBeginTime='+$('#filterBeginTime').val()+'&filterEndTime='+$('#filterEndTime').val()+'&filterRecord='+$('#filterRecord').val()+'&filterAlert='+$('#filterAlert').val();
+            '&filterBeginTime='+$('#filterBeginTime').val()+'&filterEndTime='+$('#filterEndTime').val()+'&filterRecord='+$('#filterRecord').val()+'&filterAlert='+$('#filterAlert').val()+'&filterType='+$('#filterType').val();
     }
 }
 
