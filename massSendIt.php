@@ -25,7 +25,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         "pdf","doc","docx","csv","html","txt","svg", "bmp", "jpg", "odt", "xlsx"
     ];
 
-    private const NUM_NOTIFICATIONS_PER_PAGE = 15;
+    private const NUM_NOTIFICATIONS_PER_PAGE = 100;
 
     public function redcap_module_ajax($action, $payload, $project_id) {
 

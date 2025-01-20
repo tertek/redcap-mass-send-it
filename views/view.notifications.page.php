@@ -137,7 +137,7 @@ function getPageData($notificationLog, $num_per_page_config) {
                 $lang['survey_441'] .
                 RCView::select(
                     array('id'=>'filterAlert','style'=>'font-size:11px;margin:2px 3px;'),
-                    (array(''=>$lang['alerts_27'])+$all_active_bulks), 
+                    (array(''=>"All bulks")+$all_active_bulks), 
                     $_GET['filterAlert'],300
                 ) .
                 RCView::br() .
@@ -205,11 +205,11 @@ function getRows($notificationLog, $limit_begin, $num_per_page) {
    
            // Send time (and icon)
            $rows[$rownum][] = 	// Invisible YMD timestamp (for sorting purposes
-               RCView::span(array('class'=>'hidden'), $row['last_sent']) .
+               RCView::span(array('class'=>'hidden'), $row['time_sent']) .
                // Display time and icon
                RCView::span(array('style'=>"color:$tsColor;"),
                    RCView::img(array('src'=>$tsIcon, 'style'=>'margin-right:2px;')) .
-                   DateTimeRC::format_ts_from_ymd($row['last_sent']) .
+                   DateTimeRC::format_ts_from_ymd($row['time_sent']) .
                    $deleteEditInviteIcons
                );
    
@@ -289,15 +289,27 @@ function getNotificationLog($module) {
 
     //  Get notifications (past)
     //  tbd replace by notificationModel->getFields()
-    $fields = "bulk_id, notification_id, sendit_recipient_id, sendit_docs_id, record, time_sent, was_sent, error_sent, log";
+    $fields = "bulk_id, notification_id, record, time_sent, was_sent, error_sent, email, sendit, secondary_ref";
     $sql = "SELECT ".$fields." WHERE table_name='notification'";
     if ($record !== null) $sql .= " and record = '".db_escape($record)."'";
     if (!empty($_GET['filterAlert'])) $sql .= " and bulk_id = '".db_escape($_GET['filterAlert'])."'";
     //$sql .= " order by l.time_sent";  //TBD
     //  tbd: unserialize log column
     $result = $module->queryLogs($sql, []);
-    while($row = $result->fetch_assoc()) {
-        $notificationLog[] = $row;
+    while($notification = $result->fetch_assoc()) {
+
+        $email = json_decode($notification["email"], false);
+
+        $log = [];
+        $log["time_sent"] = $notification["time_sent"];
+        $log["was_sent"] = $notification["was_sent"];
+        $log["bulk_id"] =  $notification["bulk_id"];
+        $log["record"] = $notification["record"];
+        $log["email_to"] = $email->to;
+        $log["subject"] = $email->subject;
+        $log["message"] = $email->message;
+        $log["type"] = isset($notification["secondary_ref"]) ? "Primary" : "Secondary";
+        $notificationLog[] = $log;
     }
 
     ## PERFORM MORE FILTERING
@@ -365,7 +377,7 @@ function getNotificationLog($module) {
     foreach ($schedules as $key => $schedule) {
         $log = [];
         $log["time_sent"] = $schedule["send_time"];
-        $log["last_sent"] = $schedule["send_time"];
+        //$log["last_sent"] = $schedule["send_time"];
         $log["was_sent"] = false;
         $log["bulk_id"] =  $schedule["bulk_id"];
         $log["record"] = $schedule["record"];
