@@ -88,7 +88,7 @@ class MassSendIt {
                     {
                         that.swalError(response.message)
                     } else {
-                        that.swalSuccess('Bulk with id '+ response.data.bulk_id + ' and '+response.data.removed_count+' schedules were deleted');                        
+                        that.swalSuccess('Bulk with id '+ response.data.bulk_id + ' and '+response.data.removed_schedules+' schedules were deleted and '+response.data.removed_notifications+' notifications were deleted');                        
                     }
                 })
             }

@@ -155,9 +155,13 @@ class BulkModel extends ActionModel {
 
         //  remove schedules
         $where = "table_name = 'schedule' and bulk_id = ?";
-        $removeSchedules = $this->module->removeLogs($where, [$bulk_id]);
+        $removedSchedules = $this->module->removeLogs($where, [$bulk_id]);
 
-        return $removeSchedules;
+        // remove notifications
+        $where = "table_name = 'notification' and bulk_id = ?";
+        $removedNotifications = $this->module->removeLogs($where, [$bulk_id]);
+
+        return array($removedSchedules, $removedNotifications);
     }
 
     private function updateQuery($value, $key, $bulk_id) {

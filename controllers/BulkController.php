@@ -87,9 +87,13 @@ class BulkController extends ActionController {
         $bulk_id = $this->data->bulk_id;
 
         $bulkModel = new BulkModel($this->module);
-        $removed_count = $bulkModel->deleteBulk($bulk_id);
+        list($removedSchedules, $removedNotifications) = $bulkModel->deleteBulk($bulk_id);
 
-        return array("bulk_id" => $bulk_id, "removed_count" => $removed_count);
+        return array(
+            "bulk_id" => $bulk_id, 
+            "removed_schedules" => $removedSchedules, 
+            "removed_notifications" => $removedNotifications
+        );
     }    
 
     private function store($validated, $isUpdate = false) {
