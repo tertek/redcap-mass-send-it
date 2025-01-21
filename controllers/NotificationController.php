@@ -20,7 +20,7 @@ class NotificationController extends ActionController {
             $this->data = (object) $data;
             $response = $this->mapTasks($task);
         } catch (\Throwable $th) {
-            dump($th);
+            //dump($th);
             return $this->getActionError($th->getMessage());
         }
 

@@ -19,7 +19,7 @@ if (!class_exists("NotificationModel")) require_once(__DIR__ . "/models/Notifica
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
 
-    private const IS_CRON_ENABLED = false;
+    private const IS_CRON_ENABLED = true;
 
     private const ALLOWED_FILE_EXTENSIONS = [
         "pdf","doc","docx","csv","html","txt","svg", "bmp", "jpg", "odt", "xlsx"
@@ -54,17 +54,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     public function renderModulePage() {
 
         //$this->sendNotifications(false);
-
-        // $scheduleModel = new ScheduleModel($this);
-        // $scheduleModel->createSchedule(1);
-
-        // $sql = "SELECT DISTINCT record WHERE table_name = 'notification' AND bulk_id = 1";
-        // $result = $this->queryLogs($sql, []);
-        // $records = [];
-        // while ($row = $result->fetch_assoc()) {
-        //     $records[] = $row["record"];
-        // }
-        // dump($records);
         
         $this->includeView('page.header');
 
@@ -247,22 +236,32 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     
     public function getModulePrefix() {
         return \ExternalModules\ExternalModules::getParseModuleDirectoryPrefixAndVersion($this->getModuleDirectoryName())[0];
-    }    
+    }
 
 
     /**
      * Cron Job Function
+     * $dry flag seems broken with REDCap cron controller,
+     * always calls $dry==true
      * 
      */
     public function sendNotifications($dry=false) {
 
         if(!self::IS_CRON_ENABLED && php_sapi_name() === 'cli') {
             return;
+        } elseif (php_sapi_name() === 'cli') {
+            $this->log("Running mass_send_it from cron");
         }
-        $notificationController = new NotificationController($this);
-        $response = $notificationController->action('send', array("dry" => $dry));
 
-        dump($response);
+        foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
+            $this->setProjectId($localProjectId);
+
+            $_GET['pid'] = $localProjectId;
+    
+            $notificationController = new NotificationController($this);
+            $response = $notificationController->action('send', array("dry" => false));
+        }
+
 
     }
     
