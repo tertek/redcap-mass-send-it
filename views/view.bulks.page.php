@@ -4,7 +4,7 @@
         <button id='addNewBulk' type="button" class="btn btn-sm btn-rcgreen float-start">
             <i class="fas fa-plus"></i> Add New Bulk
         </button>        
-    </div>        
+    </div>
     <table class="table table-bordered table-hover email_preview_forms_table dataTable " id="customizedAlertsPreview" style="width:100%;table-layout: fixed;">
         <thead>
             <tr class="table_header d-none">
@@ -45,7 +45,7 @@
                                         <i class="fas fa-cog"></i> Options
                                     </button>
 
-                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1" style="">
+                                    <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                                         
                                         <a class="dropdown-item bulk-schedule-btn <?= $disabled ?>" href="#" data-bulk-id="<?= $bulk->bulk_id ?>"><i class="fas fa-calendar-check"></i> Reschedule</a>
 

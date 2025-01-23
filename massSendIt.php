@@ -205,6 +205,10 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         return  $this->escape($fields);
     }
 
+    /**
+     * used to include svelte dependencies
+     * 
+     */
     public function includeJS($basename) {
         $this->initializeJavascriptModuleObject();
         ?>
@@ -216,7 +220,11 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
              * 
              */
             const JSO_STPH_MASS_SEND_IT = <?=$this->getJavascriptModuleObjectName()?>;
-            const DTO_STPH_MASS_SEND_IT = <?= json_encode(array("basename" => $basename)) ?>;
+            const DTO_STPH_MASS_SEND_IT = <?= json_encode(
+                array(
+                    "basename" => $basename,
+                    "bulks" => $this->getBulks()
+                )) ?>;
         </script>
         <script 
             type="module" 

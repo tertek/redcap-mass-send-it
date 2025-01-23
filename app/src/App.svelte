@@ -20,7 +20,7 @@
   <Navigation isLog={isLog} url={project_page_url} />
 
   {#if !isLog}
-    <Bulks />
+    <Bulks bulks= {DTO_STPH_MASS_SEND_IT.bulks}/>
   {:else}
     <Notifications />
   {/if}
