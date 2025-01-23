@@ -53,16 +53,17 @@
         {
             "cron_name": "send_notifications_mass_send_it",
             "cron_description": "Cron that runs every 60 seconds to send notifications created with Mass Send-It module.",
-            "method": "sendNotifications",
+            "method": "cronSendNotifications",
             "cron_frequency": "60", 
-            "cron_max_run_time": "1800"
+            "cron_max_run_time": "300",
+            "dry": false
          }
     ],
 
     "compatibility": {
-        "php-version-min": "8.0.24",
+        "php-version-min": "8.2.15",
         "php-version-max": "",
-        "redcap-version-min": "13.1.5",
+        "redcap-version-min": "14.5.18",
         "redcap-version-max": ""
     }
  }

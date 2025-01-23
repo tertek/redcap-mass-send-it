@@ -3,6 +3,7 @@
 // Set the namespace defined in your config file
 namespace STPH\massSendIt;
 
+use Exception;
 use Project;
 
 if (file_exists("vendor/autoload.php")) require 'vendor/autoload.php';
@@ -49,7 +50,30 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
         return json_encode($response);
     }
- 
+
+    /**
+     * Send Notifications
+     * Called from Cron
+     * 
+     */
+    private function sendNotifications($dry=false) {
+
+        $notificationController = new NotificationController($this);
+        $response = $notificationController->action('send', array("dry" => $dry));
+
+        //  Special response in case of cron job and crob manual page
+        if(php_sapi_name() === 'cli' || PAGE === "cron.php") {
+
+            if($response["error"] == true) {
+                throw new Exception("There was an error when the cron job tried to call sendNotifications: " . $response["message"]);
+            }
+            $cronResponse = array($response["data"]["num_sent"] ?? 0, $response["data"]["num_failed"] ?? 0);
+
+            return $cronResponse;
+        }
+
+        return $response;
+    }    
 
     public function renderModulePage() {
 
@@ -240,26 +264,32 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
 
     /**
-     * Cron Job Function
-     * $dry flag seems broken with REDCap cron controller,
-     * always calls $dry==true
+     * Cron Job 
+     * Called every 30 seconds
+     * @param array $cronAttributes A copy of the cron's configuration block from config.json.
+     * https://github.com/vanderbilt-redcap/external-module-framework-docs/blob/main/crons.md
      * 
      */
-    public function sendNotifications($dry=false) {
+    function cronSendNotifications($cronAttributes) {
 
-        if(!self::IS_CRON_ENABLED && php_sapi_name() === 'cli') {
+        //  exit if cron is disabled for the module
+        if(!self::IS_CRON_ENABLED) {
             return;
-        } elseif (php_sapi_name() === 'cli') {
-            $this->log("Running mass_send_it from cron");
         }
 
+        //  retrieve dry flag from cron attributes
+        $dry = $cronAttributes["dry"];
+
+        //  set project context within cron and call sendNotifications
         foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
             $this->setProjectId($localProjectId);
 
             $_GET['pid'] = $localProjectId;
-    
-            $notificationController = new NotificationController($this);
-            $response = $notificationController->action('send', array("dry" => false));
+            $this->log("Running mass_send_it from cron");
+
+            list($numSent, $numFailed) = $this->sendNotifications($dry) ;
+
+            echo "(PID {$localProjectId}) Notifications sent: {$numSent}. Notifications failed: {$numFailed}.";
         }
 
 
