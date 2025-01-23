@@ -26,6 +26,12 @@
                 "icon": "fas fa-mail-bulk",
                 "url": "project-page.php",
                 "show-header-and-footer": true
+            },
+            {
+                "name": "Mass Send-It (Svelte)",
+                "icon": "fas fa-mail-bulk",
+                "url": "project-page-svelte.php",
+                "show-header-and-footer": true
             }
         ]
     },

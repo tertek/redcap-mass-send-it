@@ -205,6 +205,26 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         return  $this->escape($fields);
     }
 
+    public function includeJS($basename) {
+        $this->initializeJavascriptModuleObject();
+        ?>
+        <script>
+            /**
+             * Passthrough:
+             * JavascriptModuleObject JS(M)O
+             * Data Transfer Object DTO
+             * 
+             */
+            const JSO_STPH_MASS_SEND_IT = <?=$this->getJavascriptModuleObjectName()?>;
+            const DTO_STPH_MASS_SEND_IT = <?= json_encode(array("basename" => $basename)) ?>;
+        </script>
+        <script 
+            type="module" 
+            src="<?= $this->getUrl("app/dist/main.js")?>" >
+        </script>
+        <?php
+    }
+
  /**
     * Include JavaScript files
     *
@@ -243,6 +263,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         ?>
         <!-- We are using Alerts.css since the styling has not change -->
         <link rel="stylesheet" type="text/css" href="<?php echo APP_PATH_CSS ?>Alerts.css" media="screen,print">
+        <link rel="stylesheet" type="text/css" href="<?= $this->getUrl('app/dist/app.css')?>" media="screen,print">
         <link rel="stylesheet" type="text/css" href="<?= $this->getUrl('style.css')?>" media="screen,print">
         <?php
     }
