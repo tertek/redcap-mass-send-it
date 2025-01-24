@@ -17,7 +17,7 @@
         <tbody>
         <?php foreach($this->getBulks() as $key => $bulk ): ?>
             <?php
-                $recipient_count = count(unserialize($bulk->bulk_recipients));
+                $recipient_count = count($bulk->bulk_recipients);
                 $schedule_count = $this->getScheduledCount($bulk->bulk_id);
                 $sent_count = $this->getSentCount($bulk->bulk_id);
 

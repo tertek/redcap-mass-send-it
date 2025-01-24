@@ -14,7 +14,7 @@
             </button>
 
             <div class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <a href="#reschedule"  class="dropdown-item bulk-schedule-btn <?= $disabled ?>" data-bulk-id="{bulk.bulk_id}"><i class="fas fa-calendar-check"></i> Reschedule</a>
+                <a href="#reschedule"  class="dropdown-item bulk-schedule-btn {bulk.num_scheduled == 0 && bulk.num_sent == 0 ? "disabled" : ""}" data-bulk-id="{bulk.bulk_id}"><i class="fas fa-calendar-check"></i> Reschedule</a>
 
                 <a class="dropdown-item bulk-delete-btn" href="delete-bulk" data-bulk-id="{bulk.bulk_id}"><i class="fas fa-trash"></i> Delete bulk</a>
             </div>

@@ -5,7 +5,6 @@ namespace STPH\massSendIt;
 use Exception;
 
 class NotificationController extends ActionController {
-    const TABLE_NAME = "notification";
 
     protected $module;
     protected $project_id;

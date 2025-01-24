@@ -4,7 +4,7 @@ namespace STPH\massSendIt;
 
 abstract class ActionController {
 
-    const TABLE_NAME = self::TABLE_NAME;
+    // const TABLE_NAME = self::TABLE_NAME;
 
     protected $module;
     protected $project_id;
@@ -56,8 +56,8 @@ abstract class ActionController {
      * 
      * DANGER: max only works properly for number above 9, if the column is casted correctly!
      */
-    protected function get_max_key_id() {
-        $key = static::TABLE_NAME;
+    protected function get_max_key_id($key) {
+        //$key = static::TABLE_NAME;
         $sql_get_max_key_id = "SELECT max(cast({$key}_id.value AS UNSIGNED)) AS max_key_id 
             from redcap_external_modules_log
             left join redcap_external_modules_log_parameters {$key}_id

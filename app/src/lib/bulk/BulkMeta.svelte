@@ -7,7 +7,7 @@
             {#if bulk.bulk_type == 'list'}
                 <b class="fs14"><i class="fas fa-hand-point-right"></i></b> Based on <b>record list</b><span class="text-secondary ms-1 fs12">($recipient_count recipients)</span>
             {:else if bulk.bulk_type == 'logic'}
-                Based on <b>filter logic:</b> <span class="code" style="font-size:85%;">{bulk.bulk_recipients_logic}</span><span class="text-secondary ms-1 fs12">( $recipient_count recipients)</span>
+                Based on <b>filter logic:</b> <span class="code" style="font-size:85%;">{bulk.bulk_recipients_logic}</span><span class="text-secondary ms-1 fs12">({bulk.bulk_recipients.length} recipients)</span>
             {/if}
         </div>
         <div class="mt-1" style="color:green;">

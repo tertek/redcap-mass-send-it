@@ -38,6 +38,12 @@ class NotificationModel extends ActionModel {
         return $q->fetch_object();        
     }
 
+    public function getSentCount($bulk_id) {
+        $sql = "SELECT notification_id WHERE table_name=? AND bulk_id = ? AND project_id = ?";
+        $result = $this->module->queryLogs($sql, [self::TABLE_NAME, $bulk_id, $this->project_id]);
+        return $result->num_rows;
+    }
+
     public function sendNotification($schedule, $dry) {
 
         //  set bulk data
@@ -71,6 +77,8 @@ class NotificationModel extends ActionModel {
         //  Send Email
         list($sent, $error) = $this->sendEmail($email, $dry);
 
+        $max_notification_id = $this->get_max_key_id();
+
         //  Set notification
         $notification = array(
             "project_id" => $this->project_id,
@@ -78,7 +86,7 @@ class NotificationModel extends ActionModel {
             "record" => $schedule->record,
             "table_name" => self::TABLE_NAME,
             "bulk_id" => $this->bulk->bulk_id,
-            "notification_id" => $this->get_max_key_id('notification') + 1,
+            "notification_id" => $max_notification_id + 1,
             "message_type" => $schedule->message_type,
             "was_sent" => $sent,
             "time_sent" => $sent ? date('Y-m-d H:i:s') : "",

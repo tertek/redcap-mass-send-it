@@ -6,8 +6,6 @@ use Exception;
 
 class ScheduleController extends ActionController {
 
-    const TABLE_NAME = "schedule";
-
     protected $module;
     protected $project_id;
     protected $data;

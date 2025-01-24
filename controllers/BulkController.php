@@ -9,8 +9,6 @@ use Project;
 
 class BulkController extends ActionController {
 
-    const TABLE_NAME = "BULK";
-
     protected $module;
     protected $project_id;
     protected $data;
@@ -48,7 +46,7 @@ class BulkController extends ActionController {
 
             case 'delete':
                 return $this->deleteTask();
-                break;
+                break;       
 
             default:
                 throw new Exception("action not yet implemented");
@@ -65,15 +63,39 @@ class BulkController extends ActionController {
     }
 
     private function readTask() {
-        $bulk_id = $this->data->bulk_id;
+
         $bulkModel = new BulkModel($this->module);
-        $bulk = $bulkModel->readBulk($bulk_id);
+        $all = $this->data->all;
+        
+        if($all) {
+            $withCount = $this->data->withCount;
+            $scheduleModel = new ScheduleModel($this->module);
+            $notificationModel = new NotificationModel($this->module);
 
-        if(!$bulk) {
-            throw new Exception("bulk with bulk_id $bulk_id not found");
+            $fields = (new BulkModel($this->module))->getFields();        
+            $sql = "SELECT $fields WHERE table_name = 'bulk'";
+            
+            $result = $this->module->queryLogs($sql, []);
+            $bulks = [];
+            while($bulk = $result->fetch_object()) {
+                if($withCount) {
+                    $bulk->num_scheduled = $scheduleModel->getScheduledCount($bulk->bulk_id);
+                    $bulk->num_sent = $notificationModel->getSentCount($bulk->bulk_id);
+                }
+                $bulk->bulk_recipients = unserialize($bulk->bulk_recipients);
+                $bulks[] = $bulk;
+            }
+            return array("bulks" => $bulks);
+
+        } else {
+            $bulk_id = $this->data->bulk_id;
+
+            $bulk = $bulkModel->readBulk($bulk_id);
+            if(!$bulk) {
+                throw new Exception("bulk with bulk_id $bulk_id not found");
+            }
+            return array("bulk" => $bulk);
         }
-
-        return array("bulk" => $bulk);        
     }
 
     private function updateTask() {    
@@ -94,7 +116,7 @@ class BulkController extends ActionController {
             "removed_schedules" => $removedSchedules, 
             "removed_notifications" => $removedNotifications
         );
-    }    
+    }
 
     private function store($validated, $isUpdate = false) {
         //dump("validated\n", $validated);
@@ -129,7 +151,7 @@ class BulkController extends ActionController {
         } elseif(!isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
             throw new Exception("validation_error: bulk_id must be set in edit_mode");
         } else {            
-            $validated->bulk_id = $this->get_max_key_id() + 1;
+            $validated->bulk_id = $this->get_max_key_id("bulk") + 1;
         }
         //dump("bulk_id", $validated->bulk_id);
 

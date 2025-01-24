@@ -48,9 +48,9 @@ class BulkModel extends ActionModel {
 
     public function readBulk($bulk_id) {        
         $fields = $this->getFields();
-        $sql = "SELECT $fields WHERE table_name='BULK' AND bulk_id = ? and project_id=?";
+        $sql = "SELECT $fields WHERE table_name = ? AND bulk_id = ? and project_id=?";
                
-        $result = $this->module->queryLogs($sql, [$bulk_id, $this->project_id]);
+        $result = $this->module->queryLogs($sql, [self::TABLE_NAME, $bulk_id, $this->project_id]);
         if($result->num_rows == 0) {
             return false;
         }

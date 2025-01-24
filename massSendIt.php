@@ -13,9 +13,9 @@ if (!class_exists("BulkController")) require_once(__DIR__ . "/controllers/BulkCo
 if (!class_exists("ScheduleController")) require_once(__DIR__ . "/controllers/ScheduleController.php");
 if (!class_exists("NotificationController")) require_once(__DIR__ . "/controllers/NotificationController.php");
 if (!class_exists("ActionModel")) require_once(__DIR__ . "/models/ActionModel.php");
-if (!class_exists("BulkModel")) require_once(__DIR__ . "/models/BulkModel.php");
-if (!class_exists("ScheduleModel")) require_once(__DIR__ . "/models/ScheduleModel.php");
 if (!class_exists("NotificationModel")) require_once(__DIR__ . "/models/NotificationModel.php");
+if (!class_exists("ScheduleModel")) require_once(__DIR__ . "/models/ScheduleModel.php");
+if (!class_exists("BulkModel")) require_once(__DIR__ . "/models/BulkModel.php");
 
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
@@ -41,7 +41,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             case 'schedule':
                 $scheduleController = new ScheduleController($this, $project_id);
                 $response = $scheduleController->action($payload->task, $payload->data);
-                break;
+                break;           
             
             default:
                 $response = null;
@@ -76,9 +76,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     }    
 
     public function renderModulePage() {
-
-        //$this->sendNotifications(false);
-        
+       
         $this->includeView('page.header');
 
         if(!isset($_GET['log']) || $_GET['log'] != 1) {
@@ -101,23 +99,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         include_once($path);
     }
 
-    /**
-     * Calld from view
-     * 
-     */
-    public function getBulks() {
-        $fields = (new BulkModel($this))->getFields();        
-        $sql = "SELECT $fields WHERE table_name = 'bulk'";
-        
-        $result = $this->queryLogs($sql, []);
-        $bulks = [];
-        while($bulk = $result->fetch_object()) {
-            $bulks[] = $bulk;
-        }
-        return $bulks;
-    }
-
-
     private function getNotifications() {
 
         $fields = "id, bulk_id, event_id, record, time_sent, was_sent, error, email, sendit";
@@ -131,19 +112,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             $notifications[] = $notification;
         }
         return $notifications;
-    }    
-
-    public function getScheduledCount($bulk_id) {
-        $sql = "SELECT schedule_id WHERE table_name='schedule' AND bulk_id = ?";
-        $result = $this->queryLogs($sql, [$bulk_id]);
-        return $result->num_rows;
     }
-
-    public function getSentCount($bulk_id) {
-        $sql = "SELECT notification_id WHERE table_name='notification' AND bulk_id = ?";
-        $result = $this->queryLogs($sql, [$bulk_id]);
-        return $result->num_rows;
-    }   
 
     private function getDataTransferObject() {
         $DTO = array(            
@@ -222,8 +191,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             const JSO_STPH_MASS_SEND_IT = <?=$this->getJavascriptModuleObjectName()?>;
             const DTO_STPH_MASS_SEND_IT = <?= json_encode(
                 array(
-                    "basename" => $basename,
-                    "bulks" => $this->getBulks()
+                    "basename" => $basename
                 )) ?>;
         </script>
         <script 
@@ -320,8 +288,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
             echo "(PID {$localProjectId}) Notifications sent: {$numSent}. Notifications failed: {$numFailed}.";
         }
-
-
     }
     
 }

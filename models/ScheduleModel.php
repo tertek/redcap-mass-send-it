@@ -34,6 +34,12 @@ class ScheduleModel extends ActionModel {
         return $scheduled;
     }
 
+    function getScheduledCount($bulk_id) {
+        $sql = "SELECT schedule_id WHERE table_name=? AND bulk_id = ? and project_id=?";
+        $result = $this->module->queryLogs($sql, [self::TABLE_NAME, $bulk_id, $this->project_id]);
+        return $result->num_rows;
+    }
+
     function createSchedule($bulk_id) {
         $scheduled = [];
         $numIgnored = 0;

@@ -14,7 +14,7 @@
             <span class="me-1 boldish">To:</span> <a href="#email_to" class="fs12">{bulk.email_to}</a>
             </li><li class="list-group-item py-1 px-3 text-truncate fs12">
             <span class="me-1 boldish">Subject:</span>{bulk.email_first_subject}
-            </li><li class="list-group-item py-1 px-3 text-truncate fs12">{ bulk.email_first_message}
+            </li><li class="list-group-item py-1 px-3 text-truncate fs12">{@html bulk.email_first_message}
             </li>       
         </ul>                                                                  
     </div>
@@ -30,7 +30,7 @@
                 <span class="me-1 boldish">Subject:</span>{bulk.email_second_subject}
             </li>
             <li class="list-group-item py-1 px-3 text-truncate fs12">
-                {bulk.email_second_message}
+                {@html bulk.email_second_message}
             </li>       
         </ul>                                                                  
     </div>

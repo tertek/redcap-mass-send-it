@@ -1,5 +1,10 @@
+<script module>
+    declare const JSO_STPH_MASS_SEND_IT: any
+    declare const DTO_STPH_MASS_SEND_IT: any
+</script>
 <script lang="ts">
-    let {isLog, url} = $props()
+    const url  = JSO_STPH_MASS_SEND_IT.getUrl(DTO_STPH_MASS_SEND_IT.basename)
+    let {isLog} = $props()
 </script>
 <div class="clearfix">
     <div id="sub-nav" class="d-none d-sm-block">
