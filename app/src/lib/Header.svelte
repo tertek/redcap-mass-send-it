@@ -1,8 +1,12 @@
+<script lang="ts" module>
+    declare const JSO_STPH_MASS_SEND_IT: any
+</script>
+
 <div class="projhdr">
-    <i class="fas fa-mail-bulk"></i>Mass Send-It
+    <i class="fas fa-mail-bulk"></i>{JSO_STPH_MASS_SEND_IT.tt("header_title")}
 </div>
 <div id="module-page-header" class="d-none d-md-block mt-3 mb-2">
-    Mass Send-It is an advanced module form of the REDCap feature "Send-it". It allows you to create bulks of Send-It, enabling secure data transfer based on multiple files that each have a single recipient, mapped through available records.
+    {JSO_STPH_MASS_SEND_IT.tt("header_description")}
 </div>
 <style>
     #module-page-header {

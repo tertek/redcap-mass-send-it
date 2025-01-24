@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Bulk from "./bulk/Bulk.svelte";
+        import Bulk from "./Bulk/index.svelte"
     let {bulks} = $props()
 </script>
 <div class="mt-3 has-max-width">
@@ -8,6 +8,7 @@
             <i class="fas fa-plus"></i> Add New Bulk
         </button>        
     </div>
+
     <table class="table table-bordered table-hover email_preview_forms_table dataTable " id="customizedAlertsPreview" style="width:100%;table-layout: fixed;">
         <thead>
             <tr class="table_header d-none">
@@ -23,6 +24,7 @@
             {/each}
         </tbody>
     </table>
+
 </div>
 <style>
     .has-max-width {

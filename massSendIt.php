@@ -180,6 +180,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
      */
     public function includeJS($basename) {
         $this->initializeJavascriptModuleObject();
+        $this->tt_transferToJavascriptModuleObject();
         ?>
         <script>
             /**

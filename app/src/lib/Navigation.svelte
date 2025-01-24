@@ -3,20 +3,21 @@
     declare const DTO_STPH_MASS_SEND_IT: any
 </script>
 <script lang="ts">
+    const urlParams = new URLSearchParams(window.location.search)
+    const isLog = urlParams.has("log")
     const url  = JSO_STPH_MASS_SEND_IT.getUrl(DTO_STPH_MASS_SEND_IT.basename)
-    let {isLog} = $props()
 </script>
 <div class="clearfix">
     <div id="sub-nav" class="d-none d-sm-block">
         <ul>
             <li class={isLog ? '' : 'active' } >
                 <a class="sub-nav-link" href="{url}">
-                    <i class="fas fa-mail-bulk me-1"></i>My Bulks
+                    <i class="fas fa-mail-bulk me-1"></i>{JSO_STPH_MASS_SEND_IT.tt("nav_title_my_bulks")}
                 </a>
             </li>
             <li class={ isLog ? 'active' : '' }>
                 <a class="sub-nav-link" href="{url}&log=1">
-                    <i class="fas fa-table me-1"></i>Notification Log
+                    <i class="fas fa-table me-1"></i>{JSO_STPH_MASS_SEND_IT.tt("nav_title_notification_log")}
                 </a>
             </li>
         </ul>

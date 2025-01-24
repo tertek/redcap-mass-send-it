@@ -1,5 +1,5 @@
 <script lang="ts">
-    let {bulk} = $props()
+        let {bulk} = $props()
 </script>
 <div class="clearfix" style="margin-left: -11px;">
     <div style="max-width:340px;" class="card-header alert-num-box  float-start text-truncate"><i class="fas fa-mail-bulk fs13" style="margin-right:5px;"></i>Bulk #{bulk.bulk_id + " "  + (bulk.bulk_title ?? "")}</div>
