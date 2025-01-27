@@ -14,9 +14,9 @@ class massSendItTest extends BaseTest
     *
     */
    function testCreateBulkAction(){
-
+      // create bulk scheduled in the past
       $generator = new GeneratorHelper();
-      $payload_bulk_create = $generator->generatePayload();    
+      $payload_bulk_create = $generator->generatePayload();
 
       $bulkController = new BulkController($this, TEST_PROJECT_1);
       $actionBulkCreate = $bulkController->action('create', $payload_bulk_create);
@@ -38,7 +38,7 @@ class massSendItTest extends BaseTest
       $payload_bulk_update = $generator->generatePayload(
          isEditMode: "true",
          title: "Test Bulk Edited", 
-         recipients_list: "1",
+         recipients_list: "1,2",
          bulk_id: self::TEST_BULK_ID,
       );
 
@@ -46,7 +46,7 @@ class massSendItTest extends BaseTest
       $actionBulkUpdate = $bulkController->action("update", $payload_bulk_update);
       
       $this->assertFalse($actionBulkUpdate["error"], "error: " . $actionBulkUpdate["message"]);
-      $this->assertCount(1, unserialize(($actionBulkUpdate["data"]["bulk"])->bulk_recipients));
+      $this->assertCount(2, unserialize(($actionBulkUpdate["data"]["bulk"])->bulk_recipients));
    }
 
    function testDeleteBulkAction(){
@@ -88,7 +88,7 @@ class massSendItTest extends BaseTest
       $actionScheduleCreate = $scheduleController->action("create", $payload_schedule_create);
 
       $this->assertFalse($actionScheduleCreate["error"], "error: " .$actionScheduleCreate["message"]);
-      $this->assertCount(4, $actionScheduleCreate["data"]["scheduled"]);
+      $this->assertCount(2, $actionScheduleCreate["data"]["scheduled"]);
    }
 
    function testCreateScheduleActtionWithOverwrite() {
@@ -98,7 +98,7 @@ class massSendItTest extends BaseTest
       $payload_bulk_update = $generator->generatePayload(
          bulk_id: self::TEST_BULK_ID,
          isEditMode: "true",
-         recipients_list: "1"
+         recipients_list: "1,2"
       );
       $bulkController = new BulkController($this, TEST_PROJECT_1);      
       $actionBulkCreate = $bulkController->action('update', $payload_bulk_update);
@@ -114,21 +114,68 @@ class massSendItTest extends BaseTest
       //dump($actionScheduleCreate);
 
       $this->assertFalse($actionScheduleCreate["error"], "error: " .$actionScheduleCreate["message"]);
-      $this->assertCount(2, $actionScheduleCreate["data"]["scheduled"]);
+      $this->assertCount(4, $actionScheduleCreate["data"]["scheduled"]);
    }
 
    function testDeleteScheduleAction() {
+      $schedule_ids = [1,2];
       $scheduleController = new ScheduleController($this,  TEST_PROJECT_1);
-      $payload_schedule_delete = array("schedule_id" => 1);
-      $actionScheduleDelete = $scheduleController->action("delete", $payload_schedule_delete);
+      foreach ($schedule_ids as $key => $schedule_id) {
 
-      $this->assertFalse($actionScheduleDelete["error"], "error: ".$actionScheduleDelete["message"]);
+         $payload_schedule_delete = array("schedule_id" => $schedule_id);
+         $actionScheduleDelete = $scheduleController->action("delete", $payload_schedule_delete);
+
+         $this->assertFalse($actionScheduleDelete["error"], "error: ".$actionScheduleDelete["message"]);
+      }
 
       // check deletion
       $sql = "SELECT schedule_id WHERE table_name = 'schedule' AND bulk_id = ? AND project_id = ?";
       $result = $this->module->queryLogs($sql, [self::TEST_BULK_ID, TEST_PROJECT_1]);
-      $this->assertSame(1, $result->num_rows);
+      $this->assertSame(2, $result->num_rows);
    }
 
-   
+   /**
+    * Notification Action
+    *
+    */
+    function testSendNotification() {
+
+      $notificationController = new NotificationController($this);
+      $actionNotificationSend = $notificationController->action('send', array("dry" => true));
+
+      $this->assertFalse($actionNotificationSend["error"], "error: ".$actionNotificationSend["message"]);
+      $this->assertSame(2, $actionNotificationSend["data"]["num_sent"]);
+      $this->assertSame(0, $actionNotificationSend["data"]["num_failed"]);
+
+    }
+
+    function testDoNotSendNotification() {
+      // create bulk scheduled in the future
+      $generator = new GeneratorHelper();
+      $payload_bulk_create = $generator->generatePayload(isPast: false);
+      $bulkController = new BulkController($this, TEST_PROJECT_1);
+      $actionBulkCreate = $bulkController->action('create', $payload_bulk_create);
+      $this->assertFalse($actionBulkCreate["error"], "Error: " . $actionBulkCreate["message"]);
+
+      $bulk_id = ($actionBulkCreate["data"]["bulk"])->bulk_id;
+
+      // create schedules
+      $scheduleController = new ScheduleController($this,  TEST_PROJECT_1);
+      $payload_schedule_create = [
+         "bulk_id" => $bulk_id,
+         "overwrite" => false
+      ];
+      $actionScheduleCreate = $scheduleController->action("create", $payload_schedule_create);
+      $this->assertFalse($actionScheduleCreate["error"], "error: ".$actionScheduleCreate["message"]);
+
+      // (do not) send notifications
+      $notificationController = new NotificationController($this);
+      $actionNotificationSend = $notificationController->action('send', array("dry" => true));
+
+      $this->assertFalse($actionNotificationSend["error"], "error: ".$actionNotificationSend["message"]);
+      $this->assertSame(0, $actionNotificationSend["data"]["num_sent"]);
+      $this->assertSame(0, $actionNotificationSend["data"]["num_failed"]);      
+    }
+
+
 }

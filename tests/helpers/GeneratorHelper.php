@@ -3,7 +3,13 @@
 class GeneratorHelper {
     
 
-   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1,2", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="", $bulk_id=false, $order=false) {
+   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="", $bulk_id=false, $order=false, $isPast=true) {
+
+      if($isPast) {
+         $bulk_schedule = date('m-d-Y H:i', strtotime("-1 year"));
+      } else {
+         $bulk_schedule = date('m-d-Y H:i', strtotime("+1 year"));
+      }
      
       $data =  array(
          "bulk_title" => $title,
@@ -23,7 +29,7 @@ class GeneratorHelper {
          "use_second_email" => "yes",
          "email_second_subject" => "Access to your document",
          "email_second_message" => "Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]",
-         "bulk_schedule" => "12-31-2024 15:00",
+         "bulk_schedule" => $bulk_schedule,
          "bulk_expiration" => "",
          "is_edit_mode" => $isEditMode
       );

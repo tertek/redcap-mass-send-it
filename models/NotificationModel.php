@@ -108,7 +108,7 @@ class NotificationModel extends ActionModel {
         $this_record=$this_event_id=$this_form=$this_instance=null;
 
         if($dry) {
-            sleep(1);
+            sleep(0.5);
             return array(true, null);
         }
 

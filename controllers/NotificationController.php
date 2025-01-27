@@ -85,8 +85,7 @@ class NotificationController extends ActionController {
     }
 
     /**
-     * Debugging parameter used in case we want to 
-     * test the records multiple times without actually sending
+     * 
      */
     private function setStatusSendingBeforeSend($q1) {
         $sq_ids = [];
