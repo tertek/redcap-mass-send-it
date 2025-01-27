@@ -15,24 +15,19 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
       parent::setUpBeforeClass();
 
       self::createTestProjects();
+      self::defineProjectConstants();
 
-      define('TEST_PROJECT_1', explode(',', $GLOBALS['external_modules_test_pids'])[0]);
-      define('TEST_PROJECT_2', explode(',', $GLOBALS['external_modules_test_pids'])[1]);
-      define('TEST_PROJECT_3', explode(',', $GLOBALS['external_modules_test_pids'])[2]);
-
-
-      //  Fixtures
       /**
        * Fixtures
        * 
-       * 0. Clear bulk data
+       * 0. Clear module data ✓
        * 1. Import data dictionary ✓
        * 2. Import record data ✓
        * 3. Upload documents ⨉ : must be done manually
        */
-      //self::fixtureClearBulkData();
-      self::fixtureDataDictionaryDevices();
-      self::fixtureRecordDataDevices();
+      self::fixtureClearModuleData();
+      self::fixtureDataDictionary();
+      self::fixtureRecordData();
 
     }
 
@@ -59,20 +54,31 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
     static function createTestProjects() {
       // Get test PIDs
       ExternalModules::getTestPIDs();
-      self::echo("Test Projects have been created. (PIDs: ". $GLOBALS['external_modules_test_pids'] . ")");
+      self::echo("Test Projects have been retrieved. (PIDs: ". $GLOBALS['external_modules_test_pids'] . ")");
     }
 
-    static private function fixtureClearBulkData() {
+    static private function defineProjectConstants() {
+      define('TEST_PROJECT_1', explode(',', $GLOBALS['external_modules_test_pids'])[0]);
+      define('TEST_PROJECT_2', explode(',', $GLOBALS['external_modules_test_pids'])[1]);
+      define('TEST_PROJECT_3', explode(',', $GLOBALS['external_modules_test_pids'])[2]);
+    }
+
+    /**
+     * Fixture to clear module data from test project
+     * 
+     */
+    static private function fixtureClearModuleData() {
       $sql = "DELETE FROM redcap_external_modules_log WHERE project_id = ?";
       ExternalModules::query($sql, [TEST_PROJECT_1]);
       self::echo("Bulk Data has been cleared.", "fixture");
     }
 
+
     /**
-     * Fixture to import data dictionary into Devices Project
+     * Fixture to import data dictionary into  Project
      * 
      */
-    static private function fixtureDataDictionaryDevices() {
+    static private function fixtureDataDictionary() {
             
       $dictionary_array = \Design::excel_to_array( dirname(__FILE__) . self::PATH_FIXTURE_DICT, "," );
       \MetaData::save_metadata($dictionary_array, false, true, TEST_PROJECT_1);
@@ -82,10 +88,10 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
     }
 
     /**
-     * Fixture to import record data into Devices Project
+     * Fixture to import record data into Project
      * 
      */
-    static private function fixtureRecordDataDevices() {
+    static private function fixtureRecordData() {
 
       $json = file_get_contents( dirname(__FILE__) . self::PATH_FIXTURE_DATA);
       $params = array(
