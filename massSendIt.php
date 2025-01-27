@@ -253,7 +253,8 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     /**
      * Cron Job 
-     * Called every 30 seconds
+     * Called every 120 seconds
+     * Killed after 100 seconds (so that we might not run into issues with max_key_id calculations)
      * @param array $cronAttributes A copy of the cron's configuration block from config.json.
      * https://github.com/vanderbilt-redcap/external-module-framework-docs/blob/main/crons.md
      * 
@@ -273,8 +274,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             $this->setProjectId($localProjectId);
 
             $_GET['pid'] = $localProjectId;
-            $this->log("Running mass_send_it from cron", $cronAttributes);
-
             list($numSent, $numFailed) = $this->sendNotifications($dry) ;
 
             echo "(PID {$localProjectId}) Notifications sent: {$numSent}. Notifications failed: {$numFailed}.";

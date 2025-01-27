@@ -8,10 +8,11 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
 
     const PATH_FIXTURE_DICT = "/fixtures/data_dictionary_mass_send_it.csv";
     const PATH_FIXTURE_DATA = "/fixtures/data_import_mass_send_it.json";
+    const PATH_FIXTURE_DOCS = "/documents";
 
 
     static function setUpBeforeClass(): void {
-      self::echo("\n=== Setting up before class ===\n", 'raw');
+      self::echo("\n=== Setting up before class ===\n\n", 'raw');
       parent::setUpBeforeClass();
 
       self::createTestProjects();
@@ -23,11 +24,26 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
        * 0. Clear module data ✓
        * 1. Import data dictionary ✓
        * 2. Import record data ✓
-       * 3. Upload documents ⨉ : must be done manually
+       * 3. Upload documents to file repository ⨉ : must be done manually
        */
       self::fixtureClearModuleData();
       self::fixtureDataDictionary();
       self::fixtureRecordData();
+      self::fixtureFileRepository();
+      self::echo("\n=== === === === === === === ===\n\n", 'raw');
+    }
+
+    static function tearDownAfterClass(): void {
+      self::echo("\n=== Tearing down after class ===\n\n", 'raw');
+      parent::tearDownAfterClass();
+
+      /**
+       * Fixtures
+       * 
+       * 0. Delete documents in file repository x
+       * 
+       * 
+       */
 
     }
 
@@ -101,9 +117,22 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
       );
       $result = \Records::saveData($params);
 
-      self::echo($result["item_count"] . " items added.", "fixture");
+      self::echo(count($result["ids"]) . " records added.", "fixture");
 
-    }    
+    }
+
+    /**
+     * Fixture to upload documents into FileRepository
+     * 
+     */
+    static private function fixtureFileRepository() {
+
+      //  get documents from PATH_FIXTURE_DOCS
+      //  move documents to fileRepository
+      //  define global for folder_id
+      self::echo("0 documents added to File Repository (manual process to be fixed).", "fixture");
+
+    }
 
 
     /**
