@@ -1,10 +1,21 @@
 <script lang="ts">
-        import Bulk from "./Bulk/index.svelte"
+    import Bulk from './Bulk/index.svelte'
     let {bulks} = $props()
+
+    function showModal() {
+        console.log()
+        //BulkModal.show()
+        // //  data-bs-toggle="modal" data-bs-target="#external-modules-configure-modal-1"
+    }
+
 </script>
 <div class="mt-3 has-max-width">
     <div class="mb-5 clearfix">
-        <button id='addNewBulk' type="button" class="btn btn-sm btn-rcgreen float-start" onclick="{()=>{alert("ok")}}">
+        <button 
+            onclick={showModal}
+            id='addNewBulk' 
+            type="button" 
+            class="btn btn-sm btn-rcgreen float-start" >
             <i class="fas fa-plus"></i> Add New Bulk
         </button>        
     </div>
@@ -20,7 +31,7 @@
         </thead>
         <tbody>
             {#each bulks as bulk, index}
-                <Bulk bulk = {bulk} index={index}/>
+                <Bulk {bulk} {index}/>
             {/each}
         </tbody>
     </table>

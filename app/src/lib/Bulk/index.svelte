@@ -4,9 +4,10 @@
     import Repo from "./repo.svelte";
     import Logs from "./logs.svelte";
     import Mail from "./mail.svelte";
-    let {bulk, index} = $props()
 
+    let {bulk, index} = $props()
 </script>
+
 <tr id="bulk_{bulk.bulk_id}" class="{(index+1) % 2 == 0 ? 'even' : 'odd'}">
     <td class="pt-0 pb-4"  data-order="1">
         <Head bulk={bulk} />

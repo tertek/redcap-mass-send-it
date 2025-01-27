@@ -1,10 +1,13 @@
 <script lang="ts">
         let {bulk} = $props()
+        function showModal() {
+            alert("show modal for bulk_id: " + bulk.bulk_id)
+        }
 </script>
 <div class="clearfix" style="margin-left: -11px;">
     <div style="max-width:340px;" class="card-header alert-num-box  float-start text-truncate"><i class="fas fa-mail-bulk fs13" style="margin-right:5px;"></i>Bulk #{bulk.bulk_id + " "  + (bulk.bulk_title ?? "")}</div>
     <div class="btn-group nowrap float-start mb-1 ms-2" role="group">
-        <button type="button" class="btn btn-link fs13 py-1 ps-1 pe-2 bulk-edit-btn" data-bulk-id="{bulk.bulk_id}">
+        <button type="button" class="btn btn-link fs13 py-1 ps-1 pe-2 bulk-edit-btn" onclick={showModal} data-bulk-id="{bulk.bulk_id}">
             <i class="fas fa-pencil-alt"></i> Edit
         </button>
         <div class="btn-group dropdown" role="group">

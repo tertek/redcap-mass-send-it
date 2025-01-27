@@ -1,10 +1,21 @@
 <script lang="ts" module>
     declare const JSO_STPH_MASS_SEND_IT: any
 </script>
+<script lang="ts">
+    import { onMount } from 'svelte'
+    //export 
+    export let modalRef:HTMLElement
+    onMount(()=>{
+        modalRef.addEventListener('show.bs.modal', function(e){
+            console.log("modal shown")
+            console.log(e.target)
+        })
+    })
 
+</script>
 <div class="col-md-12">
     <form class="form-horizontal" method="post" id="saveBulkForm" novalidate>
-        <div class="modal fade" id="external-modules-configure-modal-1" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="true" data-bs-focus="false">
+        <div bind:this={modalRef} class="modal fade" id="external-modules-configure-modal-1" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="true" data-bs-focus="false">
             <div class="modal-dialog" role="document" style="max-width: 950px !important;">
                 <div class="modal-content">
                     
