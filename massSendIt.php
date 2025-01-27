@@ -1,23 +1,11 @@
-<?php
-
-// Set the namespace defined in your config file
-namespace STPH\massSendIt;
+<?php namespace STPH\massSendIt;
 
 use Exception;
 use Project;
 
-if (file_exists("vendor/autoload.php")) require 'vendor/autoload.php';
+//  Include classes
+require_once(__DIR__ . "/bootstrap.php");
 
-if (!class_exists("ActionController")) require_once(__DIR__ . "/controllers/ActionController.php");
-if (!class_exists("BulkController")) require_once(__DIR__ . "/controllers/BulkController.php");
-if (!class_exists("ScheduleController")) require_once(__DIR__ . "/controllers/ScheduleController.php");
-if (!class_exists("NotificationController")) require_once(__DIR__ . "/controllers/NotificationController.php");
-if (!class_exists("ActionModel")) require_once(__DIR__ . "/models/ActionModel.php");
-if (!class_exists("BulkModel")) require_once(__DIR__ . "/models/BulkModel.php");
-if (!class_exists("ScheduleModel")) require_once(__DIR__ . "/models/ScheduleModel.php");
-if (!class_exists("NotificationModel")) require_once(__DIR__ . "/models/NotificationModel.php");
-
-// Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     private const IS_CRON_ENABLED = true;

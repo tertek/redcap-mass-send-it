@@ -50,7 +50,7 @@ The module has been scanned for possible vulnerabilities with Psalm. To run psal
 
 To run module tests use REDcap's phpunit binary to mitigate version conflicts in abstract testing classes:
 
-`..\..\<redcap_vXX.YY.ZZ>\UnitTests\vendor\bin\phpunit tests`
+`..\..\<redcap_vXX.YY.ZZ>\UnitTests\vendor\bin\phpunit tests --testdox`
 
 *Please note:* Tests currently only run after manually adding test documents with correct references to "Test Project 1".
 
