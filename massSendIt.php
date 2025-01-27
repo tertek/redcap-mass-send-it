@@ -20,7 +20,7 @@ if (!class_exists("NotificationModel")) require_once(__DIR__ . "/models/Notifica
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
 
-    private const IS_CRON_ENABLED = false;
+    private const IS_CRON_ENABLED = true;
 
     private const ALLOWED_FILE_EXTENSIONS = [
         "pdf","doc","docx","csv","html","txt","svg", "bmp", "jpg", "odt", "xlsx"
