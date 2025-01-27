@@ -3,8 +3,8 @@
 class GeneratorHelper {
     
 
-   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1,2", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="", $bulk_id=false, $order=false) {      
-      
+   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1,2", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="", $bulk_id=false, $order=false) {
+     
       $data =  array(
          "bulk_title" => $title,
          "bulk_type" => $type,
@@ -31,8 +31,12 @@ class GeneratorHelper {
       if($bulk_id) {
          $data["bulk_id"] = $bulk_id;
       }
+
+      if($isEditMode == "true" && !$order) {
+         $order = strval($bulk_id-1);
+      }
   
-      if($order) {
+      if(!$order) {
          $data["bulk_order"] = $order;
       }
   
