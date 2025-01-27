@@ -2,6 +2,7 @@
 
 namespace STPH\massSendIt;
 
+use Exception;
 
 class ScheduleModel extends ActionModel {
 
@@ -23,7 +24,15 @@ class ScheduleModel extends ActionModel {
     }
 
     function readScheduled($bulk_id) {
+
+        //  check if bulk_id exists
+        $sql = "SELECT bulk_id WHERE table_name = 'bulk' and bulk_id = ? and project_id = ?";
+        $result = $this->module->queryLogs($sql, [$bulk_id, $this->project_id]);
+        if($result->num_rows == 0) {
+            throw new Exception("bulk_id {$bulk_id} does not exist");
+        }
         
+        //  fetch schedules
         $sql = "SELECT schedule_id WHERE table_name = ? and bulk_id = ? and project_id=?";
         $result = $this->module->queryLogs($sql, [self::TABLE_NAME, $bulk_id, $this->project_id]);
         $scheduled = [];

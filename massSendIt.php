@@ -20,7 +20,7 @@ if (!class_exists("NotificationModel")) require_once(__DIR__ . "/models/Notifica
 // Declare your module class, which must extend AbstractExternalModule 
 class massSendIt extends \ExternalModules\AbstractExternalModule {
 
-    private const IS_CRON_ENABLED = true;
+    private const IS_CRON_ENABLED = false;
 
     private const ALLOWED_FILE_EXTENSIONS = [
         "pdf","doc","docx","csv","html","txt","svg", "bmp", "jpg", "odt", "xlsx"
@@ -285,7 +285,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
             $this->setProjectId($localProjectId);
 
             $_GET['pid'] = $localProjectId;
-            $this->log("Running mass_send_it from cron");
+            $this->log("Running mass_send_it from cron", $cronAttributes);
 
             list($numSent, $numFailed) = $this->sendNotifications($dry) ;
 

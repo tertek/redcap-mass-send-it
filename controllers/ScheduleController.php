@@ -46,6 +46,10 @@ class ScheduleController extends ActionController {
         $bulk_id = $this->data->bulk_id;
         $overwrite = $this->data->overwrite;
 
+        if(empty($bulk_id)) {
+            throw new Exception("bulk_id must not be empty.");
+        }
+        
         $scheduleModel = new ScheduleModel($this->module);
         
         //check if we have old scheduled entries for this bulk
@@ -69,6 +73,11 @@ class ScheduleController extends ActionController {
 
     private function deleteTask() {
         $schedule_id = $this->data->schedule_id;
+
+        if(empty($schedule_id)) {
+            throw new Exception("schedule_id must not be empty.");
+        }
+
         $scheduleModel = new ScheduleModel($this->module);
         $scheduleModel->deleteSchedule($schedule_id);
 
