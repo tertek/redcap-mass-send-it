@@ -277,7 +277,7 @@ function getToEmails() {
                                 <td class="external-modules-input-td">
                                 <textarea class="external-modules-rich-text-field" name="email_first_message" id="email_first_message" onkeydown=""></textarea>
                                 <div style="padding:8px 0px 2px;color:#555;font-size:11px;">
-                                    In the subject or message, you may use <button class="btn btn-xs btn-rcpurple btn-rcpurple-light" style="margin-left:3px;margin-right:2px;font-size:11px;padding:0px 3px 1px;line-height: 14px;" onclick="pipingExplanation();return false;"><img src="/redcap/redcap_v14.5.18/Resources/images/pipe.png" style="width:12px;position:relative;top:-1px;margin-right:2px;" alt="">Piping</button>
+                                    In the subject or message, you may use <button class="btn btn-xs btn-rcpurple btn-rcpurple-light" style="margin-left:3px;margin-right:2px;font-size:11px;padding:0px 3px 1px;line-height: 14px;" onclick="pipingExplanation();return false;"><img src="<?= APP_PATH_WEBROOT ?>/Resources/images/pipe.png" style="width:12px;position:relative;top:-1px;margin-right:2px;" alt="">Piping</button>
                                     and	<button class="btn btn-xs btn-rcgreen btn-rcgreen-light" style="margin-left:3px;font-size:11px;padding:0px 3px 1px;line-height:14px;" onclick="smartVariableExplainPopup();return false;">[<i class="fas fa-bolt fa-xs" style="margin:0 1px;"></i>] Smart Variables</button>
                                     <div style="margin-top:8px;color:#999;font-size:11px;font-family:verdana;">
                                     <div>
@@ -350,7 +350,7 @@ function getToEmails() {
                                 <td class="external-modules-input-td">
                                 <textarea class="external-modules-rich-text-field" name="email_second_message" id="email_second_message" onkeydown=""></textarea>
                                 <div style="padding:8px 0px 2px;color:#555;font-size:11px;">
-                                    In the subject or message, you may use <button class="btn btn-xs btn-rcpurple btn-rcpurple-light" style="margin-left:3px;margin-right:2px;font-size:11px;padding:0px 3px 1px;line-height: 14px;" onclick="pipingExplanation();return false;"><img src="/redcap/redcap_v14.5.18/Resources/images/pipe.png" style="width:12px;position:relative;top:-1px;margin-right:2px;" alt="">Piping</button>
+                                    In the subject or message, you may use <button class="btn btn-xs btn-rcpurple btn-rcpurple-light" style="margin-left:3px;margin-right:2px;font-size:11px;padding:0px 3px 1px;line-height: 14px;" onclick="pipingExplanation();return false;"><img src="<?= APP_PATH_WEBROOT ?>/Resources/images/pipe.png" style="width:12px;position:relative;top:-1px;margin-right:2px;" alt="">Piping</button>
                                     and	<button class="btn btn-xs btn-rcgreen btn-rcgreen-light" style="margin-left:3px;font-size:11px;padding:0px 3px 1px;line-height:14px;" onclick="smartVariableExplainPopup();return false;">[<i class="fas fa-bolt fa-xs" style="margin:0 1px;"></i>] Smart Variables</button>
                                     <div style="margin-top:8px;color:#999;font-size:11px;font-family:verdana;">
                                     <div>

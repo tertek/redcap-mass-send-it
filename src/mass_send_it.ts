@@ -540,7 +540,7 @@ class MassSendIt {
             //  @ts-ignore
             yearRange: '-100:+10', changeMonth: true, changeYear: true, dateFormat: user_date_format_jquery,
             hour: currentTime('h'), minute: currentTime('m'), buttonText: "Foo",
-            timeFormat: 'HH:mm', constrainInput: true
+            timeFormat: 'hh:mm', constrainInput: true
         });
     
         $('.bulk-datetimepicker').datetimepicker({
@@ -548,7 +548,7 @@ class MassSendIt {
             dateFormat: user_date_format_jquery, buttonImage: app_path_images+'datetime.png',
             buttonText: "lang.alerts_42", yearRange: '-10:+10', changeMonth: true, changeYear: true, 
             hour: currentTime('h'), minute: currentTime('m'),
-            showOn: 'both',  buttonImageOnly: true, timeFormat: 'HH:mm', constrainInput: false,
+            showOn: 'both',  buttonImageOnly: true, timeFormat: 'hh:mm', constrainInput: false,
         })    
         
     } 
