@@ -54,8 +54,8 @@
             "cron_name": "send_notifications_mass_send_it",
             "cron_description": "Cron that runs every 60 seconds to send notifications created with Mass Send-It module.",
             "method": "cronSendNotifications",
-            "cron_frequency": "120", 
-            "cron_max_run_time": "100",
+            "cron_frequency": "60", 
+            "cron_max_run_time": "1800",
             "dry": false
          }
     ],
