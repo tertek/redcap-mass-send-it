@@ -106,6 +106,7 @@ class NotificationController extends ActionController {
 
     private function sendTask() {
         try {
+            $notifications = [];
             //  Begin database transaction
             $this->beginDbTx();
 
@@ -152,6 +153,8 @@ class NotificationController extends ActionController {
     
                 //  Send notification
                 list($sent, $notification) = $notificationModel->sendNotification($schedule, $dry);
+                $notifications[] = $notification;
+
                 /**
                  * Set status back to IDLE if it was a dry run
                  * 
@@ -194,7 +197,7 @@ class NotificationController extends ActionController {
            //  End database transaction
            $this->endDbTx();
 
-           return array("num_sent" => $numSent, "num_failed" => $numFailed);
+           return array("num_sent" => $numSent, "num_failed" => $numFailed, "notifications" => $notifications);
 
         } catch (\Throwable $th) {
             //  Rollback database

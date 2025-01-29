@@ -12,10 +12,10 @@ class NotificationModel extends ActionModel {
     private static $module;
     private const TABLE_NAME = 'notification';
     private $bulk;
+    private $data;
 
     public $project_id;
     public $event_id;
-    public $record;
 
     public int $bulk_id;
     public int $notification_id;
@@ -44,11 +44,10 @@ class NotificationModel extends ActionModel {
         $this->bulk= $this->getBulk($schedule->bulk_id);
 
         //  set record data
-        $data = Records::getData($this->project_id, 'array', $schedule->record);
-        $this->record = $data[$schedule->record][$this->event_id];
+        $this->data = Records::getData($this->project_id, 'array', $schedule->record);
 
         //  Get email header 
-        list($email_to, $email_from, $email_display) = $this->getEmailHeader();
+        list($email_to, $email_from, $email_display) = $this->getEmailHeader($schedule->record);
 
         //  Get send-it data
         $sendIt = $this->getSendItData($schedule, $email_to);
@@ -142,24 +141,38 @@ class NotificationModel extends ActionModel {
         $message = str_replace("[share-file-url]", $shareFile->url, $message);
         $message = str_replace("[share-file-link]", $shareFile->link, $message);
         $message = str_replace("[share-file-password]", $shareFile->password, $message);
-        
+
         //  Pipe REDCap data / smart variables
-        $message = Piping::replaceVariablesInLabel($message, $schedule->record, null, 1, $this->record, true, $this->project_id, false);
-        $subject = Piping::replaceVariablesInLabel($subject, $schedule->record, null, 1, $this->record, true, $this->project_id, false);
+        $message = Piping::replaceVariablesInLabel(
+            label: $message,
+            record_data: $this->data,
+            event_id: $this->event_id,
+            project_id: $this->project_id,
+            record: $schedule->record
+        );
+        $subject = Piping::replaceVariablesInLabel(
+            label: $subject,
+            record_data: $this->data,
+            event_id: $this->event_id,
+            project_id: $this->project_id,
+            record: $schedule->record
+        );
 
         return array($message, $subject);
     }
 
     private function getSendItData($schedule, $email_to) {
+
+        $record_data = $this->data[$schedule->record][$this->event_id];
        
         //  In case it is a primary message, we need to first add the document and recipient to the database
         if($schedule->message_type == 'primary') {
 
             //  get document data first
-            $document_reference = $this->record[$this->bulk->file_repo_reference];
+            $document_reference = $record_data[$this->bulk->file_repo_reference];
             
             if(empty($document_reference)) {
-                throw new Exception("The document reference for record ".$this->record[$this->module->getRecordIdField()]." is empty.");
+                throw new Exception("The document reference for record ".$record_data[$this->module->getRecordIdField()]." is empty.");
             }
             $document_name = $document_reference . "." . $this->bulk->file_repo_extension;
             $document = $this->get_document($this->project_id, $this->bulk->file_repo_folder_id, $document_name);        
@@ -168,7 +181,7 @@ class NotificationModel extends ActionModel {
             $sendit_docs_id = $this->add_sendit_document($document);
 
             //  get password
-            $custom_pwd = $this->bulk->use_random_pass ? null : $this->record[$this->bulk->custom_pass_field];
+            $custom_pwd = $this->bulk->use_random_pass ? null : $record_data[$this->bulk->custom_pass_field];
 
             //  add recipient to get key and password
             $sendItData = $this->add_sendit_recipient($email_to, $sendit_docs_id, $custom_pwd);
@@ -259,14 +272,15 @@ class NotificationModel extends ActionModel {
     }
 
 
-    private function getEmailHeader() {
+    private function getEmailHeader($record_id) {
         $email_to = "";
         $email_from = $this->bulk->email_from;
         $email_display = $this->bulk->email_display;
 
         //  Retrieve email from record data        
         $email_to_field = str_replace(array('[', ']' ), '', $this->bulk->email_to);
-        $email_to = $this->record[$email_to_field];
+        $record_data = $this->data[$record_id][$this->event_id];
+        $email_to = $record_data[$email_to_field];
 
         return [$email_to, $email_from,  $email_display];
     }

@@ -147,6 +147,11 @@ class massSendItTest extends BaseTest
       $this->assertSame(2, $actionNotificationSend["data"]["num_sent"]);
       $this->assertSame(0, $actionNotificationSend["data"]["num_failed"]);
 
+      $email = json_decode($actionNotificationSend["data"]["notifications"][0]["email"]);
+
+      $this->assertSame("fgartrell1@google.com.hk", $email->to);
+      $this->assertSame("mass.send.it@redcap.test", $email->from);
+
     }
 
     function testDoNotSendNotification() {
@@ -174,7 +179,8 @@ class massSendItTest extends BaseTest
 
       $this->assertFalse($actionNotificationSend["error"], "error: ".$actionNotificationSend["message"]);
       $this->assertSame(0, $actionNotificationSend["data"]["num_sent"]);
-      $this->assertSame(0, $actionNotificationSend["data"]["num_failed"]);      
+      $this->assertSame(0, $actionNotificationSend["data"]["num_failed"]);
+
     }
 
 
