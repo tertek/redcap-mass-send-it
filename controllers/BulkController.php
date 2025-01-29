@@ -154,6 +154,8 @@ class BulkController extends ActionController {
 
         
         //  set recipients
+        $validated->bulk_recipients_list = "";
+        $validated->bulk_recipients_logic = "";
         if($validated->bulk_type == "list") {            
             $validated->bulk_recipients_list = $payload["bulk_recipients_list"];
             $recipients = explode(",",  $payload["bulk_recipients_list"]);
