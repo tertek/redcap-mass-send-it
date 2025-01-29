@@ -78,10 +78,13 @@ class NotificationController extends ActionController {
         return $this->module->query($sql, []);
     }
 
+    /**
+     * per project_id
+     */
     private function getBatchedSchedulesReadyIDLE() {
-        $sql_1 = "SELECT l.project_id, p0.value AS table_name ,p1.value AS status, p2.value AS schedule_id, p3.value AS send_time FROM redcap_external_modules_log l, redcap_external_modules_log_parameters p0, redcap_external_modules_log_parameters p1, redcap_external_modules_log_parameters p2, redcap_external_modules_log_parameters p3 WHERE l.record IS NOT NULL AND l.log_id = p0.log_id AND l.log_id = p1.log_id AND l.log_id =p2.log_id AND l.log_id = p3.log_id AND p0.name = 'table_name' AND p0.value = 'schedule' AND p1.name = 'status' AND p1.value = 'IDLE' AND p2.name = 'schedule_id' AND p3.name = 'send_time' AND p3.value <= NOW() limit " . \SurveyScheduler::determineEmailsPerBatch();
+        $sql_1 = "SELECT l.project_id, p0.value AS table_name ,p1.value AS status, p2.value AS schedule_id, p3.value AS send_time FROM redcap_external_modules_log l, redcap_external_modules_log_parameters p0, redcap_external_modules_log_parameters p1, redcap_external_modules_log_parameters p2, redcap_external_modules_log_parameters p3 WHERE l.project_id = ? AND l.record IS NOT NULL AND l.log_id = p0.log_id AND l.log_id = p1.log_id AND l.log_id =p2.log_id AND l.log_id = p3.log_id AND p0.name = 'table_name' AND p0.value = 'schedule' AND p1.name = 'status' AND p1.value = 'IDLE' AND p2.name = 'schedule_id' AND p3.name = 'send_time' AND p3.value <= NOW() limit " . \SurveyScheduler::determineEmailsPerBatch();
         
-        return $this->module->query($sql_1, []);
+        return $this->module->query($sql_1, [$this->project_id]);
     }
 
     /**
@@ -155,10 +158,6 @@ class NotificationController extends ActionController {
                 list($sent, $notification) = $notificationModel->sendNotification($schedule, $dry);
                 $notifications[] = $notification;
 
-                /**
-                 * Set status back to IDLE if it was a dry run
-                 * 
-                 */
                 if($sent === null) {
                     // If email failed to send due to *whatever EMAIL SENDING reason*, set as IDLE.
                     $sql = "UPDATE redcap_external_modules_log_parameters p0 SET p0.value = 'IDLE' WHERE table_name='bulk' AND bulk_id='?' AND p0.name='status'";
@@ -176,7 +175,10 @@ class NotificationController extends ActionController {
                 }
             }
     
-    
+            /**
+             * Set status back to IDLE if it was a dry run
+             * 
+             */
             if($dry) {
                 foreach ($sq_ids as $key => $bq_id) {
                     $sql = "UPDATE redcap_external_modules_log_parameters AS s_status 
@@ -202,7 +204,7 @@ class NotificationController extends ActionController {
         } catch (\Throwable $th) {
             //  Rollback database
             $this->rollbackDbTx();
-            throw new Exception("There was an exception during sendTask: " . $th->getMessage() . "\n: Trace: " . $th->getTrace());
+            throw new Exception("There was an exception during sendTask: " . $th->getMessage() . "\n: Trace: " . json_encode($th->getTrace()));
         }
     }
 
