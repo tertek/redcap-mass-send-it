@@ -393,7 +393,12 @@ function getNotificationLog($module) {
         $log["record"] = $schedule["record"];
         $log["type"] = ucfirst($schedule["message_type"]);
 
-        $log["email_to"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_to"];
+        //$log["email_to"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_to"];
+        $log["email_to"] = \Piping::replaceVariablesInLabel(
+            label: $bulks_by_bulk_id[$schedule["bulk_id"]]["email_to"],
+            record: $schedule["record"],
+            wrapValueInSpan: false
+        );
         if($schedule["message_type"] == "primary") {
             $log["subject"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_first_subject"];
             $log["message"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_first_message"];
