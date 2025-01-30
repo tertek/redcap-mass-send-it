@@ -6,6 +6,8 @@ if (file_exists("vendor/autoload.php")) require 'vendor/autoload.php';
  * Helpers
  */
 if (!class_exists("dropdownHelper")) require_once(__DIR__ . "/helpers/dropdownHelper.php");
+if (!class_exists("validationHelper")) require_once(__DIR__ . "/helpers/validationHelper.php");
+
 
 /**
  * Controllers

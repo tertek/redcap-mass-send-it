@@ -109,8 +109,10 @@ class BulkController extends ActionController {
     }
 
     private function validate() {
-
+        //  use validation helper methods
+        $validationHelper = new validationHelper($this->project_id);
         $validated = (object) array();
+
         $form_data = $this->data->form_data;
         if(empty($form_data)) {
             throw new Exception("validation_error: form_data must not be empty");
@@ -121,7 +123,6 @@ class BulkController extends ActionController {
         foreach ( json_decode($form_data) as $key => $item) {
             $payload[$item->name] = htmlspecialchars($item->value, ENT_QUOTES);
         }
-        //dump("payload\n", $payload);
 
         //  set bulk_id
         if(isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true" ) {
@@ -131,7 +132,6 @@ class BulkController extends ActionController {
         } else {            
             $validated->bulk_id = $this->get_max_key_id() + 1;
         }
-        //dump("bulk_id", $validated->bulk_id);
 
         //  set bulk_order
         if(!isset($payload["bulk_order"]) && isset($payload["bulk_id"]) && isset($payload["is_edit_mode"]) && $payload["is_edit_mode"] == "true") {
@@ -158,56 +158,22 @@ class BulkController extends ActionController {
         $validated->bulk_recipients_logic = "";
         if($validated->bulk_type == "list") {            
             $validated->bulk_recipients_list = $payload["bulk_recipients_list"];
-            $recipients = explode(",",  $payload["bulk_recipients_list"]);
-
-            //  validate recipients
-            if(count($recipients) == 0) {
-                throw new Exception("validation_error: recipients count must be greater than 0.");
-            }
-
-            //  check if records exist
-            $params = array(
-                'project_id'=>$this->project_id,
-                //'event_id' => $this->event_id,
-                'return_format' => 'array',
-                'fields'=>array('record_id'), 
-                'records' => $recipients
-            );
-            $records = array_keys(REDCap::getData($params));
-
-            //  indicate non-existing records
-            if(count($records) != count($recipients)) {                
-                $diff = array_diff($recipients, $records);
-                throw new Exception("validation_error: records in record list must exist. Non-exsiting records: " . implode(",", $diff));
-            }
-                
+            
+            $recipients = $validationHelper->validateRecipientsList($validated->bulk_recipients_list);
             $validated->bulk_recipients = serialize($recipients);
 
         } else if ($validated->bulk_type == "logic") {       
-
             $validated->bulk_recipients_logic = $payload["bulk_recipients_logic"];
 
-            $params = array(
-                'project_id'=>$this->project_id,
-                //'event_id' => $this->event_id,
-                'return_format' => 'array',
-                'fields'=>array('record_id'), 
-                'filterLogic' => $validated->bulk_recipients_logic
-            );    
-            $recipients = array_keys(REDCap::getData($params));
-
-            //  validate logic result (should be at least one record)
-            if(count($recipients) == 0) {
-                throw new Exception("validation_error: recipients count must be greater than 0.");
-            }
-
+            $recipients = $validationHelper->validateRecipientsList($validated->bulk_recipients_logic);
             $validated->bulk_recipients = serialize($recipients);
+
         } else {
             throw new Exception("validation_error: bulk type must be either 'list' or 'logic'");
         }
 
         //  set file file_repo_folder_id
-        //  tbd: check folder access permission for project_id
+        //  TBD: check folder access permission for project_id
         if(empty($payload["file_repo_folder_id"])) {
             throw new Exception("validation_error: file_repo_folder_id must not be empty");
         }
@@ -224,48 +190,13 @@ class BulkController extends ActionController {
             throw new Exception("validation_error: file_repo_reference must not be empty");
         }
         $validated->file_repo_reference = $payload["file_repo_reference"];
-
-        //  check if file_repo_reference field exists
-        $project_fields = array_keys((new Project($this->project_id))->metadata);
-        if(!in_array($validated->file_repo_reference, $project_fields)) {
-            throw new Exception("validation_error: file_repo_reference '$validated->file_repo_reference' does not exist on project with id $this->project_id.");
-        }
-
-        //  check for all records if file_repo_reference field not isblankormissingcode
-        $params = array(
-            'project_id'=>$this->project_id,
-            'return_format' => 'array',
-            'records' => unserialize($validated->bulk_recipients),
-            'fields'=>array($payload["file_repo_reference"], 'record_id'),
-            'filterLogic' => 'isblankormissingcode(['.$payload["file_repo_reference"].']) = false'
-        ); 
-        $references = REDCap::getData($params);
-
-        //  indicate blank or missing reference fields per record
-        if(count($references) != count($recipients)) {
-            $diff = array_diff($recipients, array_keys($references));
-            throw new Exception("validation_error: rile repository reference must not be empty for all records! Empty field ".$validated->file_repo_reference ." in  records: " . implode(",", $diff));
-        }
-
-        //  check if all referenced documents exists
-        foreach ($references as $key => $value) {
-            $el = reset($value);
-            $document_reference = $el[$validated->file_repo_reference];
-            $document_name = $document_reference . "." . $validated->file_repo_extension;
-
-            $sql = "SELECT d.docs_name as docName, d.docs_name as storedName, d.docs_size as docSize, d.docs_id as fileId, f.folder_id as folderId, d.docs_type as docType FROM redcap_docs as d JOIN redcap_docs_folders_files AS f ON d.docs_id=f.docs_id WHERE d.project_id = ? AND f.folder_id = ? AND d.docs_name = ?";
-
-            $q = $this->module->query($sql, [$this->project_id, $validated->file_repo_folder_id, $document_name]);
-            
-            if($q->num_rows == 0) {
-                $document_not_found[] = $document_name . " (record_id: " . $el["record_id"] . " )";
-            }
-        }
-
-        //  indicate missing documents
-        if(!empty($document_not_found)) {                       
-            throw new Exception("validation_error: documents must exist for all referenced records! Following documents (with record_id) could not be found:<br>" . implode(",", $document_not_found));
-        }
+        //  check if file_repo_reference field exists, not blank and referenced documents exist
+        $validationHelper->validateFileRepoReference(
+            $validated->file_repo_reference, 
+            $validated->file_repo_extension,
+            $validated->file_repo_folder_id,
+            $recipients
+        );
 
         $validated->email_display = $payload["email_display"];
         $validated->email_from = $payload["email_from"];
@@ -276,6 +207,7 @@ class BulkController extends ActionController {
         if($payload["password_type"] == "random") {
             $validated->use_random_pass = true;
         } else {
+            //  TBD: validate custom_pass_field
             $validated->use_random_pass = false;
             $validated->custom_pass_field = $payload["custom_pass_field"];
         }

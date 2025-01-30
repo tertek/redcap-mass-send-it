@@ -3,7 +3,7 @@
 class GeneratorHelper {
     
 
-   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id="7", $repo_extension="pdf", $repo_reference="document_reference", $email_to="email", $isEditMode="", $bulk_id=false, $order=false, $isPast=true) {
+   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id="3", $repo_extension="pdf", $repo_reference="[document_reference]", $email_to="[email]", $isEditMode="", $bulk_id=false, $order=false, $isPast=true) {
 
       if($isPast) {
          $bulk_schedule = date('m-d-Y H:i', strtotime("-1 year"));
@@ -21,7 +21,7 @@ class GeneratorHelper {
          "file_repo_reference" => $repo_reference,
          "email_display" => "Test Mass Send-It",
          "email_from" => "mass.send.it@redcap.test",
-         "email_to" => "[$email_to]",
+         "email_to" => $email_to,
          "email_first_subject" => "New Document available",
          "email_first_message" => "Hello [firstname] [lastname],<br>a file has been uploaded for you. A second follow-up email will be sent containing the password for retrieving the file at the link below.<br>You can access your document here: [share-file-link]<br>If the link does not open, copy and paste the following url into your browser:<br>[share-file-url].<br><br>",
          "password_type" => "random",
