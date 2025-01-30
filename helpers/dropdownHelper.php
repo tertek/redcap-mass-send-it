@@ -82,10 +82,14 @@ class dropdownHelper {
                     }
                 }
             } else {
+
+                $key = "[$this_field]";
+                $value = "[$this_field] \"{$attr1['element_label']}\"";
+
                 if ($addFormLabelDividers) {
-                    $fields[$this_form_label][$this_field] = "$this_field \"{$attr1['element_label']}\"";
+                    $fields[$this_form_label][$key] = $value;
                 } else {
-                    $fields[$this_field] = "$this_field \"{$attr1['element_label']}\"";
+                    $fields[$key] = $value;
                 }
             }
         }
