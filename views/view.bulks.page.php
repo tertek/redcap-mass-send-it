@@ -155,9 +155,9 @@
                                 <li class="list-group-item py-1 px-3 fs12">
                                     <span class="me-1 boldish">Message:</span>
                                     <button style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .15rem; --bs-btn-font-size: .6rem;" data-message-id="p-<?=$bulk->bulk_id ?>" class="toggle-message-btn btn btn-secondary">Show Content</button>
-                                    <p id="p-<?=$bulk->bulk_id ?>" class="bulk-message-preview text-secondary ms-1 fs12">
+                                    <div id="p-<?=$bulk->bulk_id ?>" class="bulk-message-preview text-secondary ms-1 fs12">
                                         <?= html_entity_decode($bulk->email_first_message) ?>
-                                    </p>
+                                    </div>
                                 </li>       
                             </ul>                                                                  
                         </div>
@@ -175,9 +175,9 @@
                                 <li class="list-group-item py-1 px-3 fs12">
                                 <span class="me-1 boldish">Message:</span>
                                 <button style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .15rem; --bs-btn-font-size: .6rem;" data-message-id="s-<?=$bulk->bulk_id ?>" class="toggle-message-btn btn btn-secondary">Show Content</button>
-                                    <p id="s-<?=$bulk->bulk_id ?>" class="bulk-message-preview text-secondary ms-1 fs12">
+                                    <div id="s-<?=$bulk->bulk_id ?>" class="bulk-message-preview text-secondary ms-1 fs12">
                                         <?= html_entity_decode($bulk->email_second_message) ?>
-                                    </p>                                
+                                    </div>                                
                                 </li>       
                             </ul>                                                                  
                         </div>

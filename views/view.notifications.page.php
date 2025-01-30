@@ -3,7 +3,7 @@ namespace STPH\massSendIt;
 
 use DateTimeRC;
 use RCView;
-global $Proj, $longitudinal, $lang;
+global $Proj, $lang;
 
 
 /**
@@ -186,7 +186,7 @@ function getHeaders() {
 }
 
 function getRows($notificationLog, $limit_begin, $num_per_page) {
-     global $Proj, $longitudinal, $lang;
+     global $Proj, $lang;
        // Loop through all invitations for THIS PAGE and build table
        $rownum = 0;
        foreach (array_slice($notificationLog, $limit_begin, $num_per_page) as $row)
@@ -239,8 +239,7 @@ function getRows($notificationLog, $limit_begin, $num_per_page) {
            $rows[$rownum][] = 	RCView::div(array('class'=>'wrap', 'style'=>'word-wrap:break-word;'),
                ($row['record'] == '' ? "" : ($row['record'] == '' ? '<i class="far fa-eye-slash" style="color:#ddd;"></i>' :
                    RCView::a(array('href'=>APP_PATH_WEBROOT.$recordLink, 'style'=>'font-size:12px;text-decoration:underline;'), $row['record']) .
-                   ($Proj->isRepeatingFormOrEvent($row['event_id'], $row['instrument']) ? "&nbsp;&nbsp;<span style='color:#777;'>(#{$row['instance']})</span>" : "") .
-                   (!$longitudinal ? "" : "&nbsp;&nbsp;<span style='color:#777;'>-&nbsp;".$Proj->eventInfo[$row['event_id']]['name_ext']."</span>")
+                   ($Proj->isRepeatingFormOrEvent($row['event_id'], $row['instrument']) ? "&nbsp;&nbsp;<span style='color:#777;'>(#{$row['instance']})</span>" : "")
                ))
            );
            $rows[$rownum][] = $row['type'];

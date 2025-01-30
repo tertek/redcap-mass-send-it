@@ -309,8 +309,8 @@ $dropdownHelper = new dropdownHelper();
                                 </td>
                                 <td class="pt-3 external-modules-input-td">
                                     <input type="text" name="bulk_schedule" class="form-control ms-1 fs12 bulk-datetimepicker external-modules-input-element d-inline"
-                                            placeholder="<?=str_replace(array('M','D','Y'),array('MM','DD','YYYY'),DateTimeRC::get_user_format_label())." HH:MM"?>"
-                                            style="height:26px;width:140px;" onblur="redcap_validate(this,'','','hard','datetime_'+user_date_format_validation,1,1,user_date_format_delimiter)" required>
+                                            placeholder="<?=str_replace(array('M','D','Y'),array('MM','DD','YYYY'), DateTimeRC::get_user_format_label())." HH:MM"?>"
+                                            style="height:26px;width:140px;" required>
                                     <div class="ms-2 mt-1 fs12" style="color:gray;">
                                         When clicking 'save' all emails witin the bulk will be created according to this date.
                                     </div>
@@ -324,8 +324,8 @@ $dropdownHelper = new dropdownHelper();
                                 </td>
                                 <td class="pt-3 external-modules-input-td">
                                     <input type="text" name="bulk_expiration" class="ms-1 fs12 bulk-datetimepicker external-modules-input-element d-inline"
-                                            placeholder="<?=str_replace(array('M','D','Y'),array('MM','DD','YYYY'),DateTimeRC::get_user_format_label())." HH:MM"?>"
-                                            style="height:26px;width:140px;" onblur="redcap_validate(this,'','','hard','datetime_'+user_date_format_validation,1,1,user_date_format_delimiter)">
+                                            placeholder="<?=str_replace(array('M','D','Y'),array('MM','DD','YYYY'), DateTimeRC::get_user_format_label())." HH:MM"?>"
+                                            style="height:26px;width:140px;">
                                     <div class="ms-2 mt-1 fs12" style="color:gray;">
                                         This expiration affects download links for emails that were already sent out.
                                     </div>

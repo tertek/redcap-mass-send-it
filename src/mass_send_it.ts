@@ -325,11 +325,11 @@ class MassSendIt {
                 //  schedule & expiration
                 
                 if(bulk.bulk_schedule) {
-                    $('[name=bulk_schedule]').val(that.formatDateTime(bulk.bulk_schedule))
+                    $('[name=bulk_schedule]').val(bulk.bulk_schedule)
                 }
 
                 if(bulk.bulk_expiration) {
-                    $('[name=bulk_expiration]').val(that.formatDateTime(bulk.bulk_expiration))
+                    $('[name=bulk_expiration]').val(bulk.bulk_schedule)
                 }
                 
 
@@ -546,11 +546,11 @@ class MassSendIt {
         
     } 
 
-    formatDateTime(ds:string) {
-        const sd = new Date(ds)
-        return sd.getMonth() + 1+"-"+sd.getDate()+"-"+sd.getFullYear()+" "+sd.getHours()+":"+sd.getMinutes()
+    // formatDateTime(ds:string) {
+    //     const sd = new Date(ds)
+    //     return sd.getMonth() + 1+"-"+sd.getDate()+"-"+sd.getFullYear()+" "+sd.getHours()+":"+sd.getMinutes()
        
-    }
+    // }
 
     /**
      * NotificationLog page methods

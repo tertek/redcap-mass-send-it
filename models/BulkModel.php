@@ -3,6 +3,7 @@
 namespace STPH\massSendIt;
 
 use Exception;
+use DateTimeRC;
 
 if (!class_exists("ActionModel")) require_once(__DIR__ ."/ActionModel.php");
 
@@ -57,9 +58,21 @@ class BulkModel extends ActionModel {
 
         $bulk = $result->fetch_object();
 
-        //  decode special chars, so that tinymce preview does not break
+        //  decode special chars for output
         $bulk->email_first_message = htmlspecialchars_decode($bulk->email_first_message, ENT_QUOTES);
+        $bulk->email_first_subject = htmlspecialchars_decode($bulk->email_first_subject, ENT_QUOTES);
+
         $bulk->email_second_message = htmlspecialchars_decode($bulk->email_second_message, ENT_QUOTES);
+        $bulk->email_second_subject = htmlspecialchars_decode($bulk->email_second_subject, ENT_QUOTES);
+
+        $bulk->bulk_title = htmlspecialchars_decode($bulk->bulk_title, ENT_QUOTES);
+
+        //  format 'Y-M-D_24' to 'M/D/Y_24'
+        $bulk->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_schedule), 'Y-M-D_24', 'M/D/Y_24');
+
+        if(!empty($bulk->bulk_expiration)) {
+            $bulk->bulk_expiration = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_expiration), 'Y-M-D_24', 'M/D/Y_24');
+        }
 
         return $bulk;
     }
@@ -73,7 +86,6 @@ class BulkModel extends ActionModel {
         $basic_params = array(
             "table_name" => self::TABLE_NAME,
             "project_id" => $validated->project_id,
-            "event_id" => $validated->event_id,
             "record" => null
         );
 
