@@ -33,70 +33,67 @@ class dropdownHelper {
         return $folderList;
     }
 
-    function getFieldsWithEvents() {
-        $project = new Project();
+    function getFieldsWithEvents($firstLabel = "-- select a field --", $limitToFieldTypes = ["text"] ,$addFormLabelDividers=true, $excludeValidationFields=["email"], $alsoIncludeRecordIdField=false) {
+        global $Proj,$longitudinal;
         $fields = [];
+        $fields[""] = $firstLabel;
 
-        foreach ($project->metadata as $key => $field) {
+        foreach ($Proj->metadata as $this_field=>$attr1) {
+            
             //  Skip fields if they are not of type text
-            if($field["element_type"] != "text") {
+            if(!empty($limitToFieldTypes) &&  !in_array($attr1["element_type"], $limitToFieldTypes)) {
                 continue;
             } 
 
             //  Skip primary key
-            if($field["field_order"] == 1){
+            if(!$alsoIncludeRecordIdField && $attr1["field_order"] == 1){
                 continue;
             }
 
             //  Skip fields that are using validation
-            if($field["element_validation_type"] != null){
+            if(!empty($excludeValidationFields) &&  in_array($attr1["element_validation_type"], $excludeValidationFields)){
                 continue;
             }
 
-            $fields[] = array(
-                "element_label" => $field["element_label"],
-                "field_name" => $field["field_name"]
-            );
+            if ($addFormLabelDividers) {
+                // Add to fields/forms array. Get form of field.
+                $this_form_label = $Proj->forms[$attr1['form_name']]['menu'];
+                // Clean the label
+                $attr1['element_label'] = trim(str_replace(array("\r\n", "\n"), array(" ", " "), strip_tags($attr1['element_label']."")));
+                // Truncate label if long
+                if (mb_strlen($attr1['element_label']) > 65) {
+                    $attr1['element_label'] = trim(mb_substr($attr1['element_label'], 0, 47)) . "... " . trim(mb_substr($attr1['element_label'], -15));
+                }
+            }
+		
+            if ($longitudinal) {
+                foreach ($Proj->eventsForms as $thisEventId=>$theseForms) {
+                    $thisEventName = $Proj->getUniqueEventNames($thisEventId);
+                    $thisForm = $Proj->metadata[$this_field]['form_name'];
+                    if (in_array($thisForm, $theseForms)) {
+                        $key = "[$thisEventName][$this_field]";
+                        $value = "[$thisEventName][$this_field] \"{$attr1['element_label']}\" (".$Proj->eventInfo[$thisEventId]['name_ext'].")";
+
+                        if ($addFormLabelDividers) {
+                            $fields[$this_form_label][$key] = $value;
+                        } else {
+                            $fields[$key] = $value;
+                        }
+                    }
+                }
+            } else {
+                if ($addFormLabelDividers) {
+                    $fields[$this_form_label][$this_field] = "$this_field \"{$attr1['element_label']}\"";
+                } else {
+                    $fields[$this_field] = "$this_field \"{$attr1['element_label']}\"";
+                }
+            }
         }
 
         return $fields;
     }
 
-    function getFields() {
-        $project = new Project();
-        $fields = [];
 
-        foreach ($project->metadata as $key => $field) {
-            //  Skip fields if they are not of type text
-            if($field["element_type"] != "text") {
-                continue;
-            } 
-
-            //  Skip primary key
-            if($field["field_order"] == 1){
-                continue;
-            }
-
-            //  Skip fields that are using validation
-            if($field["element_validation_type"] != null){
-                continue;
-            }
-
-            $fields[] = array(
-                "element_label" => $field["element_label"],
-                "field_name" => $field["field_name"]
-            );
-        }
-
-        return $fields;
-    }    
-
-    function getProjectFields($limitToFieldType = "text", $limitToValidationType=null) {
-
-        $projectFields = Form::getFieldDropdownOptions(limitToFieldType: $limitToFieldType, limitToValidationType:$limitToValidationType);
-
-        return $projectFields;
-    }
     
     // Return list of From Emails
     function getFromEmails () {
@@ -105,8 +102,8 @@ class dropdownHelper {
             $fromEmails[$thisEmail] = $thisEmail;
         }
         return $fromEmails;
-    }    
-
+    }
+    
     function getToEmails() {
         $toEmails = array();
         global $Proj, $longitudinal;

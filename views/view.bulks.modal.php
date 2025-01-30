@@ -158,7 +158,7 @@ $dropdownHelper = new dropdownHelper();
                                 </td>
                                 <td>
                                     <div class="float-start me-2 mt-1" style="width:65%;max-width:280px;">
-                                    <?=RCView::select(array('name'=>"file_repo_reference",'class'=>'external-modules-input-element'), $dropdownHelper ->getProjectFields(), null, 200)?>
+                                    <?=RCView::select(array('name'=>"file_repo_reference",'class'=>'external-modules-input-element'), $dropdownHelper ->getFieldsWithEvents(firstLabel: "-- select a reference field --"), null, 200)?>
 
                                     </div>
                                 </td>                            
@@ -248,7 +248,7 @@ $dropdownHelper = new dropdownHelper();
                                 </td>                          
                                 <td class="external-modules-input-td pt-2">
                                     <?=RCView::select(array('name'=>"custom_pass_field", 'id'=>"custom_pass_field",
-                                    'class'=>'external-modules-input-element fs12'), $dropdownHelper ->getProjectFields(), null, 200);
+                                    'class'=>'external-modules-input-element fs12'), $dropdownHelper ->getFieldsWithEvents(firstLabel: "-- select a password field --"), null, 200);
                                     ?>
                                 </td>
                             </tr>                        

@@ -163,13 +163,15 @@ class NotificationModel extends ActionModel {
         //  In case it is a primary message, we need to first add the document and recipient to the database
         if($schedule->message_type == 'primary') {
 
+            $record_id = $schedule->record;
+
 
             //  get document data first
-            $document_reference = $this->getPipedData($this->bulk->file_repo_reference, $schedule->record);
+            $document_reference = $this->getPipedData($this->bulk->file_repo_reference, $record_id);
             //$document_reference = $record_data[$this->bulk->file_repo_reference];
             
             if(empty($document_reference)) {
-                throw new Exception("The document reference for record ".$this->getPipedData($this->module->getRecordIdField(), $schedule->record)." is empty.");
+                throw new Exception("The document reference for record ".$this->getPipedData($this->module->getRecordIdField(), $record_id, true)." is empty.");
             }
             $document_name = $document_reference . "." . $this->bulk->file_repo_extension;
             $document = $this->get_document($this->project_id, $this->bulk->file_repo_folder_id, $document_name);        
@@ -178,7 +180,7 @@ class NotificationModel extends ActionModel {
             $sendit_docs_id = $this->add_sendit_document($document);
 
             //  get password
-            $custom_pwd = $this->bulk->use_random_pass ? null : $this->getPipedData([$this->bulk->custom_pass_field], $schedule->record);
+            $custom_pwd = $this->bulk->use_random_pass ? null : $this->getPipedData($this->bulk->custom_pass_field, $record_id);
 
             //  add recipient to get key and password
             $sendItData = $this->add_sendit_recipient($email_to, $sendit_docs_id, $custom_pwd);
@@ -275,7 +277,7 @@ class NotificationModel extends ActionModel {
         $email_display = $this->bulk->email_display;
 
         //  Retrieve email from record data        
-        $email_to = $this->getPipedData($this->bulk->email_to, $record_id, false);
+        $email_to = $this->getPipedData($this->bulk->email_to, $record_id);
 
         return [$email_to, $email_from,  $email_display];
     }
@@ -309,7 +311,7 @@ class NotificationModel extends ActionModel {
         return $max_key_id;
     }
 
-    private function getPipedData($data, $record, $addBrackets=true) {
+    private function getPipedData($data, $record, $addBrackets=false) {
 
         $piped = Piping::replaceVariablesInLabel(
             label: $addBrackets ? "[".$data."]" : $data,
