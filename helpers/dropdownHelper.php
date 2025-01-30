@@ -101,6 +101,10 @@ class dropdownHelper {
         foreach (User::getEmailAllProjectUsers(PROJECT_ID) as $thisEmail) {
             $fromEmails[$thisEmail] = $thisEmail;
         }
+        if (SUPER_USER && !isset($fromEmails[$GLOBALS['user_email']])) {
+            // If admin is not a user in the project, add their primary email to the drop-down
+            $fromEmails[] = $GLOBALS['user_email'];
+        }        
         return $fromEmails;
     }
     
