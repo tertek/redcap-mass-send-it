@@ -31,7 +31,7 @@ class NotificationModel extends ActionModel {
     }
 
     private function getBulk($bulk_id) {
-        $sql = "SELECT bulk_id, email_to, email_from, email_display, email_first_message, email_first_subject, email_second_subject, email_second_message, use_random_pass, use_second_email, file_repo_extension, file_repo_folder_id, file_repo_reference WHERE table_name='bulk' AND bulk_id=?";
+        $sql = "SELECT bulk_id, email_to, email_from, email_display, email_first_message, email_first_subject, email_second_subject, email_second_message, use_random_pass, use_second_email, file_repo_extension, file_repo_folder_id, file_repo_reference, custom_pass_field WHERE table_name='bulk' AND bulk_id=?";
         $q = $this->module->queryLogs($sql, [$bulk_id]);
         return $q->fetch_object();        
     }
@@ -180,7 +180,7 @@ class NotificationModel extends ActionModel {
             $sendit_docs_id = $this->add_sendit_document($document);
 
             //  get password
-            $custom_pwd = $this->bulk->use_random_pass ? null : $this->getPipedData($this->bulk->custom_pass_field, $record_id);
+            $custom_pwd = $this->bulk->use_random_pass == "1" ? null : $this->getPipedData($this->bulk->custom_pass_field, $record_id);
 
             //  add recipient to get key and password
             $sendItData = $this->add_sendit_recipient($email_to, $sendit_docs_id, $custom_pwd);

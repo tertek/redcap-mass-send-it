@@ -121,8 +121,18 @@ class BulkModel extends ActionModel {
         //  decode special chars, difference does not break
         $validated->email_first_message = htmlspecialchars_decode($validated->email_first_message, ENT_QUOTES);
         $validated->email_second_message = htmlspecialchars_decode($validated->email_second_message, ENT_QUOTES);
+
+        $validated->email_second_message = htmlspecialchars_decode($validated->email_second_message, ENT_QUOTES);
+        $validated->email_second_subject = htmlspecialchars_decode($validated->email_second_subject, ENT_QUOTES);
+
+        $validated->bulk_title = htmlspecialchars_decode($validated->bulk_title, ENT_QUOTES);
+        $validated->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($validated->bulk_schedule), 'Y-M-D_24', 'M/D/Y_24');
+
+        if(!empty($bulk->bulk_expiration)) {
+            $validated->bulk_expiration = DateTimeRC::format_user_datetime(htmlspecialchars_decode($validated->bulk_expiration), 'Y-M-D_24', 'M/D/Y_24');
+        }        
         
-        $diff = array_diff((array)$validated, (array) $bulk_old);
+        $diff = array_diff_assoc((array)$validated, (array) $bulk_old);
         if(count($diff) == 0) {
             throw new Exception("no difference found! Aborting update.");
         }

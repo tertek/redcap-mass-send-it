@@ -261,7 +261,7 @@ class MassSendIt {
 
                 //  Setup bulk data
                 //  bulk_order
-                $('[name=bulK-order]').val(bulk.bulk_order)
+                $('[name=bulk_order]').val(bulk.bulk_order)
                 //  title
                 $('[name=bulk_title]').val(bulk.bulk_title)
 

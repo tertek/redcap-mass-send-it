@@ -73,7 +73,7 @@ class BulkController extends ActionController {
             throw new Exception("bulk with bulk_id $bulk_id not found");
         }
 
-        return array("bulk" => $bulk);        
+        return array("bulk" => $bulk);
     }
 
     private function updateTask() {    
@@ -102,7 +102,6 @@ class BulkController extends ActionController {
         if($isUpdate === true) {
             $bulk = $bulkModel->updateBulk($validated);
         } else {
-
             $bulk = $bulkModel->createBulk($validated);
         }        
         return $bulk;
@@ -151,23 +150,18 @@ class BulkController extends ActionController {
             throw new Exception("validation_error: bulk_type must not be empty");
         }
         $validated->bulk_type = $payload["bulk_type"];
-
         
         //  set recipients
         $validated->bulk_recipients_list = "";
         $validated->bulk_recipients_logic = "";
         if($validated->bulk_type == "list") {            
-            $validated->bulk_recipients_list = $payload["bulk_recipients_list"];
-            
+            $validated->bulk_recipients_list = $payload["bulk_recipients_list"];            
             $recipients = $validationHelper->validateRecipientsList($validated->bulk_recipients_list);
             $validated->bulk_recipients = serialize($recipients);
-
         } else if ($validated->bulk_type == "logic") {       
             $validated->bulk_recipients_logic = $payload["bulk_recipients_logic"];
-
             $recipients = $validationHelper->validateRecipientsList($validated->bulk_recipients_logic);
             $validated->bulk_recipients = serialize($recipients);
-
         } else {
             throw new Exception("validation_error: bulk type must be either 'list' or 'logic'");
         }
@@ -203,21 +197,24 @@ class BulkController extends ActionController {
         $validated->email_to = $payload["email_to"];
         $validated->email_first_subject = $payload["email_first_subject"];
         $validated->email_first_message = $payload["email_first_message"];
+        $validated->email_second_subject = "";
+        $validated->email_second_message = "";
 
+        $validated->custom_pass_field = "";
         if($payload["password_type"] == "random") {
-            $validated->use_random_pass = true;
+            $validated->use_random_pass = "1";
         } else {
             //  TBD: validate custom_pass_field
-            $validated->use_random_pass = false;
+            $validated->use_random_pass = "0";
             $validated->custom_pass_field = $payload["custom_pass_field"];
         }
 
         if($payload["use_second_email"] == "yes") {
-            $validated->use_second_email = true;
+            $validated->use_second_email = "1";
             $validated->email_second_subject = $payload["email_second_subject"];
             $validated->email_second_message = $payload["email_second_message"];
         } else {
-            $validated->use_second_email = false;
+            $validated->use_second_email = "0";
         }
 
         $validated->bulk_schedule = DateTimeRC::format_ts_to_ymd($payload["bulk_schedule"]);
