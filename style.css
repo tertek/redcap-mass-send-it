@@ -11,3 +11,7 @@ select.invalid-custom, .tox-tinymce.invalid-custom {
     border-color: #dc3545;
     border-width: 1px;
 }
+
+.bulk-message-preview {
+    display: none;
+}

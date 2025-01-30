@@ -154,6 +154,13 @@ class MassSendIt {
                     }
                 })
         })
+
+        $('.toggle-message-btn').on('click', function(e) {
+            let message_id = $(this).data("messageId")
+            $('#'+message_id).toggle()
+            let text = $(this).text()
+            text == 'Show Content' ? $(this).text("Hide Content") : $(this).text("Show Content")
+        })
     }
 
     setupModal() {

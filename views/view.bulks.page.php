@@ -101,7 +101,7 @@
                                         <i class="fas fa-file"></i> File Extension: <?= $bulk->file_repo_extension ?> 
                                     </div>
                                     <div class="">
-                                        <i class="fas fa-link"></i> Reference Field: <?= $bulk->file_repo_reference ?> 
+                                        <i class="fas fa-link"></i> Reference Field: <span class="code" style="font-size:85%;"><?= $bulk->file_repo_reference ?></span> 
                                     </div>
                                 </div>
                             </div>
@@ -148,11 +148,16 @@
                                 <span class="me-1 boldish">From:</span> 
                                 <a class="fs12"><?= $bulk->email_from ?></a>
                                 </li><li class="list-group-item py-1 px-3 text-truncate fs12">
-                                <span class="me-1 boldish">To:</span> <a class="fs12"><?= $bulk->email_to ?></a>
+                                <span class="me-1 boldish">To:</span> <span class="code" style="font-size:85%;"><?= $bulk->email_to ?><span>
                                 </li><li class="list-group-item py-1 px-3 text-truncate fs12">
-                                <span class="me-1 boldish">Subject:</span><?= $bulk->email_first_subject ?>
-                                </li><li class="list-group-item py-1 px-3 text-truncate fs12">
-                                <?= $bulk->email_first_message ?>
+                                <span class="me-1 boldish">Subject:</span><span class="text-secondary ms-1 fs12"><?= $bulk->email_first_subject ?></span>
+                                </li>
+                                <li class="list-group-item py-1 px-3 fs12">
+                                    <span class="me-1 boldish">Message:</span>
+                                    <button style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .15rem; --bs-btn-font-size: .6rem;" data-message-id="p-<?=$bulk->bulk_id ?>" class="toggle-message-btn btn btn-secondary">Show Content</button>
+                                    <p id="p-<?=$bulk->bulk_id ?>" class="bulk-message-preview text-secondary ms-1 fs12">
+                                        <?= html_entity_decode($bulk->email_first_message) ?>
+                                    </p>
                                 </li>       
                             </ul>                                                                  
                         </div>
@@ -165,10 +170,14 @@
                         <div class="card-body p-0">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item py-1 px-3 text-truncate fs12">
-                                    <span class="me-1 boldish">Subject:</span><?= $bulk->email_second_subject ?>
+                                    <span class="me-1 boldish">Subject:</span><span class="text-secondary ms-1 fs12"><?= $bulk->email_second_subject ?></span>
                                 </li>
-                                <li class="list-group-item py-1 px-3 text-truncate fs12">
-                                    <?= $bulk->email_second_message ?>
+                                <li class="list-group-item py-1 px-3 fs12">
+                                <span class="me-1 boldish">Message:</span>
+                                <button style="--bs-btn-padding-y: .15rem; --bs-btn-padding-x: .15rem; --bs-btn-font-size: .6rem;" data-message-id="s-<?=$bulk->bulk_id ?>" class="toggle-message-btn btn btn-secondary">Show Content</button>
+                                    <p id="s-<?=$bulk->bulk_id ?>" class="bulk-message-preview text-secondary ms-1 fs12">
+                                        <?= html_entity_decode($bulk->email_second_message) ?>
+                                    </p>                                
                                 </li>       
                             </ul>                                                                  
                         </div>
