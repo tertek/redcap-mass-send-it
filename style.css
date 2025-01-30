@@ -2,3 +2,12 @@
     color: #6c757d !important;
     background-color: transparent;
 }
+
+.custom-select.is-invalid,.was-validated .form-control-custom.is-invalid, .was-validated .form-control-custom:invalid, .form-control.is-invalid, .was-validated .custom-select:invalid, .was-validated .form-control:invalid{
+    border-color: #dc3545;
+}
+
+select.invalid-custom, .tox-tinymce.invalid-custom {
+    border-color: #dc3545;
+    border-width: 1px;
+}

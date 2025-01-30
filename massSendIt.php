@@ -10,10 +10,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     private const IS_CRON_ENABLED = true;
 
-    private const ALLOWED_FILE_EXTENSIONS = [
-        "pdf","doc","docx","csv","html","txt","svg", "bmp", "jpg", "odt", "xlsx"
-    ];
-
     private const NUM_NOTIFICATIONS_PER_PAGE = 100;
 
     public function redcap_module_ajax($action, $payload, $project_id) {
@@ -136,9 +132,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     private function getDataTransferObject() {
         $DTO = array(            
             "modal_defaults"  => array(
-                "repo_folders" => $this->getRepoFolders(),
-                "repo_extensions" => self::ALLOWED_FILE_EXTENSIONS,
-                "repo_fields" => $this->getFields(),
                 "form_defaults" => [
                     "email_first_message" => $this->tt('default_first_message'),
                     "email_first_subject" => $this->tt('default_first_subject'),
@@ -151,47 +144,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         return json_encode($DTO);
     }
 
-    private function getRepoFolders() {
-        $project_id = $this->getProjectId();
-        $sql = "SELECT folder_id, name, parent_folder_id FROM redcap_docs_folders WHERE project_id = ?";
-        $result = $this->query($sql, [$project_id]);
 
-        $folders = [];
-        while($row = $result->fetch_assoc()){
-            $folders[] = $row;
-        }
-
-        return $this->escape($folders);
-    }
-
-    private function getFields() {
-        $project = new Project($this->getProjectId());
-        $fields = [];
-
-        foreach ($project->metadata as $key => $field) {
-            //  Skip fields if they are not of type text
-            if($field["element_type"] != "text") {
-                continue;
-            } 
-
-            //  Skip primary key
-            if($field["field_order"] == 1){
-                continue;
-            }
-
-            //  Skip fields that are using validation
-            if($field["element_validation_type"] != null){
-                continue;
-            }
-
-            $fields[] = array(
-                "element_label" => $field["element_label"],
-                "field_name" => $field["field_name"]
-            );
-        }
-
-        return  $this->escape($fields);
-    }
 
  /**
     * Include JavaScript files

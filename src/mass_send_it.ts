@@ -167,20 +167,6 @@ class MassSendIt {
         $('[name=email_to]').prop('required', true)
 
         // setup modal defaults
-        let repo_folders = DTO_STPH_BULK_SEND.modal_defaults.repo_folders
-        repo_folders.forEach(folder => {
-            $('[name=file_repo_folder_id]').append(new Option(folder.name + " - " + "("+folder.folder_id+")", folder.folder_id+""))
-        });
-
-        let repo_extensions = DTO_STPH_BULK_SEND.modal_defaults.repo_extensions
-        repo_extensions.forEach(ext => {
-            $('[name=file_repo_extension]').append(new Option(ext, ext))
-        })
-
-        let repo_fields = DTO_STPH_BULK_SEND.modal_defaults.repo_fields
-        repo_fields.forEach(field => {
-            $('[name=file_repo_reference]').append(new Option(field.element_label + " - " + "("+field.field_name+")",field.field_name))
-        })
 
         $('[name=bulk_type]').on('change', function(e){
             $('[name=bulk_recipients_logic]').removeAttr('required');​​​​​
@@ -441,18 +427,18 @@ class MassSendIt {
         $('[name=file_repo_extension]').removeClass('invalid-custom')
         $('[name=file_repo_reference]').removeClass('invalid-custom')
 
-        if($('[name=file_repo_folder_id]').find(":selected").val() == 'default') {
+        if($('[name=file_repo_folder_id]').find(":selected").val() == '') {
             $('[name=file_repo_folder_id]').addClass('invalid-custom')
             validExtra = false
             report.push("file_repo_folder_id")
         }
 
-        if($('[name=file_repo_extension]').find(":selected").val() == 'default') {
+        if($('[name=file_repo_extension]').find(":selected").val() == '') {
             $('[name=file_repo_extension]').addClass('invalid-custom')
             validExtra = false
             report.push("file_repo_extension")
         }
-        if($('[name=file_repo_reference]').find(":selected").val() == 'default') {
+        if($('[name=file_repo_reference]').find(":selected").val() == '') {
             $('[name=file_repo_reference]').addClass('invalid-custom')
             validExtra = false
             report.push("file_repo_reference")

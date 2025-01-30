@@ -4,66 +4,9 @@ namespace STPH\massSendIt;
 use RCView;
 use DateTimeRC;
 
-function getProjectFields() {
-    $projectFields = \Form::getFieldDropdownOptions(limitToFieldType: "text");
-    return $projectFields;
-}
+$dropdownHelper = new dropdownHelper();
 
-// Return list of From Emails
-function getFromEmails () {
-    $fromEmails = array();
-    foreach (\User::getEmailAllProjectUsers(PROJECT_ID) as $thisEmail) {
-        $fromEmails[$thisEmail] = $thisEmail;
-    }
-    return $fromEmails;
-}
-
-function getToEmails() {
-    $toEmails = array();
-    global $Proj, $longitudinal;
-
-    // Get data types of all field validations for ONLY Email fields
-    $validationDataTypes = array('email');
-    foreach (getValTypes() as $valType=>$valAttr)  {
-        if ($valAttr['data_type'] == 'email') {
-            $validationDataTypes[] = $valType;
-        }
-    }
-    $ddProjectVarLabel = "Email variables";
-    $validationDataTypes = array_unique($validationDataTypes);
-    $emailFieldsLabels = \Form::getFieldDropdownOptions(false, false, false, false, $validationDataTypes);
-    if (!empty($emailFieldsLabels)) {
-        foreach ($emailFieldsLabels as $formLabel=>$emailFields) {
-            if (!is_array($emailFields)) continue;
-            foreach ($emailFields as $thisVar=>$thisOptionLabel) {
-                list ($thisVarLabel, $thisOptionLabel) = explode(" ", $thisOptionLabel, 2);
-                if ($longitudinal) {
-                    foreach ($Proj->eventsForms as $thisEventId=>$theseForms) {
-                        $thisEventName = $Proj->getUniqueEventNames($thisEventId);
-                        $thisForm = $Proj->metadata[$thisVar]['form_name'];
-                        if (in_array($thisForm, $theseForms)) {
-                            $toEmails[$ddProjectVarLabel]["[$thisEventName][$thisVar]"] = "[$thisEventName][$thisVar] $thisOptionLabel (".$Proj->eventInfo[$thisEventId]['name_ext'].")";
-                        }
-                    }
-                } else {
-                    $toEmails[$ddProjectVarLabel]["[$thisVar]"] = "[$thisVar] $thisOptionLabel";
-                }
-            }
-        }
-    }    
-    return $toEmails;
-}
 ?>
-<style>
-    .custom-select.is-invalid,.was-validated .form-control-custom.is-invalid, .was-validated .form-control-custom:invalid, .form-control.is-invalid, .was-validated .custom-select:invalid, .was-validated .form-control:invalid{
-        border-color: #dc3545;
-    }
-
-    select.invalid-custom, .tox-tinymce.invalid-custom {
-        border-color: #dc3545;
-        border-width: 1px;
-}
-</style>
 <div class="col-md-12">
     <form class="form-horizontal" method="post" id="saveBulkForm" novalidate>
         <div class="modal fade" id="external-modules-configure-modal-1" name="external-modules-configure-modal-1" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="true" data-bs-focus="false">
@@ -191,9 +134,7 @@ function getToEmails() {
                                 </td>
                                 <td>
                                     <div class="float-start me-2 mt-1" style="width:65%;max-width:280px;">
-                                    <?=RCView::select(array('name'=>"file_repo_folder_id",'class'=>'external-modules-input-element'), [
-                                        "default" => " -- select a repository folder -- "
-                                    ], null, 200)?>
+                                    <?=RCView::select(array('name'=>"file_repo_folder_id",'class'=>'external-modules-input-element'), $dropdownHelper ->getRepoFolders(), null, 200)?>
                                     </div>
                                 </td>
                             </tr>
@@ -205,9 +146,7 @@ function getToEmails() {
                                 </td>
                                 <td>
                                     <div class="float-start me-2 mt-1" style="width:65%;max-width:280px;">
-                                    <?=RCView::select(array('name'=>"file_repo_extension",'class'=>'external-modules-input-element'), [
-                                        "default" => " -- select a file extension -- "
-                                    ], null, 200)?>
+                                    <?=RCView::select(array('name'=>"file_repo_extension",'class'=>'external-modules-input-element'), $dropdownHelper->getFileExtensions(), null, 200)?>
                                     </div>
                                 </td>                            
                             </tr>
@@ -219,9 +158,8 @@ function getToEmails() {
                                 </td>
                                 <td>
                                     <div class="float-start me-2 mt-1" style="width:65%;max-width:280px;">
-                                    <?=RCView::select(array('name'=>"file_repo_reference",'class'=>'external-modules-input-element'), [
-                                        "default" => " -- select a reference field -- "
-                                    ], null, 200)?>
+                                    <?=RCView::select(array('name'=>"file_repo_reference",'class'=>'external-modules-input-element'), $dropdownHelper ->getProjectFields(), null, 200)?>
+
                                     </div>
                                 </td>                            
                             </tr>                        
@@ -243,7 +181,7 @@ function getToEmails() {
                                         <input type="text" name="email_display" class="fs12 external-modules-input-element d-inline" style="width:100%;" placeholder="<?=js_escape2("Display name (optional)")?>">
                                     </div>
                                     <div class="float-start me-2 mt-1" style="width:65%;max-width:380px;">
-                                    <?=RCView::select(array('name'=>"email_from",'class'=>'external-modules-input-element'), getFromEmails(), $user_email, 200)?>
+                                    <?=RCView::select(array('name'=>"email_from",'class'=>'external-modules-input-element'), $dropdownHelper ->getFromEmails(), $user_email, 200)?>
                                     </div>
                                 </td>
                             </tr>
@@ -256,7 +194,7 @@ function getToEmails() {
                                 <td class="external-modules-input-td pt-2">
                                     <?php
                                     print RCView::select(array('name'=>"email_to", 'id'=>"email_to",
-                                    'class'=>'external-modules-input-element fs12'), getToEmails(), "", 200);
+                                    'class'=>'external-modules-input-element fs12'), $dropdownHelper->getToEmails(), "", 200);
                                     ?>
                                 </td>
                             </tr>
@@ -309,9 +247,8 @@ function getToEmails() {
                                     <div class="requiredlabel p-0">* must provide value</div>
                                 </td>                          
                                 <td class="external-modules-input-td pt-2">
-                                    <?php
-                                    print RCView::select(array('name'=>"custom_pass_field", 'id'=>"custom_pass_field",
-                                    'class'=>'external-modules-input-element fs12'), getProjectFields(), "", 200);
+                                    <?=RCView::select(array('name'=>"custom_pass_field", 'id'=>"custom_pass_field",
+                                    'class'=>'external-modules-input-element fs12'), $dropdownHelper ->getProjectFields(), null, 200);
                                     ?>
                                 </td>
                             </tr>                        
