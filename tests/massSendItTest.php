@@ -8,53 +8,61 @@ use STPH\massSendIt\GeneratorHelper;
 class massSendItTest extends BaseTest
 {
 
-   const TEST_BULK_ID = 1;
+   const TEST_BULK_ID = "1";
 
    /**
     * Bulk Action
     *
     */
+
+   // create bulk scheduled in the past for 1 recipients with primary and secondary notification
    function testCreateBulkAction(){
-      // create bulk scheduled in the past
+      $bulkController = new BulkController($this, TEST_PROJECT_1);
       $generator = new GeneratorHelper();
       $payload_bulk_create = $generator->generatePayload();
-
-      $bulkController = new BulkController($this, TEST_PROJECT_1);
       $actionBulkCreate = $bulkController->action('create', $payload_bulk_create);
-
+      
       $this->assertFalse($actionBulkCreate["error"], "Error: " . $actionBulkCreate["message"]);
+      $this->assertSame(($actionBulkCreate["data"]["bulk"])->bulk_id, self::TEST_BULK_ID);
    }
 
+   // read bulk with bulk_id = 1
    function testReadBulkAction() {
-      $payload_bulk_read = array("bulk_id" => self::TEST_BULK_ID);
       $bulkController = new BulkController($this, TEST_PROJECT_1);
+      $payload_bulk_read = array("bulk_id" => self::TEST_BULK_ID);
       $actionBulkRead = $bulkController->action('read', $payload_bulk_read);
 
       $this->assertFalse($actionBulkRead["error"], "error: " . $actionBulkRead["message"]);
+      $this->assertSame(($actionBulkRead["data"]["bulk"])->bulk_id, self::TEST_BULK_ID);
    }
 
+   // update bulk with bulk_id = 1 to have 2 recipients
    function testUpdateBulkAction() {
 
+      $newTitle = self::getRandomString();
+      $newRecipients = "1,2";
+
+      $bulkController = new BulkController($this, TEST_PROJECT_1);
       $generator = new GeneratorHelper();
       $payload_bulk_update = $generator->generatePayload(
          isEditMode: "true",
-         title: "Test Bulk Edited", 
-         recipients_list: "1,2",
+         title: $newTitle, 
+         recipients_list: $newRecipients,
          bulk_id: self::TEST_BULK_ID,
       );
-
-      $bulkController = new BulkController($this, TEST_PROJECT_1);
       $actionBulkUpdate = $bulkController->action("update", $payload_bulk_update);
       
       $this->assertFalse($actionBulkUpdate["error"], "error: " . $actionBulkUpdate["message"]);
       $this->assertCount(2, unserialize(($actionBulkUpdate["data"]["bulk"])->bulk_recipients));
+      $this->assertSame(($actionBulkUpdate["data"]["bulk"])->bulk_id, self::TEST_BULK_ID);
+      $this->assertSame(($actionBulkUpdate["data"]["bulk"])->bulk_title, $newTitle);
+
    }
 
+   // delete bulk with bulk_id = 1
    function testDeleteBulkAction(){
-
-      $payload_bulk_delete = array("bulk_id" => self::TEST_BULK_ID);
-
       $bulkController = new BulkController($this,  TEST_PROJECT_1);
+      $payload_bulk_delete = array("bulk_id" => self::TEST_BULK_ID);
       $actionBulkDelete = $bulkController->action('delete', $payload_bulk_delete);
 
       $this->assertFalse($actionBulkDelete["error"], "error: " . $actionBulkDelete["message"]);
@@ -65,22 +73,23 @@ class massSendItTest extends BaseTest
       $this->assertSame($actionBulkRead["message"], "bulk with bulk_id ".self::TEST_BULK_ID." not found");
     }
 
-
-    
    /**
     * Schedule Action
     *
     */
 
-    function testCreateScheduleActtion() {
+    //   create 2 schedules for bulk_id = 1 with 1 recipient
+    function testCreateScheduleAction() {
 
-      // create a bulk
+      // create a new bulk with bulk_id = 1
       $generator = new GeneratorHelper();
       $payload_bulk_create = $generator->generatePayload();    
       $bulkController = new BulkController($this, TEST_PROJECT_1);      
-      $bulkController->action('create', $payload_bulk_create);
+      $actionBulkCreate = $bulkController->action('create', $payload_bulk_create);
+      // ensure it has bulk_id = 1
+      $this->assertSame($actionBulkCreate["data"]["bulk"]->bulk_id, self::TEST_BULK_ID);
 
-      // create schedules
+      // create schedules for bulk_id = 1
       $scheduleController = new ScheduleController($this,  TEST_PROJECT_1);
       $payload_schedule_create = [
          "bulk_id" => self::TEST_BULK_ID,
@@ -89,10 +98,12 @@ class massSendItTest extends BaseTest
       $actionScheduleCreate = $scheduleController->action("create", $payload_schedule_create);
 
       $this->assertFalse($actionScheduleCreate["error"], "error: " .$actionScheduleCreate["message"]);
-      $this->assertCount(2, $actionScheduleCreate["data"]["scheduled"]);
+      $this->assertCount(2, $actionScheduleCreate["data"]["schedules"]);
+      $this->assertSame($actionScheduleCreate["data"]["schedules"][0]->bulk_id, self::TEST_BULK_ID);
    }
 
-   function testCreateScheduleActtionWithOverwrite() {
+   //   update bulk_id = 1 to 2 recipients and create 4 schedules
+   function testCreateScheduleActionWithOverwrite() {
 
       // update a bulk
       $generator = new GeneratorHelper();
@@ -102,8 +113,10 @@ class massSendItTest extends BaseTest
          recipients_list: "1,2"
       );
       $bulkController = new BulkController($this, TEST_PROJECT_1);      
-      $actionBulkCreate = $bulkController->action('update', $payload_bulk_update);
-      $this->assertFalse($actionBulkCreate["error"], "error: ".$actionBulkCreate["message"]);
+      $actionBulkUpdate = $bulkController->action('update', $payload_bulk_update);
+      $this->assertFalse($actionBulkUpdate["error"], "error: ".$actionBulkUpdate["message"]);
+      $this->assertSame(($actionBulkUpdate["data"]["bulk"])->bulk_id, self::TEST_BULK_ID);
+      $this->assertCount(2, unserialize(($actionBulkUpdate["data"]["bulk"])->bulk_recipients));
 
       // (re)create schedules for same bulk
       $scheduleController = new ScheduleController($this,  TEST_PROJECT_1);
@@ -112,17 +125,19 @@ class massSendItTest extends BaseTest
          "overwrite" => true
       ];
       $actionScheduleCreate = $scheduleController->action("create", $payload_schedule_create);
-      //dump($actionScheduleCreate);
 
       $this->assertFalse($actionScheduleCreate["error"], "error: " .$actionScheduleCreate["message"]);
-      $this->assertCount(4, $actionScheduleCreate["data"]["scheduled"]);
+      $this->assertCount(4, $actionScheduleCreate["data"]["schedules"]);
+      $this->assertSame($actionScheduleCreate["data"]["schedules"][0]->bulk_id, self::TEST_BULK_ID);
+      $this->assertSame($actionScheduleCreate["data"]["schedules"][1]->message_type, "secondary");
+      $this->assertSame($actionScheduleCreate["data"]["schedules"][3]->project_id, TEST_PROJECT_1);
    }
 
+   // delete schedules with ids 1,2
    function testDeleteScheduleAction() {
       $schedule_ids = [1,2];
       $scheduleController = new ScheduleController($this,  TEST_PROJECT_1);
       foreach ($schedule_ids as $key => $schedule_id) {
-
          $payload_schedule_delete = array("schedule_id" => $schedule_id);
          $actionScheduleDelete = $scheduleController->action("delete", $payload_schedule_delete);
 
@@ -130,9 +145,13 @@ class massSendItTest extends BaseTest
       }
 
       // check deletion
-      $sql = "SELECT schedule_id WHERE table_name = 'schedule' AND bulk_id = ? AND project_id = ?";
-      $result = $this->module->queryLogs($sql, [self::TEST_BULK_ID, TEST_PROJECT_1]);
-      $this->assertSame(2, $result->num_rows);
+      $scheduleModel = new ScheduleModel($this->module, TEST_PROJECT_1);
+      $schedules = $scheduleModel->getAllSchedules(self::TEST_BULK_ID);
+
+      $this->assertSame(2, count($schedules));
+      $this->assertSame($schedules[0]->bulk_id, self::TEST_BULK_ID);
+      $this->assertSame($schedules[0]->schedule_id, "3");
+      $this->assertSame($schedules[0]->record, "2");
    }
 
    /**

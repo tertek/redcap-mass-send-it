@@ -224,7 +224,7 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
         //  set project context within cron and call sendNotifications
         foreach($this->getProjectsWithModuleEnabled() as $localProjectId){
-            $this->setProjectId($localProjectId);
+            //$this->setProjectId($localProjectId);
 
             $_GET['pid'] = $localProjectId;
             list($numSent, $numFailed) = $this->sendNotifications($dry) ;

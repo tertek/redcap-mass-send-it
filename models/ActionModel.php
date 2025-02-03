@@ -21,6 +21,6 @@ class ActionModel {
 
     public function getFields() {
         return implode(",", $this->getPublicProperties());
-    }    
+    }
 
 }

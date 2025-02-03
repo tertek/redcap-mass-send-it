@@ -1,9 +1,12 @@
 <?php namespace STPH\massSendIt;
 
 class GeneratorHelper {
-    
 
-   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id="3", $repo_extension="pdf", $repo_reference="[document_reference]", $email_to="[email]", $isEditMode="", $bulk_id=false, $order=false, $isPast=true) {
+   /**
+    * Generate per default a new bulk in the past in list mode, for one recipient with primary and secondary notification
+    * 
+    */
+   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id="3", $repo_extension="pdf", $repo_reference="[document_reference]", $email_to="[email]", $isEditMode="", $bulk_id=false, $order=false, $isPast=true, $useSecondEmail=true) {
 
       if($isPast) {
          $bulk_schedule = date('m-d-Y H:i', strtotime("-1 year"));
@@ -26,9 +29,9 @@ class GeneratorHelper {
          "email_first_message" => "Hello [firstname] [lastname],<br>a file has been uploaded for you. A second follow-up email will be sent containing the password for retrieving the file at the link below.<br>You can access your document here: [share-file-link]<br>If the link does not open, copy and paste the following url into your browser:<br>[share-file-url].<br><br>",
          "password_type" => "random",
          "custom_pass_field" => "",
-         "use_second_email" => "yes",
-         "email_second_subject" => "Access to your document",
-         "email_second_message" => "Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]",
+         "use_second_email" => "no",
+         "email_second_subject" => "",
+         "email_second_message" => "",
          "bulk_schedule" => $bulk_schedule,
          "bulk_expiration" => "",
          "is_edit_mode" => $isEditMode
@@ -44,6 +47,12 @@ class GeneratorHelper {
   
       if(!$order) {
          $data["bulk_order"] = $order;
+      }
+
+      if($useSecondEmail) {
+         $data["use_second_email"] = "yes";
+         $data["email_second_subject"] = "Access to your document";
+         $data["email_second_message"] = "Hello,<br>below is the password for downloading the file mentioned in the previous email:<br>[share-file-password]";
       }
   
       $form_data = [];

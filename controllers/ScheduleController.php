@@ -65,9 +65,9 @@ class ScheduleController extends ActionController {
         }
 
         //  create schedules
-        list($scheduled,  $numIgnored) = $scheduleModel->createSchedule($bulk_id);
+        list($schedules,  $numIgnored) = $scheduleModel->createSchedule($bulk_id);
 
-        return array("scheduled" => $scheduled, "numIgnored" =>  $numIgnored);
+        return array("schedules" => $schedules, "numIgnored" =>  $numIgnored);
 
     }
 

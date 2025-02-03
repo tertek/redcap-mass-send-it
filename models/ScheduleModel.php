@@ -18,9 +18,13 @@ class ScheduleModel extends ActionModel {
     public $message_type;
     public $record;
 
-    public function __construct($module) {
+    public function __construct($module, $pid=null) {
         $this->module = $module;
-        $this->project_id = $this->module->getProjectId();
+        if($pid == null) {
+            $this->project_id = $this->module->getProjectId();
+        } else {
+            $this->project_id = $pid;
+        }
     }
 
     function readScheduled($bulk_id) {
@@ -44,7 +48,7 @@ class ScheduleModel extends ActionModel {
     }
 
     function createSchedule($bulk_id) {
-        $scheduled = [];
+        $schedules = [];
         $numIgnored = 0;
 
         //  Get bulk
@@ -83,7 +87,7 @@ class ScheduleModel extends ActionModel {
 
             for ($i=0; $i < count($message_types); $i++) { 
                 //  Store in database
-                $schedule_parameters = array(
+                $schedule = array(
                     "table_name" => self::TABLE_NAME,
                     "project_id" => $this->project_id,
                     "bulk_id" => $bulk_id,
@@ -95,13 +99,17 @@ class ScheduleModel extends ActionModel {
                     "message_type" => $message_types[$i]
                 );               
 
-                $log_id = $this->module->log('schedule_create', $schedule_parameters);
-                $scheduled[] = $log_id;                
+                $created = $this->module->log('schedule_create', $schedule);
+                if(!$created) {
+                    throw new Exception("Unknown error: Schedule could not be created!");
+                }
+
+                $schedules[] = (object) $schedule;                
             }
             $max_schedule_id = $max_schedule_id + 1;
         }
         
-        return array($scheduled, $numIgnored);
+        return array($schedules, $numIgnored);
     }
 
     function deleteSchedule($schedule_id) {
@@ -115,6 +123,22 @@ class ScheduleModel extends ActionModel {
         $removeSchedules = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id]);
 
         return $removeSchedules;
+    }
+
+    public function getAllSchedules($bulk_id=null) {
+        $fields = $this->getFields();
+        $sql = "SELECT $fields WHERE table_name = ? AND project_id = ?";
+        $params = [self::TABLE_NAME, $this->project_id];
+        if($bulk_id) {
+            $sql .= " AND bulk_id = ?";
+            $params[] = $bulk_id;
+        }
+        $result = $this->module->queryLogs($sql, $params);
+        $schedules = [];
+        while($row = $result->fetch_object()) {
+            $schedules[] = $row;
+        }
+        return $schedules;
     }
 
     protected function get_max_key_id() {

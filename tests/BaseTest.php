@@ -183,4 +183,9 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
         }
     }
 
+    protected static function getRandomString() {
+      $bytes = random_bytes(16);
+      return bin2hex($bytes);
+    }
+
 }
