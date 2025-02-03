@@ -54,9 +54,9 @@ class BulkModel extends ActionModel {
 
     public function readBulk($bulk_id, $decode=true) {        
         $fields = $this->getFields();
-        $sql = "SELECT $fields WHERE table_name='BULK' AND bulk_id = ? and project_id=?";
+        $sql = "SELECT $fields WHERE table_name= ? AND bulk_id = ? and project_id = ?";
                
-        $result = $this->module->queryLogs($sql, [$bulk_id, $this->project_id]);
+        $result = $this->module->queryLogs($sql, [self::TABLE_NAME, $bulk_id, $this->project_id]);
         if($result->num_rows == 0) {
             return false;
         }
@@ -101,7 +101,7 @@ class BulkModel extends ActionModel {
 
         $not_implemented_params = array(
             "bulk_order" => $bulk_params["bulk_id"] - 1 //  set order same as id until implemented
-        );
+        );        
 
         //  merge all params
         $merged_params = array_merge($basic_params, $bulk_params, $not_implemented_params);
@@ -118,26 +118,11 @@ class BulkModel extends ActionModel {
 
     public function updateBulk($validated) {
 
-        //dump($validated);
-        //  check difference
-        $bulk_old = $this->readBulk($validated->bulk_id);
+        //  check difference on old bulk WITHOUT decoding
+        $bulk_old = $this->readBulk($validated->bulk_id, false);
         if(!$bulk_old) {
             throw new Exception("bulk_model_error: bulk with bulk_id $validated->bulk_id does not exist! Aborting update.");
-        }
-
-        //  decode special chars, difference does not break
-        $validated->email_first_message = htmlspecialchars_decode($validated->email_first_message, ENT_QUOTES);
-        $validated->email_second_message = htmlspecialchars_decode($validated->email_second_message, ENT_QUOTES);
-
-        $validated->email_second_message = htmlspecialchars_decode($validated->email_second_message, ENT_QUOTES);
-        $validated->email_second_subject = htmlspecialchars_decode($validated->email_second_subject, ENT_QUOTES);
-
-        $validated->bulk_title = htmlspecialchars_decode($validated->bulk_title, ENT_QUOTES);
-        $validated->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($validated->bulk_schedule), 'Y-M-D_24', 'M/D/Y_24');
-
-        if(!empty($bulk->bulk_expiration)) {
-            $validated->bulk_expiration = DateTimeRC::format_user_datetime(htmlspecialchars_decode($validated->bulk_expiration), 'Y-M-D_24', 'M/D/Y_24');
-        }        
+        }      
         
         $diff = array_diff_assoc((array)$validated, (array) $bulk_old);
         if(count($diff) == 0) {
@@ -153,7 +138,7 @@ class BulkModel extends ActionModel {
         //return array("diff" => $diff, "bulk_old" => $bulk_old, "validated" => $validated);
 
         $errors = [];
-        foreach ($diff as $key => $value) {      
+        foreach ($diff as $key => $value) {  
             //  no need to escape again, since we are using calculated difference from $validated
             if(!$this->updateQuery($value, $key, $validated->bulk_id)) {
                 $errors[] = $key;
@@ -164,8 +149,8 @@ class BulkModel extends ActionModel {
             throw new Exception("bulk_model_error: the update query was partially unsuccessful. Following keys did not update: " .  implode(",", $errors));
         }
 
-        //  return bulk
-        return $this->readBulk($validated->bulk_id);
+        //  return bulk WITHOUT decoding, so that it is easier for testing
+        return $this->readBulk($validated->bulk_id, false);
     }
 
     public function deleteBulk($bulk_id) {

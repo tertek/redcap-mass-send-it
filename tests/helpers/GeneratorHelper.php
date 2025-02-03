@@ -8,6 +8,13 @@ class GeneratorHelper {
     */
    function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id="3", $repo_extension="pdf", $repo_reference="[document_reference]", $email_to="[email]", $isEditMode="", $bulk_id=false, $order=false, $isPast=true, $useSecondEmail=true) {
 
+      /**
+       * Time format glitch:
+       * in testing there is a different return value for self::get_user_format_full() than in user land
+       * this affects output of DateTimeRC::format_ts_to_ymd and leads to failing tests when in testing mode
+       * that is why we are using here 'm-d-Y H:i' instead of 'm/d/Y H:i' which is the equivalent of user_date_format_jquery JS variable coming from the frontend and also being the default when running from the project itself. This issue may be checked on newer version of REDCap and may be fixed or opened as issue in the EMF
+       * 
+       */
       if($isPast) {
          $bulk_schedule = date('m-d-Y H:i', strtotime("-1 year"));
       } else {
@@ -61,7 +68,7 @@ class GeneratorHelper {
       }
   
       $payload = array("form_data" => json_encode($form_data));
-  
+
       return $payload;
   
    }

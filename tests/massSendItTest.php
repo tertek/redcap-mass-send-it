@@ -19,7 +19,7 @@ class massSendItTest extends BaseTest
    function testCreateBulkAction(){
       $bulkController = new BulkController($this, TEST_PROJECT_1);
       $generator = new GeneratorHelper();
-      $payload_bulk_create = $generator->generatePayload();
+      $payload_bulk_create = $generator->generatePayload(isPast: false);
       $actionBulkCreate = $bulkController->action('create', $payload_bulk_create);
       
       $this->assertFalse($actionBulkCreate["error"], "Error: " . $actionBulkCreate["message"]);
@@ -43,12 +43,23 @@ class massSendItTest extends BaseTest
       $newRecipients = "1,2";
 
       $bulkController = new BulkController($this, TEST_PROJECT_1);
+      
+      // fetch old data to ensure it does not change date format
+      $payload_bulk_read = array("bulk_id" => self::TEST_BULK_ID);
+      $actionBulkRead = $bulkController->action("read", $payload_bulk_read);
+      $old_bulk_date = $actionBulkRead["data"]["bulk"]->bulk_schedule;
+
+      $old_bulk_schedule = date('Y-m-d H:i', strtotime("-2 years",strtotime($old_bulk_date)));
+      //$old_bulk_schedule = "Foo";
+
+      // generate new payload for update with new title and recipients
       $generator = new GeneratorHelper();
       $payload_bulk_update = $generator->generatePayload(
          isEditMode: "true",
          title: $newTitle, 
          recipients_list: $newRecipients,
          bulk_id: self::TEST_BULK_ID,
+         isPast: true
       );
       $actionBulkUpdate = $bulkController->action("update", $payload_bulk_update);
       
@@ -56,6 +67,8 @@ class massSendItTest extends BaseTest
       $this->assertCount(2, unserialize(($actionBulkUpdate["data"]["bulk"])->bulk_recipients));
       $this->assertSame(($actionBulkUpdate["data"]["bulk"])->bulk_id, self::TEST_BULK_ID);
       $this->assertSame(($actionBulkUpdate["data"]["bulk"])->bulk_title, $newTitle);
+
+      $this->assertSame(($actionBulkUpdate["data"]["bulk"])->bulk_schedule, $old_bulk_schedule);
 
    }
 

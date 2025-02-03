@@ -82,7 +82,7 @@ class MassSendIt {
 
                 JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string) => {
                     let response = JSON.parse(json)
-                    console.log(response)
+                    //console.log(response)
 
                     if(response.error)
                     {
@@ -111,7 +111,7 @@ class MassSendIt {
                 JSO_STPH_BULK_SEND.ajax("schedule", payload).then((json:string) => {
                     let response = JSON.parse(json)
                     showProgress(0, 0, undefined);
-                    console.log(response)
+                    //console.log(response)
                     if(response.error) {
                         that.swalError(response.message)                        
                     } else {
@@ -146,7 +146,7 @@ class MassSendIt {
                 JSO_STPH_BULK_SEND.ajax("schedule", payload).then((json:string) => {
                     let response = JSON.parse(json)
                     showProgress(0, 0, undefined);
-                    console.log(response)
+                    //console.log(response)
                     if(response.error) {
                         that.swalError(response.message)                        
                     } else {
@@ -249,7 +249,7 @@ class MassSendIt {
             }
 
             JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string)=>{
-                console.log(json)
+                //console.log(json)
                 let response = JSON.parse(json)
 
                 if(response.error) {
@@ -387,7 +387,7 @@ class MassSendIt {
 
         JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string)=>{
             let response = JSON.parse(json)      
-            console.log(response)
+            //console.log(response)
 
             if(response.error) {
                 $('#errMsgContent-2').html(response.message);
