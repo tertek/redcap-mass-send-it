@@ -30,16 +30,11 @@ class NotificationModel extends ActionModel {
         $this->project_id = $this->module->getProjectId();
     }
 
-    private function getBulk($bulk_id) {
-        $sql = "SELECT bulk_id, email_to, email_from, email_display, email_first_message, email_first_subject, email_second_subject, email_second_message, use_random_pass, use_second_email, file_repo_extension, file_repo_folder_id, file_repo_reference, custom_pass_field WHERE table_name='bulk' AND bulk_id=?";
-        $q = $this->module->queryLogs($sql, [$bulk_id]);
-        return $q->fetch_object();        
-    }
-
     public function sendNotification($schedule, $dry) {
 
         //  set bulk data
-        $this->bulk= $this->getBulk($schedule->bulk_id);
+        $bulkModel = new BulkModel($this->module, $this->project_id);
+        $this->bulk = $bulkModel->readBulk($schedule->bulk_id, false);
 
         //  set record data
         $this->data = Records::getData($this->project_id, 'array', $schedule->record);
@@ -70,10 +65,10 @@ class NotificationModel extends ActionModel {
 
         //  Set notification
         $notification = array(
-            "project_id" => $this->project_id,
+            "project_id" => $schedule->project_id,
             "record" => $schedule->record,
             "table_name" => self::TABLE_NAME,
-            "bulk_id" => $this->bulk->bulk_id,
+            "bulk_id" => $schedule->bulk_id,
             "notification_id" => $this->get_max_key_id('notification') + 1,
             "message_type" => $schedule->message_type,
             "was_sent" => $sent,
@@ -164,7 +159,6 @@ class NotificationModel extends ActionModel {
         if($schedule->message_type == 'primary') {
 
             $record_id = $schedule->record;
-
 
             //  get document data first
             $document_reference = $this->getPipedData($this->bulk->file_repo_reference, $record_id);

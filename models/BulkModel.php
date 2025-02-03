@@ -52,7 +52,7 @@ class BulkModel extends ActionModel {
         
     }
 
-    public function readBulk($bulk_id) {        
+    public function readBulk($bulk_id, $decode=true) {        
         $fields = $this->getFields();
         $sql = "SELECT $fields WHERE table_name='BULK' AND bulk_id = ? and project_id=?";
                
@@ -63,20 +63,22 @@ class BulkModel extends ActionModel {
 
         $bulk = $result->fetch_object();
 
-        //  decode special chars for output
-        $bulk->email_first_message = htmlspecialchars_decode($bulk->email_first_message, ENT_QUOTES);
-        $bulk->email_first_subject = htmlspecialchars_decode($bulk->email_first_subject, ENT_QUOTES);
+        if($decode) {
+            //  decode special chars for output
+            $bulk->email_first_message = htmlspecialchars_decode($bulk->email_first_message, ENT_QUOTES);
+            $bulk->email_first_subject = htmlspecialchars_decode($bulk->email_first_subject, ENT_QUOTES);
 
-        $bulk->email_second_message = htmlspecialchars_decode($bulk->email_second_message, ENT_QUOTES);
-        $bulk->email_second_subject = htmlspecialchars_decode($bulk->email_second_subject, ENT_QUOTES);
+            $bulk->email_second_message = htmlspecialchars_decode($bulk->email_second_message, ENT_QUOTES);
+            $bulk->email_second_subject = htmlspecialchars_decode($bulk->email_second_subject, ENT_QUOTES);
 
-        $bulk->bulk_title = htmlspecialchars_decode($bulk->bulk_title, ENT_QUOTES);
+            $bulk->bulk_title = htmlspecialchars_decode($bulk->bulk_title, ENT_QUOTES);
 
-        //  format 'Y-M-D_24' to 'M/D/Y_24'
-        $bulk->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_schedule), 'Y-M-D_24', 'M/D/Y_24');
+            //  format 'Y-M-D_24' to 'M/D/Y_24'
+            $bulk->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_schedule), 'Y-M-D_24', 'M/D/Y_24');
 
-        if(!empty($bulk->bulk_expiration)) {
-            $bulk->bulk_expiration = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_expiration), 'Y-M-D_24', 'M/D/Y_24');
+            if(!empty($bulk->bulk_expiration)) {
+                $bulk->bulk_expiration = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_expiration), 'Y-M-D_24', 'M/D/Y_24');
+            }
         }
 
         return $bulk;

@@ -45,7 +45,7 @@ class NotificationController extends ActionController {
     }
 
     private function getSchedulesReadySENDING($sq_ids) {
-        $sql = "SELECT redcap_external_modules_log.record, schedule_id.value as schedule_id, status.value as STATUS, 
+        $sql = "SELECT redcap_external_modules_log.project_id, redcap_external_modules_log.record, schedule_id.value as schedule_id, status.value as STATUS, 
                 message_type.value as message_type, bulk_id.value as bulk_id, table_name.value as TABLE_NAME  
                 from redcap_external_modules_log
 
@@ -71,7 +71,8 @@ class NotificationController extends ActionController {
 
                 WHERE (
                     status.value = 'SENDING' 
-                    AND table_name.value = 'schedule' 
+                    AND table_name.value = 'schedule'
+                    AND redcap_external_modules_log.project_id = $this->project_id
                     AND schedule_id.value IN(".prep_implode($sq_ids).")
                 )";
 
@@ -137,7 +138,7 @@ class NotificationController extends ActionController {
 
             if (empty($sq_ids)) {
                 $this->endDbTx();
-                return array("num_sent" => $numSent, "num_failed" => $numFailed);
+                return array("num_sent" => $numSent, "num_failed" => $numFailed, "notifications" => []);
             } 
     
             //  Select all schedules that are in status SENDING and ready to be send
@@ -156,7 +157,7 @@ class NotificationController extends ActionController {
     
                 //  Send notification
                 list($sent, $notification) = $notificationModel->sendNotification($schedule, $dry);
-                $notifications[] = $notification;
+                $notifications[] = (object) $notification;
 
                 if($sent === null) {
                     // If email failed to send due to *whatever EMAIL SENDING reason*, set as IDLE.
@@ -195,7 +196,7 @@ class NotificationController extends ActionController {
     
                     $this->module->query($sql, [$bq_id]);
                 }
-           }            
+           }
            //  End database transaction
            $this->endDbTx();
 
