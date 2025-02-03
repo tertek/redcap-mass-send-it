@@ -117,12 +117,12 @@ class MassSendIt {
                     } else {
                         let message = "Scheduling finished. "
 
-                        if(response.data.scheduled.length == 0 && response.data.numIgnored == 0) {
+                        if(response.data.schedules.length == 0 && response.data.numIgnored == 0) {
                             message += "0 notifications were scheduled. 0 recipients were ignored."
                         } else if(response.data.numIgnored != 0) {
-                            message += response.data.scheduled.length + " notifications were scheduled. " + response.data.numIgnored + " recipients were ignored."
+                            message += response.data.schedules.length + " notifications were scheduled. " + response.data.numIgnored + " recipients were ignored."
                         } else {
-                            message += response.data.scheduled.length + " notifications were scheduled."
+                            message += response.data.schedules.length + " notifications were scheduled."
                         }
 
                         that.swalSuccess(message);
@@ -150,7 +150,7 @@ class MassSendIt {
                     if(response.error) {
                         that.swalError(response.message)                        
                     } else {
-                        that.swalSuccess(response.data.scheduled.length + ' notifications were scheduled for bulk id: '+ bulk_id);              
+                        that.swalSuccess(response.data.schedules.length + ' notifications were scheduled for bulk id: '+ bulk_id);              
                     }
                 })
         })
