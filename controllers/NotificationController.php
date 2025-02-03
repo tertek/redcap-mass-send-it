@@ -204,7 +204,7 @@ class NotificationController extends ActionController {
         } catch (\Throwable $th) {
             //  Rollback database
             $this->rollbackDbTx();
-            throw new Exception("There was an exception during sendTask: " . $th->getMessage() . "\n: Trace: " . json_encode($th->getTrace()));
+            throw new Exception("There was an exception during sendTask:\n" . $this->formatError($th));
         }
     }
 

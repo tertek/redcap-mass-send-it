@@ -2,6 +2,8 @@
 
 namespace STPH\massSendIt;
 
+use Throwable;
+
 abstract class ActionController {
 
     const TABLE_NAME = self::TABLE_NAME;
@@ -40,17 +42,18 @@ abstract class ActionController {
         );
     }
 
-    /**
-     * casting not working with queryLogs
-     */
-    // protected function get_max_key_id() {
-    //     $key = static::TABLE_NAME;    
-    //     $sql_get_max_key_id = "SELECT max({$key}_id) as max_key_id WHERE table_name = '{$key}' and project_id=?";
-    //     $result = $this->module->queryLogs($sql_get_max_key_id, [$this->project_id]);
-    //     $max_key_id = $result->fetch_object()->max_key_id ?? 0;
-        
-    //     return $max_key_id;
-    // }
+    protected function formatError(Throwable $th ) {
+        $file = $th->getFile();
+        $line = $th->getLine();
+        $code = $th->getCode();
+        $message = $th->getMessage();
+
+        $output = "File: $file \nLine: $line\nMessage: $message";
+
+        $format = "\n\e[0;31;40m$output\e[0m\n\n";
+
+        return $format;
+    }
 
     /**
      * 

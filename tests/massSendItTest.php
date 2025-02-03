@@ -1,5 +1,6 @@
 <?php namespace STPH\massSendIt;
 
+if (!class_exists("BaseTest")) require_once(__DIR__ . "/BaseTest.php");
 if (!class_exists("GeneratorHelper")) require_once(__DIR__ . "/helpers/GeneratorHelper.php");
 
 use STPH\massSendIt\GeneratorHelper;
