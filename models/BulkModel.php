@@ -42,9 +42,14 @@ class BulkModel extends ActionModel {
     public ?string $bulk_expiration;
 
 
-    public function __construct($module) {
+    public function __construct($module,$pid=null) {
         $this->module = $module;
-        $this->project_id = $this->module->getProjectId();
+        if($pid == null) {
+            $this->project_id = $this->module->getProjectId();
+        } else {
+            $this->project_id = $pid;
+        }
+        
     }
 
     public function readBulk($bulk_id) {        
@@ -184,6 +189,17 @@ class BulkModel extends ActionModel {
         $removedNotifications = $this->module->removeLogs($where, [$bulk_id]);
 
         return array($removedSchedules, $removedNotifications);
+    }
+
+    public function getAll() {
+        $fields = $this->getFields();
+        $sql = "SELECT $fields WHERE project_id = ? and table_name = ?";
+        $result = $this->module->queryLogs($sql, [$this->project_id, self::TABLE_NAME]);
+        $bulks = [];
+        while($row = $result->fetch_object()) {
+            $bulks[] = $row;
+        }
+        return $bulks;
     }
 
     private function updateQuery($value, $key, $bulk_id) {
