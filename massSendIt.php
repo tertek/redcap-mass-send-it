@@ -118,14 +118,16 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     }    
 
     public function getScheduledCount($bulk_id) {
-        $sql = "SELECT schedule_id WHERE table_name='schedule' AND bulk_id = ?";
-        $result = $this->queryLogs($sql, [$bulk_id]);
+        $project_id = $this->getProjectId();
+        $sql = "SELECT schedule_id WHERE table_name='schedule' AND bulk_id = ? AND project_id = ?";
+        $result = $this->queryLogs($sql, [$bulk_id, $project_id]);
         return $result->num_rows;
     }
 
     public function getSentCount($bulk_id) {
-        $sql = "SELECT notification_id WHERE table_name='notification' AND bulk_id = ?";
-        $result = $this->queryLogs($sql, [$bulk_id]);
+        $project_id = $this->getProjectId();
+        $sql = "SELECT notification_id WHERE table_name='notification' AND bulk_id = ? AND project_id = ?";
+        $result = $this->queryLogs($sql, [$bulk_id, $project_id]);
         return $result->num_rows;
     }   
 

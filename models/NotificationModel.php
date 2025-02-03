@@ -185,8 +185,8 @@ class NotificationModel extends ActionModel {
             
             $secondary_ref = $this->getSecondaryReference($this->bulk->bulk_id, $schedule->record, $email_to);
 
-            $sql = "SELECT sendit WHERE table_name = 'notification' AND secondary_ref = ? LIMIT 1";
-            $result = $this->module->queryLogs($sql, [$secondary_ref]);
+            $sql = "SELECT sendit WHERE table_name = ? AND secondary_ref = ? AND project_id = ? LIMIT 1";
+            $result = $this->module->queryLogs($sql, [self::TABLE_NAME, $secondary_ref, $schedule->project_id]);
             $sendit_json = ($result->fetch_assoc())["sendit"];
             
             $sendItData = json_decode($sendit_json);

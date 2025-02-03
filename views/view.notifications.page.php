@@ -263,10 +263,11 @@ function getNotificationLog($module) {
     $notificationLog = array();
     $bulks = array();
     $errorMsg = '';
+    $project_id = $module->getProjectId();
    
     // Get bulks
-    $sql = "SELECT bulk_id, bulk_schedule, bulk_title, email_to, email_first_subject, email_first_message, email_second_subject, email_second_message WHERE table_name = 'bulk'";
-    $result = $module->queryLogs($sql, []);
+    $sql = "SELECT bulk_id, bulk_schedule, bulk_title, email_to, email_first_subject, email_first_message, email_second_subject, email_second_message WHERE table_name = 'bulk' AND project_id = ?";
+    $result = $module->queryLogs($sql, [$project_id]);
     $bulks = [];
     while ( $bulk = $result->fetch_assoc()) {
         $bulks[] = $bulk;
@@ -296,14 +297,14 @@ function getNotificationLog($module) {
     //  Get notifications (past)
     //  tbd replace by notificationModel->getFields()
     $fields = "bulk_id, notification_id, record, time_sent, was_sent, error_sent, email, sendit, secondary_ref";
-    $sql = "SELECT ".$fields." WHERE table_name='notification'";
+    $sql = "SELECT ".$fields." WHERE table_name='notification' AND project_id = ?";
     if ($record !== null) $sql .= " and record = '".db_escape($record)."'";
     if (!empty($_GET['filterAlert'])) $sql .= " and bulk_id = '".db_escape($_GET['filterAlert'])."'";
     if (!empty($_GET['filterType'])) $sql .= " and message_type = '".db_escape($_GET['filterType'])."'";
 
     //$sql .= " order by l.time_sent";  //TBD
     //  tbd: unserialize log column
-    $result = $module->queryLogs($sql, []);
+    $result = $module->queryLogs($sql, [$project_id]);
     while($notification = $result->fetch_assoc()) {
 
         $email = json_decode($notification["email"], false);
@@ -357,12 +358,12 @@ function getNotificationLog($module) {
     $schedules = array();
     if (!isset($filterEndTimeYmd) || $filterEndTimeYmd == '' || $filterEndTimeYmd > substr(NOW, 0, 16))
     {
-        $sql = "SELECT schedule_id, bulk_id, record, status, send_time, message_type WHERE table_name = 'schedule'";
+        $sql = "SELECT schedule_id, bulk_id, record, status, send_time, message_type WHERE table_name = 'schedule' AND project_id = ?";
         if ($_GET['filterRecord'] != '') $sql .= " and record = '" . db_escape($_GET['filterRecord']) . "'";
         if (!empty($_GET['filterAlert'])) $sql .= " and bulk_id = '".db_escape($_GET['filterAlert'])."'";
         if (!empty($_GET['filterType'])) $sql .= " and message_type = '".db_escape($_GET['filterType'])."'";
         $sql .= " order by send_time";
-        $result = $module->queryLogs($sql, []);
+        $result = $module->queryLogs($sql, [$project_id]);
 
         while($row = $result->fetch_assoc()) {
             $schedules[] = $row;

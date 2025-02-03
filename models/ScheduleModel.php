@@ -52,9 +52,8 @@ class ScheduleModel extends ActionModel {
         $numIgnored = 0;
 
         //  Get bulk
-        $sql = "SELECT bulk_recipients, bulk_schedule, use_second_email WHERE table_name = 'bulk' and bulk_id = ?";
-        $result = $this->module->queryLogs($sql, [$bulk_id]);
-        $bulk = $result->fetch_object();
+        $bulkModel = new BulkModel($this->module, $this->project_id);
+        $bulk = $bulkModel->readBulk($bulk_id, false);
         
         //  Get max_schedule_id
         $max_schedule_id = $this->get_max_key_id();
@@ -69,8 +68,8 @@ class ScheduleModel extends ActionModel {
         $recipients = unserialize($bulk->bulk_recipients);
 
         //  check if we have already sent notifications for the same recipients
-        $sql = "SELECT DISTINCT record WHERE table_name = 'notification' AND bulk_id = ?";
-        $result = $this->module->queryLogs($sql, [$bulk_id]);
+        $sql = "SELECT DISTINCT record WHERE table_name = 'notification' AND bulk_id = ? AND project_id = ?";
+        $result = $this->module->queryLogs($sql, [$bulk_id, $this->project_id]);
         $notified_recipients = [];
         while ($row = $result->fetch_assoc()) {
             $notified_recipients[] = (int) $row["record"];
@@ -113,14 +112,14 @@ class ScheduleModel extends ActionModel {
     }
 
     function deleteSchedule($schedule_id) {
-        $where = "table_name = ? AND schedule_id = ?";
-        $removeSchedule = $this->module->removeLogs($where, [self::TABLE_NAME, $schedule_id]);
+        $where = "table_name = ? AND schedule_id = ? AND project_id = ?";
+        $removeSchedule = $this->module->removeLogs($where, [self::TABLE_NAME, $schedule_id, $this->project_id]);
         return $removeSchedule;
     }
 
     public function deleteScheduleByBulk($bulk_id) {
-        $where = "table_name = ? and bulk_id = ?";
-        $removeSchedules = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id]);
+        $where = "table_name = ? and bulk_id = ? and project_id = ?";
+        $removeSchedules = $this->module->removeLogs($where, [self::TABLE_NAME, $bulk_id, $this->project_id]);
 
         return $removeSchedules;
     }
