@@ -9,7 +9,7 @@ use Project;
 
 class BulkController extends ActionController {
 
-    const TABLE_NAME = "BULK";
+    const TABLE_NAME = "bulk";
 
     protected $module;
     protected $project_id;

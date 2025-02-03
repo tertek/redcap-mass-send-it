@@ -10,7 +10,7 @@ foreach ($pids as $key => $pid) {
     $project = (object) array(
         "title" => $p->getTitle(),
         "id" => $pid,
-        "bulks" => $bulkModel->getAll()
+        "bulks" => $bulkModel->getAllBulks()
     );
     $projects[] = $project;
 }

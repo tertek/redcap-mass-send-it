@@ -178,7 +178,7 @@ class BulkModel extends ActionModel {
         return array($removedSchedules, $removedNotifications);
     }
 
-    public function getAll() {
+    public function getAllBulks() {
         $fields = $this->getFields();
         $sql = "SELECT $fields WHERE project_id = ? and table_name = ?";
         $result = $this->module->queryLogs($sql, [$this->project_id, self::TABLE_NAME]);
