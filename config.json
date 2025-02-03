@@ -27,6 +27,14 @@
                 "url": "project-page.php",
                 "show-header-and-footer": true
             }
+        ],
+        "control-center": [
+            {
+                "name": "Mass Send-It Admin",
+                "icon": "fas fa-mail-bulk",
+                "url": "system-page.php",
+                "show-header-and-footer": true
+            }
         ]
     },
 
