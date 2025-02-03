@@ -160,7 +160,7 @@ class BulkController extends ActionController {
             $validated->bulk_recipients = serialize($recipients);
         } else if ($validated->bulk_type == "logic") {       
             $validated->bulk_recipients_logic = $payload["bulk_recipients_logic"];
-            $recipients = $validationHelper->validateRecipientsList($validated->bulk_recipients_logic);
+            $recipients = $validationHelper->validateRecipientsLogic($validated->bulk_recipients_logic);
             $validated->bulk_recipients = serialize($recipients);
         } else {
             throw new Exception("validation_error: bulk type must be either 'list' or 'logic'");
