@@ -1,8 +1,12 @@
 <?php namespace STPH\massSendIt;
+
+use Exception;
 use ReflectionClass;
 use ExternalModules\ExternalModules;
-// For now, the path to "redcap_connect.php" on your system must be hard coded.
+use FileRepository;
+
 require_once __DIR__ . '/../../../redcap_connect.php';
+require_once(__DIR__ . '/../bootstrap.php');
 
 abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
 
@@ -17,34 +21,29 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
 
       self::createTestProjects();
       self::defineProjectConstants();
+      self::runFixtures();
 
-      /**
-       * Fixtures
-       * 
-       * 0. Clear module data ✓
-       * 1. Import data dictionary ✓
-       * 2. Import record data ✓
-       * 3. Upload documents to file repository ⨉ : must be done manually
-       */
-      self::fixtureClearModuleData();
-      self::fixtureDataDictionary();
-      self::fixtureRecordData();
-      self::fixtureFileRepository();
       self::echo("\n=== === === === === === === ===\n\n", 'raw');
     }
 
     static function tearDownAfterClass(): void {
       self::echo("\n=== Tearing down after class ===\n\n", 'raw');
       parent::tearDownAfterClass();
+    }
 
-      /**
-       * Fixtures
-       * 
-       * 0. Delete documents in file repository x
-       * 
-       * 
-       */
-
+    /**
+     * Fixtures
+     * 
+     * 0. Clear module data ✓
+     * 1. Import data dictionary ✓
+     * 2. Import record data ✓
+     * 3. Upload documents to file repository ⨉ : must be done manually
+     */    
+    public static function runFixtures() {
+      self::fixtureClearModuleData();
+      self::fixtureDataDictionary();
+      self::fixtureRecordData();
+      self::fixtureFileRepository();
     }
 
     /**
@@ -117,7 +116,7 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
       );
       $result = \Records::saveData($params);
 
-      self::echo(count($result["ids"]) . " records added.", "fixture");
+      self::echo("Record data imported. ". count($result["ids"]) . " records added.", "fixture");
 
     }
 
@@ -126,12 +125,73 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
      * 
      */
     static private function fixtureFileRepository() {
+      
+      //  delete edocs files from EDOC_PATH
+      $edocs_to_delete = [];
+      $edocs = scandir(EDOC_PATH);
+      foreach ($edocs as $key => $edoc) {
+        if(str_contains($edoc, "_pid".TEST_PROJECT_1."_")){
+          $edocs_to_delete[] = $edoc;
+          unlink(EDOC_PATH . DIRECTORY_SEPARATOR . $edoc);
+        }
+      }
+
+      //  delete from redcap_edocs_metadata
+      $sql = "DELETE FROM redcap_edocs_metadata WHERE project_id = ? AND stored_name IN('".implode("','",$edocs_to_delete)."')";
+      ExternalModules::query($sql, [TEST_PROJECT_1]);
+
+      //  delete from redcap_docs
+      $sql = "DELETE FROM redcap_docs WHERE project_id = ? AND docs_comment = 'Uploaded for Mass Send-It Testing.'";
+      ExternalModules::query($sql, [TEST_PROJECT_1]);
+
+      // delete from redcap_docs_folders
+      $sql = "DELETE FROM redcap_docs_folders WHERE project_id = ? AND name like 'test_%'";
+      ExternalModules::query($sql, [TEST_PROJECT_1]);
+
+      // Create folder and define global folder_id
+      $folder_name = 'test_'.time();
+      $sql = "insert into redcap_docs_folders (project_id, name, parent_folder_id, dag_id, role_id) values 
+              (".TEST_PROJECT_1.", '".$folder_name."', "."NULL".", "."NULL".", "."NULL".")";
+      if (!db_query($sql)) {
+          throw new Exception("unknown error occurred");
+      }
+      define('TEST_FOLDER_ID_1', db_insert_id());
 
       //  get documents from PATH_FIXTURE_DOCS
-      //  move documents to fileRepository
-      //  define global for folder_id
-      self::echo("0 documents added to File Repository (manual process to be fixed).", "fixture");
+      $file_names = array_diff(scandir(__DIR__ . self::PATH_FIXTURE_DOCS), array('..', '.'));
 
+      foreach ($file_names as $key => $file_name) {
+        $file_path = __DIR__ . self::PATH_FIXTURE_DOCS. "/" . $file_name;
+        $temp = tmpfile();
+        fwrite($temp, file_get_contents($file_path));
+        $file_tmp_name = stream_get_meta_data($temp)["uri"];
+        $file_size = filesize($file_tmp_name);
+        $file = array(
+          "name" => $file_name,
+          "tmp_name" => $file_tmp_name,
+          "size" => $file_size
+        );
+
+        $doc_id = \Files::uploadFile($file, TEST_PROJECT_1);
+        if ($doc_id == 0) {
+          throw new Exception("unknown error: could not upload file.");
+        }
+
+        //  add file to repository
+        \REDCap::addFileToRepository($doc_id, TEST_PROJECT_1,"Uploaded for Mass Send-It Testing.");
+
+        //  get docs_id
+        $sql = "select docs_id from redcap_docs_to_edocs where doc_id = $doc_id";
+        $docs_id = db_result(db_query($sql), 0);
+
+        //  add file to folder
+        $sql2 = "insert into redcap_docs_folders_files (docs_id, folder_id) values ($docs_id, ".TEST_FOLDER_ID_1.")";
+        db_query($sql2);
+
+      }
+      
+      //  upoad documents to fileRepository (mocking $_FILES) FileRepository::upload()
+      self::echo("File Repository adjusted. ".count($file_names)." documents added to ".$folder_name."(".TEST_FOLDER_ID_1.").", "fixture");
     }
 
 

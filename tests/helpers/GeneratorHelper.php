@@ -6,7 +6,7 @@ class GeneratorHelper {
     * Generate per default a new bulk in the past in list mode, for one recipient with primary and secondary notification
     * 
     */
-   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id="3", $repo_extension="pdf", $repo_reference="[document_reference]", $email_to="[email]", $isEditMode="", $bulk_id=false, $order=false, $isPast=true, $useSecondEmail=true) {
+   function generatePayload($title="Test Bulk", $type="list",$recipients_list="1", $recipients_logic="[field_1]=1",$repo_folder_id=TEST_FOLDER_ID_1, $repo_extension="pdf", $repo_reference="[document_reference]", $email_to="[email]", $isEditMode="", $bulk_id=false, $order=false, $isPast=true, $useSecondEmail=true) {
 
       /**
        * Time format glitch:
@@ -26,7 +26,7 @@ class GeneratorHelper {
          "bulk_type" => $type,
          "bulk_recipients_list" => $recipients_list,
          "bulk_recipients_logic" => $recipients_logic,
-         "file_repo_folder_id" => $repo_folder_id,
+         "file_repo_folder_id" => strval($repo_folder_id),
          "file_repo_extension" => $repo_extension,
          "file_repo_reference" => $repo_reference,
          "email_display" => "Test Mass Send-It",
