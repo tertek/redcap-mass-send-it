@@ -191,7 +191,7 @@ class massSendItTest extends BaseTest
       
       // Get sendit expiration from database
       $sql = "SELECT expire_date FROM redcap_sendit_docs WHERE document_id = ?";
-      $q = $this->module->query($sql, $sendit->docs_id);
+      $q = $this->module->query($sql, $sendit->document_id);
       $bulk_expiration = $q->fetch_assoc()["expire_date"];
       // check that expiration is set to default (+3 months)
       $this->assertSame(date('Y-m-d H:i:s', strtotime("+3 months")), $bulk_expiration);

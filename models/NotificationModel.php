@@ -171,13 +171,13 @@ class NotificationModel extends ActionModel {
             $document = $this->get_document($this->project_id, $this->bulk->file_repo_folder_id, $document_name);        
 
             //  add send-it document to get sendit_id
-            $sendit_docs_id = $this->add_sendit_document($document);
+            $sendit_document_id = $this->add_sendit_document($document);
 
             //  get password
             $custom_pwd = $this->bulk->use_random_pass == "1" ? null : $this->getPipedData($this->bulk->custom_pass_field, $record_id);
 
             //  add recipient to get key and password
-            $sendItData = $this->add_sendit_recipient($email_to, $sendit_docs_id, $custom_pwd);
+            $sendItData = $this->add_sendit_recipient($email_to, $sendit_document_id, $custom_pwd);
         }
 
         // In case of a secondary message, we retrieve the sendit data from the database
@@ -226,12 +226,12 @@ class NotificationModel extends ActionModel {
         VALUES ('".db_escape($newFilename)."', '".db_escape($originalFilename)."', '".db_escape($fileType)."', '".db_escape($fileSize)."', $send, '$expireDate', '".db_escape($userid)."',
         $fileLocation, '".db_escape( $fileId)."', '".NOW."')";
         db_query($query);
-        $sendit_docs_id = db_insert_id();
+        $sendit_document_id = db_insert_id();
 
-        return $sendit_docs_id;
+        return $sendit_document_id;
     }    
 
-    private function add_sendit_recipient($email_to, $sendit_docs_id, $custom_pwd=null) {
+    private function add_sendit_recipient($email_to, $sendit_document_id, $custom_pwd=null) {
         // create key for unique url
         $key = strtoupper(substr(uniqid(sha1(random_int(0,(int)999999))), 0, 25));
 
@@ -242,11 +242,11 @@ class NotificationModel extends ActionModel {
             $pwd = $this->module->escape($custom_pwd);
         }
 
-        $query = "INSERT INTO redcap_sendit_recipients (email_address, sent_confirmation, download_date, download_count, document_id, guid, pwd) VALUES ('".db_escape($email_to)."', 0, NULL, 0, '".db_escape($sendit_docs_id)."', '$key', '" . md5($pwd) . "')";
+        $query = "INSERT INTO redcap_sendit_recipients (email_address, sent_confirmation, download_date, download_count, document_id, guid, pwd) VALUES ('".db_escape($email_to)."', 0, NULL, 0, '".db_escape($sendit_document_id)."', '$key', '" . md5($pwd) . "')";
         db_query($query);
 
         $sendItData = (object) array(
-            "docs_id" => $sendit_docs_id,
+            "document_id" => $sendit_document_id,
             "recipients_id"=> db_insert_id(),
             "url_key" => $key,
             "url_pwd" => $pwd
