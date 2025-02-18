@@ -70,6 +70,11 @@
                             <div class="mt-1" style="color:green;">
                                 <i class="far fa-clock"></i> Schedule to send on <?= $bulk->bulk_schedule?>
                             </div>
+                            <?php if($bulk->bulk_expiration): ?>
+                            <div class="mt-1" style="color:red;">
+                                <i class="fas fa-hourglass-end"></i> Expires on <?= $bulk->bulk_expiration?>
+                            </div>
+                            <?php endif;?>
                             <div class="mt-1">
                                 <?php if($bulk->use_second_email == false): ?>
                                     <b class="code box-1x">1x</b> Send one email <span class="text-secondary ms-1 fs12"></span>
