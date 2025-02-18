@@ -187,6 +187,14 @@ class massSendItTest extends BaseTest
       $this->assertSame("fgartrell1@google.com.hk", $email->to);
       $this->assertSame("mass.send.it@redcap.test", $email->from);
 
+      $sendit = json_decode($notifications[0]->sendit);
+      
+      // Get sendit expiration from database
+      $sql = "SELECT expire_date FROM redcap_sendit_docs WHERE document_id = ?";
+      $q = $this->module->query($sql, $sendit->docs_id);
+      $bulk_expiration = $q->fetch_assoc()["expire_date"];
+      // check that expiration is set to default (+3 months)
+      $this->assertSame(date('Y-m-d H:i:s', strtotime("+3 months")), $bulk_expiration);
     }
 
     function testDoNotSendNotification() {
@@ -216,6 +224,5 @@ class massSendItTest extends BaseTest
       $this->assertSame(0, $actionNotificationSend["data"]["num_sent"]);
       $this->assertSame(0, $actionNotificationSend["data"]["num_failed"]);
     }
-
 
 }

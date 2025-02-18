@@ -3,7 +3,6 @@
 use Exception;
 use ReflectionClass;
 use ExternalModules\ExternalModules;
-use FileRepository;
 
 require_once __DIR__ . '/../../../redcap_connect.php';
 require_once(__DIR__ . '/../bootstrap.php');
@@ -37,7 +36,7 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
      * 0. Clear module data ✓
      * 1. Import data dictionary ✓
      * 2. Import record data ✓
-     * 3. Upload documents to file repository ⨉ : must be done manually
+     * 3. Upload documents to file repository ✓
      */    
     public static function runFixtures() {
       self::fixtureClearModuleData();
