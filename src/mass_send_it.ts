@@ -329,7 +329,7 @@ class MassSendIt {
                 }
 
                 if(bulk.bulk_expiration) {
-                    $('[name=bulk_expiration]').val(bulk.bulk_schedule)
+                    $('[name=bulk_expiration]').val(bulk.bulk_expiration)
                 }
                 
 
