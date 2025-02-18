@@ -312,7 +312,7 @@ $dropdownHelper = new dropdownHelper();
                                             placeholder="<?=str_replace(array('M','D','Y'),array('MM','DD','YYYY'), DateTimeRC::get_user_format_label())." HH:MM"?>"
                                             style="height:26px;width:140px;" required>
                                     <div class="ms-2 mt-1 fs12" style="color:gray;">
-                                        When clicking 'save' all emails witin the bulk will be created according to this date.
+                                        The schedule time will be used during scheduling. Already scheduled notifications cannot be changed.
                                     </div>
                                 </td>
                             </tr>               
@@ -327,7 +327,7 @@ $dropdownHelper = new dropdownHelper();
                                             placeholder="<?=str_replace(array('M','D','Y'),array('MM','DD','YYYY'), DateTimeRC::get_user_format_label())." HH:MM"?>"
                                             style="height:26px;width:140px;">
                                     <div class="ms-2 mt-1 fs12" style="color:gray;">
-                                        This expiration affects download links for emails that were already sent out.
+                                        If not set, documents will expire 3 months after the notification has been sent. Expiration date will be set during notifcation sending.
                                     </div>
                                 </td>
                             </tr>

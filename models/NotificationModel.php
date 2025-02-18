@@ -203,9 +203,15 @@ class NotificationModel extends ActionModel {
         $userid = "SYSTEM";
         $fileLocation = 2;  // REDCap internal default for file repository
         
-        //  tbd: set this from bulk_expiration
-        $expireDays = 14;
-        $expireDate = date('Y-m-d H:i:s', strtotime("+$expireDays days"));
+        //  Set expiration if set, otherwise fallback to default
+        //  expiration default: 3 months
+        if($this->bulk->bulk_expiration) {
+            $bulk_expiration = $this->bulk->bulk_expiration;
+        } else {
+            $expireMonths = 3;
+            $bulk_expiration = "+$expireMonths months";
+        }
+        $expireDate = date('Y-m-d H:i:s', strtotime($bulk_expiration));
 
         $originalFilename = $document['docName'];
         $fileSize = $document['docSize'];

@@ -74,6 +74,10 @@
                             <div class="mt-1" style="color:red;">
                                 <i class="fas fa-hourglass-end"></i> Expires on <?= $bulk->bulk_expiration?>
                             </div>
+                            <?php else:?>
+                            <div class="mt-1" style="color:grey">
+                                <small>No expiration was set (default expiration: 3 months)</small>
+                            </div> 
                             <?php endif;?>
                             <div class="mt-1">
                                 <?php if($bulk->use_second_email == false): ?>
@@ -84,7 +88,7 @@
                             </div>
                             <div class="mt-1">
                                 <?php if($bulk->use_random_pass): ?>
-                                    <i class="fa-solid fa-lock"></i> Using <b>random password</b><span class="text-secondary ms-1 fs12">(generated for each record)</span>
+                                    <i class="fa-solid fa-lock"></i> Using <b>random password</b><span class="text-secondary ms-1 fs12"></span>
                                 <?php else: ?>
                                     <i class="fa-solid fa-lock"></i> Using <b>custom password</b><span class="text-secondary ms-1 fs12">(with custom password field: <span class="code" style="font-size:85%;"><?= $bulk->custom_pass_field ?></span>)</span> 
                                 <?php endif;?>
