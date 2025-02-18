@@ -138,7 +138,7 @@
                                     </div>
                                     <?php else: ?>
                                     <div class="">
-                                        <i class="far fa-envelope-open"></i> <?= $sent_count ?> notifcations were sent.
+                                        <i class="far fa-envelope-open"></i> <?= $sent_count ?> notifications were sent.
                                     </div>
                                 <?php endif; ?>
                                 </div>
