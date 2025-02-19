@@ -167,7 +167,6 @@ class BulkController extends ActionController {
         }
 
         //  set file file_repo_folder_id
-        //  TBD: check folder access permission for project_id
         if(empty($payload["file_repo_folder_id"])) {
             throw new Exception("validation_error: file_repo_folder_id must not be empty");
         }
@@ -218,7 +217,16 @@ class BulkController extends ActionController {
         }
 
         $validated->bulk_schedule = DateTimeRC::format_ts_to_ymd($payload["bulk_schedule"]);
-        $validated->bulk_expiration = DateTimeRC::format_ts_to_ymd($payload["bulk_expiration"]);       
+        $validated->bulk_expiration = DateTimeRC::format_ts_to_ymd($payload["bulk_expiration"]);
+
+        //  validate download_page_index: check if index exists in project's settings
+        if(isset($payload["download_page_index"])) {
+            $cdpi = $this->module->escape($payload["download_page_index"]);
+            if(!array_key_exists($cdpi, $this->module->getSubSettings("project-custom-download-page")) && $cdpi !== "") {
+                throw new Exception("validation_error: download_page_index $cdpi does not exist");
+            }
+            $validated->download_page_index = $cdpi;            
+        }
 
         return $validated;
 

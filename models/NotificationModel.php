@@ -253,11 +253,19 @@ class NotificationModel extends ActionModel {
         );
 
         return $sendItData;
-    }     
+    }
+
 
     private function getShareFileVariables($sendItData) {
+       
+        //  add sendit document key to download page url
+        $share_file_url = $this->module->getDownloadPageUrl() . "&key=" . $sendItData->url_key;
 
-        $share_file_url = APP_PATH_SURVEY_FULL. 'index.php?__passthru=index.php&route=' . urlencode('SendItController:download') . '&'. $sendItData->url_key;
+        //  add custom download page index from bulk data
+        if(isset($this->bulk->download_page_index) && $this->bulk->download_page_index !== "") {
+            $share_file_url .= "&cdpi=" . $this->bulk->download_page_index;
+        }
+
         $share_file_link = '<a target="_blank" href="'.$share_file_url.'">Download Link</a>';
         $share_file_password = '<pre>'.$sendItData->url_pwd.'</pre>';
 

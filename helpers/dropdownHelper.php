@@ -140,4 +140,12 @@ class dropdownHelper {
         }    
         return $toEmails;
     }
+
+    function getDownloadPages($settings) {
+        $downloadPages[""] = " -- select a download page -- ";
+        foreach ($settings as $key => $setting) {
+            $downloadPages[$key] = $setting["custom-download-page-id"] . " - ($key)";
+        }
+        return $downloadPages;
+    }
 }

@@ -331,7 +331,10 @@ class MassSendIt {
                 if(bulk.bulk_expiration) {
                     $('[name=bulk_expiration]').val(bulk.bulk_expiration)
                 }
-                
+
+                if(bulk.download_page_index) {
+                    $('[name=download_page_index]').val(bulk.download_page_index)
+                }                
 
                 $('#external-modules-configure-modal-1').modal('show')
 

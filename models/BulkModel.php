@@ -40,6 +40,7 @@ class BulkModel extends ActionModel {
     
     public string $bulk_schedule;
     public ?string $bulk_expiration;
+    public ?string $download_page_index;
 
 
     public function __construct($module,$pid=null) {

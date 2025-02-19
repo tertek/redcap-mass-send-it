@@ -332,6 +332,36 @@ $dropdownHelper = new dropdownHelper();
                                 </td>
                             </tr>
 
+                            <?php if($this->getSystemSetting("system-use-mass-sendit-download-page") === true): ?>
+                            <tr class="form-control-custom">
+                                <td colspan="2">
+                                    <div class="form-control-custom-title clearfix">
+                                        <div class="boldish fs14" style="margin-top:2px;"><i class="fas fa-hand-point-right"></i> STEP 5: Customize Download Page</div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <?php if(count($this->getSubSettings("project-custom-download-page")) > 0): ?>
+                            <tr class="form-control-custom">
+                                <td class="ps-3 pt-3 align-text-top">
+                                    <label for="download_page_index" class="text-nowrap boldish">Custom Download Page:</label>
+                                    <div class="text-secondary">Optional</div>
+                                </td>
+                                <td>
+                                    <?= RCView::select(array('name'=>"download_page_index",'class'=>'external-modules-input-element'), $dropdownHelper->getDownloadPages($this->getSubSettings("project-custom-download-page")), null, 200)?>
+                                </td>
+                            </tr>
+                            <?php else: ?>
+                            <tr class="form-control-custom">
+                                <td colspan="2" >
+                                <div class="clearfix">
+                                        <div class="alert alert-warning col-md-12" style="border:none!important;margin-top:2px;">No custom download page settings found. To customize download page, you need to setup custom dowload page in module settings first.</div>
+                                    </div>                                    
+                                
+                                </td>
+                            </tr>
+                            <?php endif ?>
+                            <?php endif ?>
+
                             <input type="hidden" id="is_edit_mode" name="is_edit_mode" value="">
                             <input type="hidden" id="bulk_id" name="bulk_id" value="">
                             <input type="hidden" id="bulk_order" name="bulk_order" value="">
