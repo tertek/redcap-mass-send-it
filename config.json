@@ -38,7 +38,9 @@
         ]
     },
 
-    "no-auth-pages": [],
+    "no-auth-pages": [
+        "download-page"
+    ],
 
     "enable-ajax-logging": true,
 
@@ -53,9 +55,84 @@
 
     "action-tags": [],
 
-    "system-settings": [],
+    "system-settings": [
+        {
+            "key": "system-use-mass-sendit-download-page",
+            "name": "<b>Use Mass Send-It Download Page</b><br>Check if you prefer to process document dispatchment on custom download page. <i>Caution</i><brThe download page must be configured seperately for each project",
+            "required": false,
+            "type": "checkbox",
+            "repeatable": false,
+            "super-users-only": true
+         }
+    ],
 
-    "project-settings": [],
+    "project-settings": [
+        {
+            "key": "project-custom-download-page",
+            "name": "Custom Download Page",
+            "repeatable": true,
+            "type": "sub_settings",
+            "sub_settings": [
+                {
+                    "key": "custom-download-page-id",
+                    "name": "<b>Custom Download Page Identifier</b><br>This will help you to setup the download page when creating a bulk",
+                    "type": "text",
+                    "required": true
+                },
+                {
+                    "key": "custom-download-page-title",
+                    "name": "<b>Custom Download Page Title</b><br>Will be shown on top of the page",
+                    "type": "text",
+                    "required": false
+                },                
+                {
+                    "key": "custom-instructions-title",
+                    "name": "Custom Instructions Title",
+                    "type": "text"
+                },
+                {
+                    "key": "custom-instructions-text",
+                    "name": "Custom Instructions Text<br>Explain how to proceed for downloading the document",
+                    "type": "rich-text"
+                },
+                {
+                    "key": "custom-meta-text",
+                    "name": "Custom Meta Text",
+                    "type": "textarea"
+                },
+                {
+                    "key": "custom-input-text",
+                    "name": "Custom Input Text",
+                    "type": "text"
+                },                
+                {
+                    "key": "custom-button-text",
+                    "name": "Custom Button Text",
+                    "type": "text"
+                },
+                {
+                    "key": "custom-success-text",
+                    "name": "Custom Success Text",
+                    "type": "textarea"
+                },
+                {
+                    "key": "custom-error-text-password",
+                    "name": "Custom Error Text - Incorrect Password",
+                    "type": "textarea"                    
+                },
+                {
+                    "key": "custom-error-text-expired",
+                    "name": "Custom Error Text - File Expired",
+                    "type": "textarea"                    
+                },                
+                {
+                    "key": "custom-error-text-invalid",
+                    "name": "Custom Error Text - Invalid Link",
+                    "type": "textarea"                    
+                }
+            ]
+        }
+    ],
 
     "crons": [
         {

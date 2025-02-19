@@ -35,6 +35,10 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         return json_encode($response);
     }
 
+    public function getDownloadPageUrl() {
+        return $this->getUrl("download-page.php", true, true);
+    }
+
     /**
      * Send Notifications
      * Called from Cron
