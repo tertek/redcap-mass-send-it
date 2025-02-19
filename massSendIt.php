@@ -35,6 +35,13 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
         return json_encode($response);
     }
 
+    /**
+     * Get Download Page URL with NOAUTH flag and via API route
+     * Note: The project id will be exposed but does not imply a vulnerability here,
+     * since sendit document keys are unique across the system. Hence, there is no way for the attacker
+     * to exploit the download page endpoint.
+     * 
+     */
     public function getDownloadPageUrl() {
         return $this->getUrl("download-page.php", true, true);
     }

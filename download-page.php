@@ -1,6 +1,19 @@
 <?php
-//  replicate SendIt:renderDownloadPage
-//  redcap\redcap_v14.0.16\Classes\SendIt.php
+
+/**
+ * Mass Send-It Download Page
+ * The download page is heavily based on the original REDCap Send-It implementation:
+ * \Classes\SendIt.php SendIt:renderDownloadPage
+ * \Views\SendIt\Download.php
+ * 
+ * If download page is not enabled through module's system settings, a redirect to native REDCap Send-It download page will be triggered.
+ * The page is configured as a no-auth page. 
+ * CSRF protection has been added to the post action.
+ * Custom texts can be retrieved from project settings of the module and configured at bulk level.
+ * 
+ * DISCLAIMER: ONLY LOCAL STORAGE IS SUPPORTED. IN ANY OTHER CASE AN EXCEPTION WILL BE THROWN.
+ * 
+ */
 
 namespace STPH\massSendIt;
 
@@ -128,11 +141,11 @@ if ( isset($_POST['submit']) )
             if ($row['edoc_id'] === NULL) {
                 // Download file from redcap_docs table (legacy BLOB storage)
                 header('Pragma: anytextexeptno-cache', true);
-                header('Content-Type: '. $row['docs_type']);
+                header('Content-Type: '. $module->escape($row['docs_type']));
                 header('Content-Disposition: attachment; filename='. str_replace(' ', '', $row['docs_name']));
                 ob_clean();
                 flush();
-                print $row['docs_file'];
+                print $module->escape($row['docs_file']);
             } else {
                 // Set flag to pull the file from the file system instead
                 $pullFromFileSystem = true;
@@ -160,17 +173,17 @@ if ( isset($_POST['submit']) )
             {
                 // Download file
                 header('Pragma: anytextexeptno-cache', true);
-                header('Content-Type: '. $row['doc_type']);
+                header('Content-Type: '. $module->escape($row['doc_type']));
                 header('Content-Disposition: attachment; filename=' . str_replace(array(' ',','), array('',''), $row['doc_orig_name']));
                 // GZIP decode the file (if is encoded)
                 if ($gzipped) {
-                    list ($contents, $nothing) = gzip_decode_file(file_get_contents(EDOC_PATH . $row['doc_name']));
+                    list ($contents, $nothing) = gzip_decode_file(file_get_contents(EDOC_PATH . $module->escape($row['doc_name'])));
                     ob_clean();
                     flush();
                     print $contents;
                 } else {
                     ob_start();ob_end_flush();
-                    readfile_chunked(EDOC_PATH . $row['doc_name']);
+                    readfile_chunked(EDOC_PATH . $module->escape($row['doc_name']));
                 }
             } 
             //  Throw Exception for unsupported edoc storage options
