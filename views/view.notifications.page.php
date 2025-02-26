@@ -180,7 +180,8 @@ function getHeaders() {
     $headers[] = array(120, RCView::div(array('class'=>'wrap'), $lang['global_49']), "center");
     $headers[] = array(64, RCView::span(array('class'=>'wrap'), "Type"));
     $headers[] = array(100, RCView::span(array('class'=>'wrap'), $lang['alerts_26']));
-    $headers[] = array(260, RCView::span(array('class'=>'wrap'), $lang['alerts_23']));
+    //$headers[] = array(260, RCView::span(array('class'=>'wrap'), $lang['alerts_23']));
+    $headers[] = array(260, RCView::span(array('class'=>'wrap'), "Expiration Time"));
 
     return $headers;
 }
@@ -222,9 +223,10 @@ function getRows($notificationLog, $limit_begin, $num_per_page) {
            $rows[$rownum][] = '#'.$alert_number." ".$lang['leftparen']."B-".$row['bulk_id'].$lang['rightparen'];
    
            $onclick = "STPH_MassSendIt.loadPreviewEmailAlertRecord($(this).data('content'));";
-           $rows[$rownum][] = 	RCView::a(array('href'=>'javascript:;', 'onclick'=>$onclick."return false;", 'data-content' => $row["message"]),
-                                   RCView::img(array('src'=>'mail_open_document.png', 'title'=>$lang['alerts_28']))
-                               );
+
+           $dataContent = "Subject:\n".$row["subject"]."\n\nMessage:\n".$row["message"]."\n\n";
+
+           $rows[$rownum][] = RCView::a(array('href'=>'javascript:;', 'onclick'=>$onclick."return false;", 'data-content' => $dataContent), RCView::img(array('src'=>'mail_open_document.png', 'title'=>$lang['alerts_28'])));
            // Record ID (if not anonymous response)
            if ($row['instrument'] != '' && $row['event_id'] != '') {
                $recordLink = "DataEntry/index.php?pid=".PROJECT_ID."&page={$row['instrument']}&event_id={$row['event_id']}&id={$row['record']}&instance={$row['instance']}";
@@ -244,7 +246,8 @@ function getRows($notificationLog, $limit_begin, $num_per_page) {
            );
            $rows[$rownum][] = $row['type'];
            $rows[$rownum][] = "<i class='fas fa-envelope me-1 opacity35'></i>".$row['email_to'];
-           $rows[$rownum][] = strip_tags($row['subject']);
+           //$rows[$rownum][] = strip_tags($row['subject']);
+           $rows[$rownum][] = DateTimeRC::format_ts_from_ymd($row['expiration_date']);
 
    
            // Increment counter
@@ -266,7 +269,7 @@ function getNotificationLog($module) {
     $project_id = $module->getProjectId();
    
     // Get bulks
-    $sql = "SELECT bulk_id, bulk_schedule, bulk_title, email_to, email_first_subject, email_first_message, email_second_subject, email_second_message WHERE table_name = 'bulk' AND project_id = ?";
+    $sql = "SELECT bulk_id, bulk_schedule, bulk_title, email_to, email_first_subject, email_first_message, email_second_subject, email_second_message, bulk_expiration WHERE table_name = 'bulk' AND project_id = ?";
     $result = $module->queryLogs($sql, [$project_id]);
     $bulks = [];
     while ( $bulk = $result->fetch_assoc()) {
@@ -307,6 +310,12 @@ function getNotificationLog($module) {
     $result = $module->queryLogs($sql, [$project_id]);
     while($notification = $result->fetch_assoc()) {
 
+        $document_id = json_decode($notification["sendit"], false)->document_id;
+        
+        $sql = "SELECT expire_date FROM redcap_sendit_docs WHERE document_id = ?";
+        $senditdocs = $module->query($sql, [$document_id]);
+        $expiration_date = ($senditdocs->fetch_assoc())["expire_date"];
+
         $email = json_decode($notification["email"], false);
 
         $log = [];
@@ -318,6 +327,7 @@ function getNotificationLog($module) {
         $log["subject"] = $email->subject;
         $log["message"] = $email->message;
         $log["type"] = isset($notification["secondary_ref"]) ? "Primary" : "Secondary";
+        $log["expiration_date"] = $expiration_date;
         $notificationLog[] = $log;
     }
 
@@ -378,7 +388,8 @@ function getNotificationLog($module) {
             "email_first_message" => $value["email_first_message"],
             "email_second_subject" => $value["email_second_subject"],
             "email_second_message" => $value["email_second_message"],
-            "email_to" => $value["email_to"]
+            "email_to" => $value["email_to"],
+            "bulk_expiration" => $value["bulk_expiration"]
         );
     }
 
@@ -392,6 +403,7 @@ function getNotificationLog($module) {
         $log["bulk_id"] =  $schedule["bulk_id"];
         $log["record"] = $schedule["record"];
         $log["type"] = ucfirst($schedule["message_type"]);
+        $log["expiration_date"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["bulk_expiration"];;
 
         //$log["email_to"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_to"];
         $log["email_to"] = \Piping::replaceVariablesInLabel(
@@ -404,7 +416,7 @@ function getNotificationLog($module) {
             $log["message"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_first_message"];
         } else {
             $log["subject"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_second_subject"];
-            $log["message"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_Second_message"];
+            $log["message"] = $bulks_by_bulk_id[$schedule["bulk_id"]]["email_second_message"];
         }        
 
         $notificationLog[] = $log;

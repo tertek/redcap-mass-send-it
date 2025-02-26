@@ -583,7 +583,7 @@ class MassSendIt {
     }
 
     loadPreviewEmailAlertRecord(content:string) {
-       alert("Email Message Preview: "+content);
+       alert(content);
     }
 
     // Reload the Survey Invitation Log for another "page" when paging the log
