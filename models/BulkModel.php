@@ -75,10 +75,11 @@ class BulkModel extends ActionModel {
             $bulk->bulk_title = htmlspecialchars_decode($bulk->bulk_title, ENT_QUOTES);
 
             //  format 'Y-M-D_24' to 'M/D/Y_24'
-            $bulk->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_schedule), 'Y-M-D_24', 'M/D/Y_24');
+            //  format dates from database format to user's format, DateTimeRC::get_user_format_full()
+            $bulk->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_schedule), 'Y-M-D_24', DateTimeRC::get_user_format_full());
 
             if(!empty($bulk->bulk_expiration)) {
-                $bulk->bulk_expiration = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_expiration), 'Y-M-D_24', 'M/D/Y_24');
+                $bulk->bulk_expiration = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_expiration), 'Y-M-D_24', DateTimeRC::get_user_format_full());
             }
         }
 

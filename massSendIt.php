@@ -72,6 +72,8 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     public function renderModulePage() {
 
+        dump(\DateTimeRC::get_user_format_full());
+
         //$this->sendNotifications(false);
         
         $this->includeView('page.header');
@@ -97,18 +99,33 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
     }
 
     /**
-     * Calld from view
+     * Called from view
      * 
      */
     public function getBulks() {
-        $fields = (new BulkModel($this))->getFields();        
-        $sql = "SELECT $fields WHERE table_name = 'bulk'";
-        
+
+        //  first get all bulk_ids
+        $sql = "SELECT bulk_id WHERE table_name = 'bulk'";
         $result = $this->queryLogs($sql, []);
-        $bulks = [];
+        $bulk_ids = [];
         while($bulk = $result->fetch_object()) {
-            $bulks[] = $bulk;
+            $bulk_ids[] = $bulk->bulk_id;
         }
+
+        //  then loop over them to read the (decoded) bulks
+        $bulks = [];
+        $bulkModel = new BulkModel($this);
+        foreach ($bulk_ids as $key => $bulk_id) {
+            $bulks[] = $bulkModel->readBulk($bulk_id);
+        }
+        // $fields = (new BulkModel($this))->getFields();        
+        // $sql = "SELECT $fields WHERE table_name = 'bulk'";
+        
+        // $result = $this->queryLogs($sql, []);
+        // $bulks = [];
+        // while($bulk = $result->fetch_object()) {
+        //     $bulks[] = $bulk;
+        // }
         return $bulks;
     }
 

@@ -71,8 +71,8 @@
                                 <i class="far fa-clock"></i> Schedule to send on <?= $bulk->bulk_schedule?>
                             </div>
                             <?php if($bulk->bulk_expiration): ?>
-                            <div class="mt-1" style="color:red;">
-                                <i class="fas fa-hourglass-end"></i> Expires on <?= $bulk->bulk_expiration?>
+                            <div class="mt-1" style="color:#e74c3c;">
+                                <i class="fas fa-hourglass-end"></i> Expiration is setup on <?= $bulk->bulk_expiration?>
                             </div>
                             <?php else:?>
                             <div class="mt-1" style="color:grey">
