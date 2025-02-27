@@ -72,8 +72,6 @@ class massSendIt extends \ExternalModules\AbstractExternalModule {
 
     public function renderModulePage() {
 
-        dump(\DateTimeRC::get_user_format_full());
-
         //$this->sendNotifications(false);
         
         $this->includeView('page.header');
