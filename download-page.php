@@ -59,16 +59,26 @@ if(isset($_GET["cdpi"])) {
 if (isset($_GET["key"]) || !empty($_GET["key"])) {
     $key = $module->escape($_GET["key"]);
 
-    $query = "select r.*, d1.*,
-                (select e.gzipped from redcap_docs d, redcap_docs_to_edocs de, redcap_edocs_metadata e
-                where d.docs_id = de.docs_id and de.doc_id = e.doc_id and d.docs_id = d1.docs_id) as gzipped
-                from redcap_sendit_recipients r, redcap_sendit_docs d1
-                where r.document_id = d1.document_id and r.guid = '".db_escape($key)."'";
-    $result = db_query($query);
-    if (db_num_rows($result))
+    $sql = "select r.*, d1.*,
+            (select e.gzipped from redcap_docs d, redcap_docs_to_edocs de, redcap_edocs_metadata e
+            where d.docs_id = de.docs_id and de.doc_id = e.doc_id and d.docs_id = d1.docs_id) as gzipped
+            from redcap_sendit_recipients r, redcap_sendit_docs d1
+            where r.document_id = d1.document_id and r.guid = ?";
+
+    $result = $module->query($sql, [$key]);
+
+    // $query = "select r.*, d1.*,
+    //             (select e.gzipped from redcap_docs d, redcap_docs_to_edocs de, redcap_edocs_metadata e
+    //             where d.docs_id = de.docs_id and de.doc_id = e.doc_id and d.docs_id = d1.docs_id) as gzipped
+    //             from redcap_sendit_recipients r, redcap_sendit_docs d1
+    //             where r.document_id = d1.document_id and r.guid = '".db_escape($key)."'";
+    //  $result = db_query($query);
+    //  if (db_num_rows($result))
+    if($result->num_rows > 0)
     {
         // Set file attributes in array
-        $row = db_fetch_assoc($result);
+        //  $row = db_fetch_assoc($result);
+        $row = $result->fetch_assoc();
         // Set expiration date
         $expireDate = $row['expire_date'];
         // Determine if file is gzipped
@@ -98,31 +108,37 @@ if ( isset($_POST['submit']) )
         if ($row['send_confirmation'] == 1 && $row['sent_confirmation'] == 0)
         {
             // Get the uploader's email address
-            $sql = "SELECT user_email FROM redcap_user_information WHERE username = '{$row['username']}' limit 1";
-            $uploader_email = db_result(db_query($sql), 0);
+            // $sql = "SELECT user_email FROM redcap_user_information WHERE username = '{$row['username']}' limit 1";            
+            $sql = "SELECT user_email FROM redcap_user_information WHERE username = ? limit 1";
+            $result = $module->query($sql, [$row['username']]);
 
-            // Send confirmation email to the uploader
-            $body =    "<html><body style=\"font-family:arial,helvetica;\">
-                        {$lang['sendit_46']} \"{$row['doc_orig_name']}\" ($doc_size MB){$lang['sendit_47']} {$row['email_address']} {$lang['global_51']}
-                        " . date('l') . ", " . DateTimeRC::format_ts_from_ymd(NOW) . "{$lang['period']}<br><br><br>
-                        {$lang['sendit_48']} <a href=\"" . APP_PATH_WEBROOT_FULL . "\">REDCap Send-It</a>!
-                        </body></html>";
-            $email = new Message();
-            $email->setFrom($project_contact_email);
-            $email->setFromName($GLOBALS['project_contact_name']);
-            $email->setTo($uploader_email);
-            $email->setBody($body);
-            $email->setSubject('[REDCap Send-It] '.$lang['sendit_49']);
-            $email->send();
+            if($result->num_rows > 0) {
+                $uploader_email = ($result->fetch_assoc())["user_email"];
+                // $uploader_email = db_result(db_query($sql), 0);
+    
+                // Send confirmation email to the uploader
+                $body =    "<html><body style=\"font-family:arial,helvetica;\">
+                            {$lang['sendit_46']} \"{$row['doc_orig_name']}\" ($doc_size MB){$lang['sendit_47']} {$row['email_address']} {$lang['global_51']}
+                            " . date('l') . ", " . DateTimeRC::format_ts_from_ymd(NOW) . "{$lang['period']}<br><br><br>
+                            {$lang['sendit_48']} <a href=\"" . APP_PATH_WEBROOT_FULL . "\">REDCap Send-It</a>!
+                            </body></html>";
+                $email = new Message();
+                $email->setFrom($project_contact_email);
+                $email->setFromName($GLOBALS['project_contact_name']);
+                $email->setTo($uploader_email);
+                $email->setBody($body);
+                $email->setSubject('[REDCap Send-It] '.$lang['sendit_49']);
+                $email->send();
+            }
         }
-
-
 
         // Log this download event in the table
         $recipientId = $row['recipient_id'];
-        $querylog = "UPDATE redcap_sendit_recipients SET download_date = '".NOW."', download_count = (download_count+1),
-                        sent_confirmation = 1 WHERE recipient_id = $recipientId";
-        db_query($querylog);
+        // $querylog = "UPDATE redcap_sendit_recipients SET download_date = '".NOW."', download_count = (download_count+1),
+        //                 sent_confirmation = 1 WHERE recipient_id = $recipientId";
+        $sql = "UPDATE redcap_sendit_recipients SET download_date = '".NOW."',      download_count = (download_count+1), sent_confirmation = 1 WHERE recipient_id = ? ";
+        $result = $module->query($sql, [$recipientId]);    
+        //  db_query($querylog);
 
         // Set flag to determine if we're pulling the file from the file system or redcap_docs table (legacy storage for File Repository)
         $pullFromFileSystem = ($row['location'] == '3' || $row['location'] == '1');
@@ -131,11 +147,14 @@ if ( isset($_POST['submit']) )
         if ($row['location'] == '2')
         {
             // Determine if in redcap_docs table or file system and then download it
-            $query = "SELECT d.*, e.doc_id as edoc_id FROM redcap_docs d LEFT JOIN redcap_docs_to_edocs e
-                        ON e.docs_id = d.docs_id LEFT JOIN redcap_edocs_metadata m ON m.doc_id = e.doc_id
-                        WHERE d.docs_id = " . $row['docs_id'];
-            $result = db_query($query);
-            $row = db_fetch_assoc($result);
+            // $query = "SELECT d.*, e.doc_id as edoc_id FROM redcap_docs d LEFT JOIN redcap_docs_to_edocs e
+            //             ON e.docs_id = d.docs_id LEFT JOIN redcap_edocs_metadata m ON m.doc_id = e.doc_id
+            //             WHERE d.docs_id = " . $row['docs_id'];
+            $sql = "SELECT d.*, e.doc_id as edoc_id FROM redcap_docs d LEFT JOIN redcap_docs_to_edocs e ON e.docs_id = d.docs_id LEFT JOIN redcap_edocs_metadata m ON m.doc_id = e.doc_id WHERE d.docs_id = ? ";
+            $result = $module->query($sql, [$row['docs_id']]);     
+            // $result = db_query($query);
+            $row = $result->fetch_assoc();
+            //  $row = db_fetch_assoc($result);
 
             // Check location
             if ($row['edoc_id'] === NULL) {
@@ -162,10 +181,13 @@ if ( isset($_POST['submit']) )
             // Retrieve values for loc=3 (since loc=1 values are already stored in $row) or for loc=2 if stored in file system
             if ($row['location'] == '3' || $row['location'] == '2')
             {
-                $query = "SELECT project_id, mime_type as doc_type, doc_name as doc_orig_name, stored_name as doc_name
-                            FROM redcap_edocs_metadata WHERE doc_id = " . $row['docs_id'];
-                $result = db_query($query);
-                $row = db_fetch_assoc($result);
+                // $query = "SELECT project_id, mime_type as doc_type, doc_name as doc_orig_name, stored_name as doc_name
+                //             FROM redcap_edocs_metadata WHERE doc_id = " . $row['docs_id'];
+                $sql = "SELECT project_id, mime_type as doc_type, doc_name as doc_orig_name, stored_name as doc_name FROM redcap_edocs_metadata WHERE doc_id = ?";
+                $result = $module->query($sql, [$row['docs_id']]);
+                //  $result = db_query($query);
+                $row = $result->fetch_assoc();
+                //  $row = db_fetch_assoc($result);
             }
 
             // Retrieve from EDOC_PATH location (LOCAL STORAGE)
