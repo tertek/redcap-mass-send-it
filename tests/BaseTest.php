@@ -150,8 +150,8 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
       // Create folder and define global folder_id
       $folder_name = 'test_'.time();
       $sql = "insert into redcap_docs_folders (project_id, name, parent_folder_id, dag_id, role_id) values 
-              (".TEST_PROJECT_1.", '".$folder_name."', "."NULL".", "."NULL".", "."NULL".")";
-      if (!db_query($sql)) {
+              (?, ?, "."NULL".", "."NULL".", "."NULL".")";
+      if (!ExternalModules::query($sql, [TEST_PROJECT_1, $folder_name])) {
           throw new Exception("unknown error occurred");
       }
       define('TEST_FOLDER_ID_1', db_insert_id());
@@ -180,12 +180,15 @@ abstract class BaseTest extends \ExternalModules\ModuleBaseTest{
         \REDCap::addFileToRepository($doc_id, TEST_PROJECT_1,"Uploaded for Mass Send-It Testing.");
 
         //  get docs_id
-        $sql = "select docs_id from redcap_docs_to_edocs where doc_id = $doc_id";
-        $docs_id = db_result(db_query($sql), 0);
+        $sql = "select docs_id from redcap_docs_to_edocs where doc_id = ?";
+        $result = ExternalModules::query($sql, [$doc_id]);
+        $docs_id = $result->fetch_assoc() ["docs_id"];
+        //$docs_id = db_result(db_query($sql), 0);
 
         //  add file to folder
-        $sql2 = "insert into redcap_docs_folders_files (docs_id, folder_id) values ($docs_id, ".TEST_FOLDER_ID_1.")";
-        db_query($sql2);
+        $sql2 = "insert into redcap_docs_folders_files (docs_id, folder_id) values (?, ?)";
+        ExternalModules::query($sql2, [$docs_id, TEST_FOLDER_ID_1]);
+        //db_query($sql2);
 
       }
       
