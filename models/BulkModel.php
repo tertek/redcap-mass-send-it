@@ -74,6 +74,14 @@ class BulkModel extends ActionModel {
 
             $bulk->bulk_title = htmlspecialchars_decode($bulk->bulk_title, ENT_QUOTES);
 
+            if(!empty($bulk->bulk_recipients_logic)){
+                $bulk->bulk_recipients_logic = htmlspecialchars_decode($bulk->bulk_recipients_logic, ENT_QUOTES);
+            }
+
+            if(!empty($bulk->email_display)) {
+                $bulk->email_display = htmlspecialchars_decode($bulk->email_display, ENT_QUOTES);                
+            }
+
             //  format 'Y-M-D_24' to 'M/D/Y_24'
             //  format dates from database format to user's format, DateTimeRC::get_user_format_full()
             $bulk->bulk_schedule = DateTimeRC::format_user_datetime(htmlspecialchars_decode($bulk->bulk_schedule), 'Y-M-D_24', DateTimeRC::get_user_format_full());
