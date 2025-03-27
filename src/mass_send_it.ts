@@ -167,6 +167,10 @@ class MassSendIt {
 
         let that = this;
 
+        //  initiate TineMCE
+        tinymce.remove();
+        that.initTinyMCE();        
+
         //  Setup DateTimerPicker
         that.initDateTimePicker()
 
@@ -216,8 +220,8 @@ class MassSendIt {
 
         //  Default on-show actions
         $('[name=external-modules-configure-modal-1]').on('show.bs.modal', function(e) {            
-            tinymce.remove();
-            that.initTinyMCE();                        
+            // tinymce.remove();
+            // that.initTinyMCE();
             $('#errMsgContainerModal').hide();
             $('#errMsgContainerModal-2').hide();
         });
@@ -249,7 +253,7 @@ class MassSendIt {
             }
 
             JSO_STPH_BULK_SEND.ajax("bulk", payload).then((json:string)=>{
-                //console.log(json)
+                console.log(JSON.parse(json))
                 let response = JSON.parse(json)
 
                 if(response.error) {
@@ -295,6 +299,7 @@ class MassSendIt {
                 //  email first
                 $('[name=email_first_subject]').val(bulk.email_first_subject)
                 $('[name=email_first_message]').val(bulk.email_first_message)
+                tinymce.get('email_first_message').setContent(bulk.email_first_message);
 
                 // password
                 if(bulk.use_random_pass === "1") {
@@ -312,6 +317,7 @@ class MassSendIt {
                     $('[field=email-subject-second]').show()
                     $('[name=email_second_subject]').val(bulk.email_second_subject)
                     $('[name=email_second_message]').val(bulk.email_second_message)
+                    tinymce.get('email_first_message').setContent(bulk.email_second_message);
                     $('[name=email_second_subject]').prop('required',true); 
                     $('[name=email_second_message]').prop('required',true);
                 } else {
@@ -359,6 +365,8 @@ class MassSendIt {
             //  email first
             $('[name=email_first_subject]').val(form_defaults.email_first_subject)
             $('[name=email_first_message]').val(form_defaults.email_first_message)
+            tinymce.get('email_first_message').setContent(form_defaults.email_first_message);
+
 
             //  password
             $('[name=password_type]#password_type_random').prop("checked", true)
@@ -370,6 +378,7 @@ class MassSendIt {
             $('[name=use_second_email]#use_second_email_yes').prop("checked", true)
             $('[name=email_second_subject]').val(form_defaults.email_second_subject)
             $('[name=email_second_message]').val(form_defaults.email_second_message)
+            tinymce.get('email_second_message').setContent(form_defaults.email_second_message);
 
             $('#external-modules-configure-modal-1').modal('show')
         }
