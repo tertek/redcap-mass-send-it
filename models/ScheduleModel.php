@@ -51,6 +51,8 @@ class ScheduleModel extends ActionModel {
         $schedules = [];
         $numIgnored = 0;
 
+        if(empty($this->project_id)) throw new Exception("project_id cannot be empty!");
+
         //  Get bulk
         $bulkModel = new BulkModel($this->module, $this->project_id);
         $bulk = $bulkModel->readBulk($bulk_id, false);

@@ -63,6 +63,8 @@ class NotificationModel extends ActionModel {
         //  Send Email
         list($sent, $error) = $this->sendEmail($email, $dry);
 
+        if(empty($schedule->project_id)) throw new Exception("project_id cannot be empty!");
+
         //  Set notification
         $notification = array(
             "project_id" => $schedule->project_id,

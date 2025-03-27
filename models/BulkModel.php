@@ -94,15 +94,17 @@ class BulkModel extends ActionModel {
         return $bulk;
     }
 
-    public function createBulk($validated) {
-        
+    public function createBulk($validated) { 
+              
         if($this->readBulk($validated->bulk_id) !== false) {
             throw new Exception("bulk_id $validated->bulk_id already exists. Cannot create bulk with same bulk_id!");
         }
 
+        if(empty($this->project_id)) throw new Exception("project_id cannot be empty!");
+
         $basic_params = array(
             "table_name" => self::TABLE_NAME,
-            "project_id" => $validated->project_id,
+            "project_id" => $this->project_id,
             "record" => null
         );
 
@@ -114,7 +116,7 @@ class BulkModel extends ActionModel {
         );        
 
         //  merge all params
-        $merged_params = array_merge($basic_params, $bulk_params, $not_implemented_params);
+        $merged_params = array_merge($basic_params, $bulk_params, $not_implemented_params);     //dump($merged_params);
 
         $created = $this->module->log("bulk_create", $merged_params);
 
